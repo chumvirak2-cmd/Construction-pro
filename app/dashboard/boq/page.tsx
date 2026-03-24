@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import * as XLSX from 'xlsx'
-import jsPDF from 'jspdf'
 
 export default function BOQ() {
   const [system, setSystem] = useState('')
@@ -172,30 +171,6 @@ export default function BOQ() {
     setResult({ items: itemsWithTotals, grandTotal })
   }
 
-  const downloadPDF = () => {
-    if (!result || !result.items) return
-
-    const doc = new jsPDF()
-    doc.text('BOQ Calculation Result', 10, 10)
-    let y = 20
-
-    result.items.forEach((item: any, index: number) => {
-      if (y > 270) { // New page if needed
-        doc.addPage()
-        y = 10
-      }
-      const desc = item[mappedColumns.description!] || 'N/A'
-      const qty = item[mappedColumns.qty!] || 0
-      const price = item[mappedColumns.unitPrice!] || 0
-      const total = item.calculatedTotal || 0
-      doc.text(`${index + 1}. ${desc} - Qty: ${qty}, Price: ${price}, Total: ${total}`, 10, y)
-      y += 10
-    })
-
-    doc.text(`Grand Total: ${result.grandTotal}`, 10, y + 10)
-    doc.save('boq-result.pdf')
-  }
-
   const downloadExcel = () => {
     if (!result || !result.items) return
 
@@ -328,12 +303,9 @@ export default function BOQ() {
               </tr>
             </tfoot>
           </table>
-          <div className="flex gap-2 mt-4">
+          <div className="mt-4">
             <button onClick={downloadExcel} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
               📥 Download Excel
-            </button>
-            <button onClick={downloadPDF} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-              📄 Download PDF
             </button>
           </div>
         </div>

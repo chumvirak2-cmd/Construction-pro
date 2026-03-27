@@ -5,8 +5,39 @@ import { Worker, WorkerRole, AttendanceRecord } from '../../types'
 import { workersDb, attendanceDb } from '../../lib/db'
 
 const roleOptions: WorkerRole[] = [
-  'Electrician', 'Plumber', 'HVAC Technician', 'IT Engineer',
-  'Site Engineer', 'Accountant', 'Admin', 'Stock Manager', 'Foreman', 'General Worker'
+  // Construction & MEP Trades
+  'Electrician', 'Plumber', 'HVAC Technician', 'Welder', 'Carpenter',
+  'Mason', 'Painter', 'Roofer', 'Iron Worker', 'Pipe Fitter',
+  'Scaffolder', 'Crane Operator', 'Heavy Equipment Operator', 'Tile Setter',
+  'Glazier', 'Drywall Installer', 'Flooring Installer',
+  // Engineering & Technical
+  'Site Engineer', 'Structural Engineer', 'Civil Engineer', 'MEP Engineer',
+  'Quality Control Engineer', 'Safety Engineer', 'IT Engineer', 'Surveyor',
+  'Geotechnical Engineer', 'Estimation Engineer',
+  // Project Management & Supervision
+  'Project Manager', 'Project Coordinator', 'Construction Manager',
+  'Site Supervisor', 'Foreman', 'General Foreman', 'Supervisor',
+  // Real Estate Development
+  'Real Estate Developer', 'Land Acquisition Manager', 'Property Manager',
+  'Leasing Agent', 'Real Estate Agent', 'Real Estate Broker',
+  'Valuation Specialist', 'Market Analyst', 'Land Surveyor',
+  // Design & Architecture
+  'Architect', 'Interior Designer', 'Landscape Architect', 'Drafter',
+  'BIM Modeler', '3D Visualizer',
+  // Administrative & Support
+  'Accountant', 'Admin', 'HR Manager', 'Procurement Officer', 'Stock Manager',
+  'Warehouse Keeper', 'Document Controller', 'Secretary', 'Receptionist',
+  'Legal Advisor', 'Contract Administrator',
+  // Sales & Marketing
+  'Sales Manager', 'Marketing Manager', 'Sales Agent', 'Digital Marketing Specialist',
+  // Operations & Maintenance
+  'Facility Manager', 'Maintenance Technician', 'Building Inspector',
+  'Security Guard', 'Cleaner', 'Landscaper',
+  // General Labor
+  'General Worker', 'Laborer', 'Helper',
+  // IT & Technology
+  'Web Developer', 'Mobile App Developer', 'Software Developer',
+  'UI/UX Designer', 'IT Support', 'Database Administrator', 'Network Engineer'
 ]
 
 const statusColors = {

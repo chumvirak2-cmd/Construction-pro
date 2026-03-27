@@ -1,4 +1,4 @@
-import { Project, Worker, InventoryItem, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats } from '../types'
+import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats } from '../types'
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -265,3 +265,222 @@ export const authDb = {
     return newUser
   }
 }
+
+// Seed Data - MEP System Items
+const mepElectricalItems: Omit<InventoryItem, 'id' | 'createdAt'>[] = [
+  { name: 'Main Switch Board (MSB)', category: 'Electrical', subCategory: 'Main Switch Board', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 3500, description: 'Low voltage main switch board' },
+  { name: 'Distribution Board (DB)', category: 'Electrical', subCategory: 'Distribution Board', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 450, description: 'Distribution board 12-way' },
+  { name: 'MCB 32A 3P', category: 'Electrical', subCategory: 'Circuit Breaker', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 15, description: 'Miniature circuit breaker 32A 3-pole' },
+  { name: 'MCB 20A 1P', category: 'Electrical', subCategory: 'Circuit Breaker', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 5, description: 'Miniature circuit breaker 20A 1-pole' },
+  { name: 'RCCB 40A 30mA', category: 'Electrical', subCategory: 'Circuit Breaker', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 25, description: 'Residual current circuit breaker' },
+  { name: 'Cable THW 2.5mm²', category: 'Electrical', subCategory: 'Cable/Wiring', unit: 'rolls', quantity: 0, minQuantity: 5, unitPrice: 85, description: 'Single core THW cable 2.5mm² 100m/roll' },
+  { name: 'Cable THW 4mm²', category: 'Electrical', subCategory: 'Cable/Wiring', unit: 'rolls', quantity: 0, minQuantity: 5, unitPrice: 120, description: 'Single core THW cable 4mm² 100m/roll' },
+  { name: 'Cable THW 10mm²', category: 'Electrical', subCategory: 'Cable/Wiring', unit: 'rolls', quantity: 0, minQuantity: 3, unitPrice: 280, description: 'Single core THW cable 10mm² 100m/roll' },
+  { name: 'Cable THW 16mm²', category: 'Electrical', subCategory: 'Cable/Wiring', unit: 'rolls', quantity: 0, minQuantity: 2, unitPrice: 420, description: 'Single core THW cable 16mm² 100m/roll' },
+  { name: 'PVC Conduit 20mm', category: 'Electrical', subCategory: 'Conduit & Trunking', unit: 'pieces', quantity: 0, minQuantity: 50, unitPrice: 1.5, description: 'PVC conduit pipe 20mm x 3m' },
+  { name: 'PVC Conduit 25mm', category: 'Electrical', subCategory: 'Conduit & Trunking', unit: 'pieces', quantity: 0, minQuantity: 30, unitPrice: 2, description: 'PVC conduit pipe 25mm x 3m' },
+  { name: 'Trunking 50x25mm', category: 'Electrical', subCategory: 'Conduit & Trunking', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 4, description: 'PVC trunking 50x25mm x 2m' },
+  { name: 'LED Panel Light 600x600', category: 'Electrical', subCategory: 'Lighting', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 35, description: 'LED panel light 40W 600x600mm' },
+  { name: 'LED Downlight 10W', category: 'Electrical', subCategory: 'Lighting', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 8, description: 'LED recessed downlight 10W' },
+  { name: 'LED Floodlight 50W', category: 'Electrical', subCategory: 'Lighting', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 25, description: 'LED floodlight 50W IP65' },
+  { name: 'Single Switch Socket', category: 'Electrical', subCategory: 'Switches & Sockets', unit: 'pieces', quantity: 0, minQuantity: 30, unitPrice: 4, description: 'Single switched socket outlet' },
+  { name: 'Double Switch Socket', category: 'Electrical', subCategory: 'Switches & Sockets', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 6, description: 'Double switched socket outlet' },
+  { name: 'Light Switch 1-Gang', category: 'Electrical', subCategory: 'Switches & Sockets', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 3, description: 'One gang one way switch' },
+  { name: 'Light Switch 2-Gang', category: 'Electrical', subCategory: 'Switches & Sockets', unit: 'pieces', quantity: 0, minQuantity: 15, unitPrice: 4, description: 'Two gang one way switch' },
+  { name: 'Generator 100kVA', category: 'Electrical', subCategory: 'Generator', unit: 'set', quantity: 0, minQuantity: 0, unitPrice: 15000, description: 'Diesel generator 100kVA standby' },
+  { name: 'UPS 3kVA', category: 'Electrical', subCategory: 'UPS', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 800, description: 'Online UPS 3kVA rack mount' },
+]
+
+const mepPlumbingItems: Omit<InventoryItem, 'id' | 'createdAt'>[] = [
+  { name: 'PPR Pipe 20mm', category: 'Plumbing', subCategory: 'Piping (PPR/PVC)', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 4, description: 'PPR hot water pipe 20mm x 4m' },
+  { name: 'PPR Pipe 25mm', category: 'Plumbing', subCategory: 'Piping (PPR/PVC)', unit: 'pieces', quantity: 0, minQuantity: 15, unitPrice: 6, description: 'PPR hot water pipe 25mm x 4m' },
+  { name: 'PPR Pipe 32mm', category: 'Plumbing', subCategory: 'Piping (PPR/PVC)', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 9, description: 'PPR hot water pipe 32mm x 4m' },
+  { name: 'PVC Pipe 4" (110mm)', category: 'Plumbing', subCategory: 'Piping (PPR/PVC)', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 8, description: 'PVC drain pipe 110mm x 6m' },
+  { name: 'PVC Pipe 2" (50mm)', category: 'Plumbing', subCategory: 'Piping (PPR/PVC)', unit: 'pieces', quantity: 0, minQuantity: 15, unitPrice: 3, description: 'PVC drain pipe 50mm x 6m' },
+  { name: 'Gate Valve 25mm', category: 'Plumbing', subCategory: 'Valve', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 12, description: 'Brass gate valve 25mm' },
+  { name: 'Ball Valve 20mm', category: 'Plumbing', subCategory: 'Valve', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 8, description: 'Brass ball valve 20mm' },
+  { name: 'Check Valve 25mm', category: 'Plumbing', subCategory: 'Valve', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 15, description: 'Non-return valve 25mm' },
+  { name: 'Water Tank 1000L', category: 'Plumbing', subCategory: 'Water Tank', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 250, description: 'HDPE water storage tank 1000 liter' },
+  { name: 'Water Tank 2000L', category: 'Plumbing', subCategory: 'Water Tank', unit: 'set', quantity: 0, minQuantity: 0, unitPrice: 400, description: 'HDPE water storage tank 2000 liter' },
+  { name: 'Water Pump 1HP', category: 'Plumbing', subCategory: 'Water Pump', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 180, description: 'Centrifugal water pump 1HP' },
+  { name: 'Pressure Pump 1.5HP', category: 'Plumbing', subCategory: 'Water Pump', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 320, description: 'Automatic pressure pump 1.5HP' },
+  { name: 'Water Heater 20L', category: 'Plumbing', subCategory: 'Hot Water System', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 150, description: 'Electric water heater 20 liter' },
+  { name: 'WC Complete Set', category: 'Plumbing', subCategory: 'Sanitary Fixture', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 120, description: 'Water closet with tank and seat' },
+  { name: 'Wash Basin', category: 'Plumbing', subCategory: 'Sanitary Fixture', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 60, description: 'Ceramic wash basin with pedestal' },
+  { name: 'Shower Set', category: 'Plumbing', subCategory: 'Sanitary Fixture', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 80, description: 'Shower mixer set with head' },
+  { name: 'Kitchen Faucet', category: 'Plumbing', subCategory: 'Sanitary Fixture', unit: 'pieces', quantity: 0, minQuantity: 2, unitPrice: 45, description: 'Single lever kitchen faucet' },
+  { name: 'Floor Drain 4"', category: 'Plumbing', subCategory: 'Drainage System', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 5, description: 'Stainless steel floor drain 4 inch' },
+  { name: 'Sump Pump', category: 'Plumbing', subCategory: 'Water Pump', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 250, description: 'Submersible sump pump 0.5HP' },
+]
+
+const mepHVACItems: Omit<InventoryItem, 'id' | 'createdAt'>[] = [
+  { name: 'Split AC 9000 BTU', category: 'HVAC', subCategory: 'Split Unit AC', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 450, description: 'Split type air conditioner 9000 BTU' },
+  { name: 'Split AC 12000 BTU', category: 'HVAC', subCategory: 'Split Unit AC', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 550, description: 'Split type air conditioner 12000 BTU' },
+  { name: 'Split AC 18000 BTU', category: 'HVAC', subCategory: 'Split Unit AC', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 750, description: 'Split type air conditioner 18000 BTU' },
+  { name: 'Split AC 24000 BTU', category: 'HVAC', subCategory: 'Split Unit AC', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 1100, description: 'Split type air conditioner 24000 BTU' },
+  { name: 'Ceiling Cassette 36000 BTU', category: 'HVAC', subCategory: 'Central AC', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 2200, description: 'Ceiling cassette AC 36000 BTU' },
+  { name: 'VRF Outdoor Unit 10HP', category: 'HVAC', subCategory: 'VRF System', unit: 'set', quantity: 0, minQuantity: 0, unitPrice: 8500, description: 'VRF outdoor unit 10HP' },
+  { name: 'Exhaust Fan 10"', category: 'HVAC', subCategory: 'Exhaust Fan', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 25, description: 'Wall exhaust fan 10 inch' },
+  { name: 'Exhaust Fan 12"', category: 'HVAC', subCategory: 'Exhaust Fan', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 35, description: 'Wall exhaust fan 12 inch' },
+  { name: 'Ceiling Exhaust Fan', category: 'HVAC', subCategory: 'Exhaust Fan', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 30, description: 'Ceiling mounted exhaust fan with light' },
+  { name: 'Flexible Duct 6"', category: 'HVAC', subCategory: 'Ventilation Duct', unit: 'rolls', quantity: 0, minQuantity: 3, unitPrice: 45, description: 'Flexible aluminum duct 6 inch x 10m' },
+  { name: 'Duct Insulation 1"', category: 'HVAC', subCategory: 'Insulation', unit: 'rolls', quantity: 0, minQuantity: 5, unitPrice: 60, description: 'NBR foam insulation 1 inch x 1.5m x 50m' },
+  { name: 'Pipe Insulation 3/4"', category: 'HVAC', subCategory: 'Insulation', unit: 'rolls', quantity: 0, minQuantity: 5, unitPrice: 35, description: 'NBR foam pipe insulation 3/4 inch x 2m' },
+  { name: 'Copper Pipe 3/8"', category: 'HVAC', subCategory: 'Ventilation Duct', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 12, description: 'Copper pipe 3/8 inch x 15m coil' },
+  { name: 'Copper Pipe 1/2"', category: 'HVAC', subCategory: 'Ventilation Duct', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 18, description: 'Copper pipe 1/2 inch x 15m coil' },
+  { name: 'Copper Pipe 5/8"', category: 'HVAC', subCategory: 'Ventilation Duct', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 25, description: 'Copper pipe 5/8 inch x 15m coil' },
+]
+
+const mepELVItems: Omit<InventoryItem, 'id' | 'createdAt'>[] = [
+  { name: 'IP Camera 2MP', category: 'ELV', subCategory: 'CCTV', unit: 'pieces', quantity: 0, minQuantity: 4, unitPrice: 65, description: 'Network IP camera 2MP IR 30m' },
+  { name: 'IP Camera 4MP', category: 'ELV', subCategory: 'CCTV', unit: 'pieces', quantity: 0, minQuantity: 4, unitPrice: 95, description: 'Network IP camera 4MP IR 50m' },
+  { name: 'NVR 8-Channel', category: 'ELV', subCategory: 'CCTV', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 280, description: 'Network video recorder 8-channel' },
+  { name: 'NVR 16-Channel', category: 'ELV', subCategory: 'CCTV', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 450, description: 'Network video recorder 16-channel' },
+  { name: 'HDD 4TB Surveillance', category: 'ELV', subCategory: 'CCTV', unit: 'pieces', quantity: 0, minQuantity: 2, unitPrice: 120, description: 'Surveillance hard drive 4TB' },
+  { name: 'Access Control Reader', category: 'ELV', subCategory: 'Access Control', unit: 'pieces', quantity: 0, minQuantity: 2, unitPrice: 150, description: 'RFID card reader for door access' },
+  { name: 'Electric Door Lock', category: 'ELV', subCategory: 'Access Control', unit: 'pieces', quantity: 0, minQuantity: 2, unitPrice: 85, description: 'Magnetic lock 280kg holding force' },
+  { name: 'Cat6 Cable UTP', category: 'ELV', subCategory: 'Data Network', unit: 'rolls', quantity: 0, minQuantity: 3, unitPrice: 95, description: 'Cat6 UTP cable 305m/roll' },
+  { name: 'Cat6 Patch Panel 24P', category: 'ELV', subCategory: 'Data Network', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 45, description: '24 port Cat6 patch panel' },
+  { name: 'Network Switch 8P', category: 'ELV', subCategory: 'Data Network', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 55, description: '8-port gigabit network switch' },
+  { name: 'Network Switch 24P PoE', category: 'ELV', subCategory: 'Data Network', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 280, description: '24-port PoE managed switch' },
+  { name: 'Wall Mount Rack 12U', category: 'ELV', subCategory: 'Data Network', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 85, description: 'Wall mount server rack 12U' },
+  { name: 'PA Speaker 6W', category: 'ELV', subCategory: 'PA System', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 18, description: 'Ceiling speaker 6W for PA system' },
+  { name: 'Fire Alarm Panel 2-Zone', category: 'Fire Protection', subCategory: 'Fire Alarm System', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 350, description: 'Conventional fire alarm panel 2-zone' },
+  { name: 'Smoke Detector', category: 'Fire Protection', subCategory: 'Smoke Detector', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 20, description: 'Conventional smoke detector' },
+  { name: 'Heat Detector', category: 'Fire Protection', subCategory: 'Smoke Detector', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 22, description: 'Fixed temperature heat detector' },
+  { name: 'Fire Extinguisher 4kg ABC', category: 'Fire Protection', subCategory: 'Fire Extinguisher', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 35, description: 'Dry powder fire extinguisher 4kg' },
+  { name: 'Fire Extinguisher 9kg ABC', category: 'Fire Protection', subCategory: 'Fire Extinguisher', unit: 'pieces', quantity: 0, minQuantity: 3, unitPrice: 55, description: 'Dry powder fire extinguisher 9kg' },
+  { name: 'Fire Hose Cabinet', category: 'Fire Protection', subCategory: 'Fire Hydrant', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 250, description: 'Fire hose cabinet with hose reel' },
+]
+
+const buildingMaterialItems: Omit<InventoryItem, 'id' | 'createdAt'>[] = [
+  // Concrete & Cement
+  { name: 'Portland Cement Type I', category: 'Concrete & Cement', unit: 'bags', quantity: 0, minQuantity: 20, unitPrice: 8, description: 'Portland cement 50kg bag' },
+  { name: 'Ready-Mix Concrete 210', category: 'Concrete & Cement', unit: 'm³', quantity: 0, minQuantity: 0, unitPrice: 65, description: 'Ready-mix concrete grade 210 (C18)' },
+  { name: 'Ready-Mix Concrete 280', category: 'Concrete & Cement', unit: 'm³', quantity: 0, minQuantity: 0, unitPrice: 75, description: 'Ready-mix concrete grade 280 (C25)' },
+  { name: 'Ready-Mix Concrete 350', category: 'Concrete & Cement', unit: 'm³', quantity: 0, minQuantity: 0, unitPrice: 85, description: 'Ready-mix concrete grade 350 (C30)' },
+  // Steel & Metal
+  { name: 'Rebar DB10 (6m)', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 50, unitPrice: 4, description: 'Deformed bar 10mm diameter x 6m' },
+  { name: 'Rebar DB12 (6m)', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 50, unitPrice: 6, description: 'Deformed bar 12mm diameter x 6m' },
+  { name: 'Rebar DB16 (6m)', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 30, unitPrice: 9, description: 'Deformed bar 16mm diameter x 6m' },
+  { name: 'Rebar DB20 (6m)', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 14, description: 'Deformed bar 20mm diameter x 6m' },
+  { name: 'Rebar DB25 (6m)', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 22, description: 'Deformed bar 25mm diameter x 6m' },
+  { name: 'Wire Mesh 2.4x6m', category: 'Steel & Metal', unit: 'sheets', quantity: 0, minQuantity: 20, unitPrice: 12, description: 'Welded wire mesh 4mm spacing 200mm' },
+  { name: 'Wire Tie (Bundle)', category: 'Steel & Metal', unit: 'kg', quantity: 0, minQuantity: 10, unitPrice: 2.5, description: 'Annealed binding wire tie 1.2mm' },
+  { name: 'Steel I-Beam 150x75mm', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 120, description: 'I-beam 150x75mm x 6m' },
+  { name: 'Steel H-Beam 200x200mm', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 2, unitPrice: 250, description: 'H-beam 200x200mm x 6m' },
+  { name: 'Metal Sheet Roofing 0.35mm', category: 'Steel & Metal', unit: 'sheets', quantity: 0, minQuantity: 20, unitPrice: 15, description: 'Galvanized roofing sheet 0.35mm x 3m' },
+  { name: 'L-Bracket Steel', category: 'Steel & Metal', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 2, description: 'Galvanized L-bracket 50x50mm' },
+  // Sand & Aggregate
+  { name: 'River Sand (Truck)', category: 'Sand & Aggregate', unit: 'm³', quantity: 0, minQuantity: 0, unitPrice: 30, description: 'Fine river sand per cubic meter' },
+  { name: 'Coarse Aggregate 3/4"', category: 'Sand & Aggregate', unit: 'm³', quantity: 0, minQuantity: 0, unitPrice: 35, description: 'Crushed stone aggregate 20mm per cubic meter' },
+  { name: 'Fine Aggregate 3/8"', category: 'Sand & Aggregate', unit: 'm³', quantity: 0, minQuantity: 0, unitPrice: 32, description: 'Crushed stone aggregate 10mm per cubic meter' },
+  { name: 'Red Clay Soil', category: 'Sand & Aggregate', unit: 'm³', quantity: 0, minQuantity: 0, unitPrice: 20, description: 'Red clay soil for backfill' },
+  // Bricks & Blocks
+  { name: 'Concrete Block 7x14x29cm', category: 'Bricks & Blocks', unit: 'pieces', quantity: 0, minQuantity: 100, unitPrice: 0.8, description: 'Hollow concrete block 7cm' },
+  { name: 'Concrete Block 10x19x39cm', category: 'Bricks & Blocks', unit: 'pieces', quantity: 0, minQuantity: 100, unitPrice: 1.2, description: 'Hollow concrete block 10cm' },
+  { name: 'Concrete Block 15x19x39cm', category: 'Bricks & Blocks', unit: 'pieces', quantity: 0, minQuantity: 100, unitPrice: 1.5, description: 'Hollow concrete block 15cm' },
+  { name: 'Solid Block 10x19x39cm', category: 'Bricks & Blocks', unit: 'pieces', quantity: 0, minQuantity: 50, unitPrice: 1.8, description: 'Solid concrete block 10cm' },
+  { name: 'Red Clay Brick', category: 'Bricks & Blocks', unit: 'pieces', quantity: 0, minQuantity: 100, unitPrice: 0.3, description: 'Standard red clay brick' },
+  { name: 'AAC Block 10x20x60cm', category: 'Bricks & Blocks', unit: 'pieces', quantity: 0, minQuantity: 50, unitPrice: 3.5, description: 'Autoclaved aerated concrete block 10cm' },
+  // Wood & Timber
+  { name: 'Pine Timber 2x4" (4m)', category: 'Wood & Timber', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 12, description: 'Sawn pine timber 2x4 inch x 4m' },
+  { name: 'Pine Timber 2x6" (4m)', category: 'Wood & Timber', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 18, description: 'Sawn pine timber 2x6 inch x 4m' },
+  { name: 'Plywood 12mm 4x8ft', category: 'Wood & Timber', unit: 'sheets', quantity: 0, minQuantity: 10, unitPrice: 22, description: 'Structural plywood 12mm 1220x2440mm' },
+  { name: 'Plywood 18mm 4x8ft', category: 'Wood & Timber', unit: 'sheets', quantity: 0, minQuantity: 5, unitPrice: 32, description: 'Structural plywood 18mm 1220x2440mm' },
+  { name: 'Formwork Plywood 12mm', category: 'Wood & Timber', unit: 'sheets', quantity: 0, minQuantity: 20, unitPrice: 18, description: 'Concrete formwork plywood 12mm' },
+  { name: 'Wood Plank 1x10" (4m)', category: 'Wood & Timber', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 10, description: 'Sawn wood plank 1x10 inch x 4m' },
+  // Roofing
+  { name: 'Concrete Roof Tile', category: 'Roofing', unit: 'pieces', quantity: 0, minQuantity: 100, unitPrice: 1.8, description: 'Concrete roof tile standard color' },
+  { name: 'Ridge Cap Tile', category: 'Roofing', unit: 'pieces', quantity: 0, minQuantity: 10, unitPrice: 3, description: 'Concrete ridge cap tile' },
+  { name: 'Roof Felt Underlayment', category: 'Roofing', unit: 'rolls', quantity: 0, minQuantity: 3, unitPrice: 45, description: 'Bituminous roofing felt 40m²/roll' },
+  { name: 'Fiber Cement Sheet 6mm', category: 'Roofing', unit: 'sheets', quantity: 0, minQuantity: 10, unitPrice: 12, description: 'Fiber cement flat sheet 6mm 1220x2440mm' },
+  { name: 'Ridge Ventilator', category: 'Roofing', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 8, description: 'Plastic ridge ventilator 600mm' },
+  // Doors & Windows
+  { name: 'Steel Door Frame (Single)', category: 'Doors & Windows', unit: 'set', quantity: 0, minQuantity: 2, unitPrice: 45, description: 'Galvanized steel door frame single leaf' },
+  { name: 'Steel Door Frame (Double)', category: 'Doors & Windows', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 75, description: 'Galvanized steel door frame double leaf' },
+  { name: 'Wooden Door Panel', category: 'Doors & Windows', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 80, description: 'Solid wood door panel 900x2100mm' },
+  { name: 'Aluminum Window Frame', category: 'Doors & Windows', unit: 'set', quantity: 0, minQuantity: 5, unitPrice: 120, description: 'Aluminum sliding window frame 1.2x1.2m' },
+  { name: 'Aluminum Casement Window', category: 'Doors & Windows', unit: 'set', quantity: 0, minQuantity: 3, unitPrice: 150, description: 'Aluminum casement window 1.2x1.2m' },
+  { name: 'Safety Glass 6mm', category: 'Glass & Glazing', unit: 'm²', quantity: 0, minQuantity: 5, unitPrice: 25, description: 'Tempered safety glass 6mm' },
+  { name: 'Clear Glass 5mm', category: 'Glass & Glazing', unit: 'm²', quantity: 0, minQuantity: 5, unitPrice: 18, description: 'Clear float glass 5mm' },
+  // Tiles & Flooring
+  { name: 'Ceramic Floor Tile 60x60cm', category: 'Tiles & Flooring', unit: 'm²', quantity: 0, minQuantity: 20, unitPrice: 12, description: 'Ceramic floor tile 60x60cm' },
+  { name: 'Ceramic Wall Tile 30x60cm', category: 'Tiles & Flooring', unit: 'm²', quantity: 0, minQuantity: 15, unitPrice: 10, description: 'Ceramic wall tile 30x60cm' },
+  { name: 'Porcelain Tile 60x60cm', category: 'Tiles & Flooring', unit: 'm²', quantity: 0, minQuantity: 10, unitPrice: 22, description: 'Polished porcelain tile 60x60cm' },
+  { name: 'Tile Adhesive 20kg', category: 'Tiles & Flooring', unit: 'bags', quantity: 0, minQuantity: 10, unitPrice: 8, description: 'Tile adhesive powder 20kg bag' },
+  { name: 'Tile Grout 5kg', category: 'Tiles & Flooring', unit: 'bags', quantity: 0, minQuantity: 5, unitPrice: 6, description: 'Tile grout 5kg bag' },
+  { name: 'Screed Mix 40kg', category: 'Tiles & Flooring', unit: 'bags', quantity: 0, minQuantity: 10, unitPrice: 5, description: 'Floor screed mix 40kg' },
+  // Paint & Coating
+  { name: 'Interior Paint 5L', category: 'Paint & Coating', unit: 'buckets', quantity: 0, minQuantity: 5, unitPrice: 25, description: 'Interior wall paint 5 liter' },
+  { name: 'Exterior Paint 5L', category: 'Paint & Coating', unit: 'buckets', quantity: 0, minQuantity: 5, unitPrice: 30, description: 'Exterior weatherproof paint 5 liter' },
+  { name: 'Primer Sealer 5L', category: 'Paint & Coating', unit: 'buckets', quantity: 0, minQuantity: 3, unitPrice: 20, description: 'Wall primer sealer 5 liter' },
+  { name: 'Waterproof Coating 5L', category: 'Paint & Coating', unit: 'buckets', quantity: 0, minQuantity: 3, unitPrice: 35, description: 'Liquid waterproof membrane 5 liter' },
+  { name: 'Emulsion Paint 5L', category: 'Paint & Coating', unit: 'buckets', quantity: 0, minQuantity: 5, unitPrice: 18, description: 'Water-based emulsion paint 5 liter' },
+  // Insulation
+  { name: 'Fiberglass Insulation 50mm', category: 'Insulation', unit: 'rolls', quantity: 0, minQuantity: 5, unitPrice: 55, description: 'Fiberglass roll insulation 50mm 6m²/roll' },
+  { name: 'Roof Insulation 10mm', category: 'Insulation', unit: 'rolls', quantity: 0, minQuantity: 3, unitPrice: 45, description: 'Reflective roof insulation 10mm 30m²/roll' },
+  { name: 'Waterproof Membrane Roll', category: 'Insulation', unit: 'rolls', quantity: 0, minQuantity: 2, unitPrice: 120, description: 'Bituminous waterproof membrane 4mm x 10m' },
+  // Hardware & Fasteners
+  { name: 'Drywall Screw 25mm', category: 'Hardware & Fasteners', unit: 'boxes', quantity: 0, minQuantity: 5, unitPrice: 8, description: 'Self-tapping drywall screw 25mm 1000pcs/box' },
+  { name: 'Drywall Screw 40mm', category: 'Hardware & Fasteners', unit: 'boxes', quantity: 0, minQuantity: 5, unitPrice: 10, description: 'Self-tapping drywall screw 40mm 1000pcs/box' },
+  { name: 'Concrete Nail 2"', category: 'Hardware & Fasteners', unit: 'kg', quantity: 0, minQuantity: 5, unitPrice: 3, description: 'Hardened concrete nail 2 inch' },
+  { name: 'Wood Screw 1.5"', category: 'Hardware & Fasteners', unit: 'boxes', quantity: 0, minQuantity: 3, unitPrice: 6, description: 'Phillips wood screw 1.5 inch 200pcs/box' },
+  { name: 'Anchor Bolt M10', category: 'Hardware & Fasteners', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 1.5, description: 'Expansion anchor bolt M10 x 80mm' },
+  { name: 'Anchor Bolt M12', category: 'Hardware & Fasteners', unit: 'pieces', quantity: 0, minQuantity: 20, unitPrice: 2.5, description: 'Expansion anchor bolt M12 x 100mm' },
+  { name: 'Epoxy Adhesive 500ml', category: 'Hardware & Fasteners', unit: 'pieces', quantity: 0, minQuantity: 5, unitPrice: 15, description: 'Two-part epoxy adhesive 500ml' },
+  // Plumbing Fixtures
+  { name: 'Bathtub Standard', category: 'Plumbing Fixtures', unit: 'set', quantity: 0, minQuantity: 0, unitPrice: 350, description: 'Acrylic bathtub standard 1700mm' },
+  { name: 'Bathroom Vanity 60cm', category: 'Plumbing Fixtures', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 180, description: 'Wall-mount bathroom vanity 60cm' },
+  { name: 'Urinal Wall-Mount', category: 'Plumbing Fixtures', unit: 'set', quantity: 0, minQuantity: 1, unitPrice: 85, description: 'Wall-mount urinal with flush valve' },
+]
+
+// Seed data helpers
+export const seedDataDb = {
+  hasSeeded: (): boolean => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('cp_seeded') === 'true'
+  },
+  seedAll: (): number => {
+    let count = 0
+    const allItems = [
+      ...mepElectricalItems,
+      ...mepPlumbingItems,
+      ...mepHVACItems,
+      ...mepELVItems,
+      ...buildingMaterialItems
+    ]
+    const existing = inventoryDb.getAll()
+    const existingNames = new Set(existing.map(i => i.name))
+    for (const item of allItems) {
+      if (!existingNames.has(item.name)) {
+        inventoryDb.create(item as any)
+        count++
+      }
+    }
+    localStorage.setItem('cp_seeded', 'true')
+    return count
+  },
+  seedByCategory: (category: InventoryCategory): number => {
+    let count = 0
+    const categoryItems = allSeedItems.filter(i => i.category === category)
+    const existing = inventoryDb.getAll()
+    const existingNames = new Set(existing.map(i => i.name))
+    for (const item of categoryItems) {
+      if (!existingNames.has(item.name)) {
+        inventoryDb.create(item as any)
+        count++
+      }
+    }
+    return count
+  },
+  getAllSeedItems: () => allSeedItems
+}
+
+const allSeedItems = [
+  ...mepElectricalItems,
+  ...mepPlumbingItems,
+  ...mepHVACItems,
+  ...mepELVItems,
+  ...buildingMaterialItems
+]

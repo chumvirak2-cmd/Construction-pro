@@ -2,17 +2,38 @@
 
 import { useState, useEffect } from 'react'
 import { InventoryItem, InventoryCategory, PurchaseOrder } from '../../types'
-import { inventoryDb } from '../../lib/db'
+import { inventoryDb, seedDataDb } from '../../lib/db'
 import * as XLSX from 'xlsx'
 
-const categoryOptions: InventoryCategory[] = ['HVAC', 'Electrical', 'Plumbing', 'ELV', 'Tools', 'Safety', 'Other']
-const unitOptions = ['pieces', 'meters', 'liters', 'kg', 'boxes', 'sets', 'rolls', 'bags']
+const categoryOptions: InventoryCategory[] = [
+  'HVAC', 'Electrical', 'Plumbing', 'ELV', 'Fire Protection', 'Gas System',
+  'Concrete & Cement', 'Steel & Metal', 'Wood & Timber', 'Roofing',
+  'Doors & Windows', 'Tiles & Flooring', 'Paint & Coating', 'Insulation',
+  'Sand & Aggregate', 'Bricks & Blocks', 'Glass & Glazing', 'Hardware & Fasteners',
+  'Plumbing Fixtures', 'Tools', 'Safety', 'Other'
+]
+const unitOptions = ['pieces', 'meters', 'liters', 'kg', 'boxes', 'sets', 'rolls', 'bags', 'sheets', 'm²', 'm³', 'buckets', 'set']
 
 const categoryColors: Record<InventoryCategory, string> = {
   HVAC: 'bg-blue-100 text-blue-800',
   Electrical: 'bg-yellow-100 text-yellow-800',
   Plumbing: 'bg-green-100 text-green-800',
   ELV: 'bg-purple-100 text-purple-800',
+  'Fire Protection': 'bg-red-100 text-red-800',
+  'Gas System': 'bg-orange-100 text-orange-800',
+  'Concrete & Cement': 'bg-stone-100 text-stone-800',
+  'Steel & Metal': 'bg-slate-100 text-slate-800',
+  'Wood & Timber': 'bg-amber-100 text-amber-800',
+  Roofing: 'bg-teal-100 text-teal-800',
+  'Doors & Windows': 'bg-cyan-100 text-cyan-800',
+  'Tiles & Flooring': 'bg-lime-100 text-lime-800',
+  'Paint & Coating': 'bg-pink-100 text-pink-800',
+  Insulation: 'bg-indigo-100 text-indigo-800',
+  'Sand & Aggregate': 'bg-yellow-50 text-yellow-700',
+  'Bricks & Blocks': 'bg-red-50 text-red-700',
+  'Glass & Glazing': 'bg-sky-100 text-sky-800',
+  'Hardware & Fasteners': 'bg-gray-100 text-gray-800',
+  'Plumbing Fixtures': 'bg-emerald-100 text-emerald-800',
   Tools: 'bg-orange-100 text-orange-800',
   Safety: 'bg-red-100 text-red-800',
   Other: 'bg-gray-100 text-gray-800'
@@ -25,6 +46,7 @@ export default function Inventory() {
   const [filterCategory, setFilterCategory] = useState<InventoryCategory | 'all'>('all')
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null)
+  const [seeding, setSeeding] = useState(false)
 
   const [form, setForm] = useState({
     name: '',
@@ -158,6 +180,15 @@ export default function Inventory() {
 
   const lowStockItems = items.filter(i => i.minQuantity > 0 && i.quantity < i.minQuantity)
 
+  const handleSeedData = async () => {
+    setSeeding(true)
+    const count = seedDataDb.seedAll()
+    setSeeding(false)
+    if (count > 0) {
+      loadItems()
+    }
+  }
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
   }
@@ -239,11 +270,20 @@ export default function Inventory() {
               >
                 + Add Item
               </button>
+              {items.length === 0 && (
+                <button
+                  onClick={handleSeedData}
+                  disabled={seeding}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                >
+                  {seeding ? 'Loading...' : ' Load Sample Data'}
+                </button>
+              )}
             </div>
           </div>
 
           {/* Category Summary */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
             {categorySummary.map(cat => (
               <div key={cat.category} className="bg-white rounded-lg p-3 shadow text-center">
                 <div className={`inline-block px-2 py-1 rounded text-xs font-medium ${categoryColors[cat.category as InventoryCategory]}`}>

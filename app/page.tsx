@@ -21,7 +21,10 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">CONSTRUCTION PRO</h1>
+        <div className="flex flex-col items-center mb-6">
+          <img src="/logo.png" alt="Construction Pro" className="w-52 h-52 mb-4 rounded-full" />
+          <h1 className="text-2xl font-bold">CONSTRUCTION PRO</h1>
+        </div>
         <h2 className="text-xl mb-4 text-center">Sign In</h2>
         <form onSubmit={handleLogin}>
           <div className="mb-4">

@@ -12,7 +12,82 @@ export interface User {
 
 // Project Types
 export type ProjectStatus = 'planning' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled'
-export type MEPSystem = 'HVAC' | 'Electrical' | 'Plumbing' | 'ELV'
+
+export type BuildingType =
+  | 'Villa'
+  | 'Townhouse'
+  | 'Shophouse'
+  | 'Apartment'
+  | 'Condominium'
+  | 'Office Building'
+  | 'Shopping Mall'
+  | 'Warehouse'
+  | 'Factory'
+  | 'Hospital'
+  | 'School'
+  | 'Hotel'
+  | 'Resort'
+  | 'Mixed-Use'
+  | 'Other'
+
+export type MEPSystem =
+  | 'HVAC'
+  | 'Electrical'
+  | 'Plumbing'
+  | 'ELV'
+  | 'Fire Protection'
+  | 'Gas System'
+  | 'Solar/Energy'
+  | 'BMS/Controls'
+  | 'Lift & Escalator'
+
+export type MEPSubCategory =
+  // Mechanical (HVAC)
+  | 'Split Unit AC'
+  | 'Central AC'
+  | 'VRF System'
+  | 'Chiller'
+  | 'AHU'
+  | 'FCU'
+  | 'Exhaust Fan'
+  | 'Ventilation Duct'
+  | 'Insulation'
+  // Electrical
+  | 'Main Switch Board'
+  | 'Distribution Board'
+  | 'Transformer'
+  | 'Generator'
+  | 'Cable/Wiring'
+  | 'Lighting'
+  | 'Switches & Sockets'
+  | 'UPS'
+  | 'Circuit Breaker'
+  | 'Conduit & Trunking'
+  // Plumbing
+  | 'Water Tank'
+  | 'Water Pump'
+  | 'Piping (PPR/PVC)'
+  | 'Valve'
+  | 'Sanitary Fixture'
+  | 'Hot Water System'
+  | 'Drainage System'
+  // Fire Protection
+  | 'Fire Extinguisher'
+  | 'Fire Sprinkler'
+  | 'Fire Alarm System'
+  | 'Fire Hydrant'
+  | 'Smoke Detector'
+  // ELV
+  | 'CCTV'
+  | 'Access Control'
+  | 'PA System'
+  | 'Data Network'
+  | 'Telephone System'
+  | 'TV Antenna'
+  // Gas
+  | 'LPG Piping'
+  | 'Natural Gas Piping'
+  | 'Gas Detector'
 
 export interface Project {
   id: string
@@ -20,10 +95,12 @@ export interface Project {
   description: string
   client: string
   location: string
+  buildingType: BuildingType
   startDate: string
   endDate?: string
   status: ProjectStatus
   systems: MEPSystem[]
+  itSystems?: string[]
   budget: number
   actualCost: number
   manager: string
@@ -44,16 +121,96 @@ export interface ProjectTask {
 
 // Worker Types
 export type WorkerRole = 
+  // Construction & MEP Trades
   | 'Electrician' 
   | 'Plumber' 
   | 'HVAC Technician' 
-  | 'IT Engineer' 
-  | 'Site Engineer' 
-  | 'Accountant' 
-  | 'Admin' 
-  | 'Stock Manager' 
-  | 'Foreman' 
+  | 'Welder'
+  | 'Carpenter'
+  | 'Mason'
+  | 'Painter'
+  | 'Roofer'
+  | 'Iron Worker'
+  | 'Pipe Fitter'
+  | 'Scaffolder'
+  | 'Crane Operator'
+  | 'Heavy Equipment Operator'
+  | 'Tile Setter'
+  | 'Glazier'
+  | 'Drywall Installer'
+  | 'Flooring Installer'
+  // Engineering & Technical
+  | 'Site Engineer'
+  | 'Structural Engineer'
+  | 'Civil Engineer'
+  | 'MEP Engineer'
+  | 'Quality Control Engineer'
+  | 'Safety Engineer'
+  | 'IT Engineer'
+  | 'Surveyor'
+  | 'Geotechnical Engineer'
+  | 'Estimation Engineer'
+  // Project Management & Supervision
+  | 'Project Manager'
+  | 'Project Coordinator'
+  | 'Construction Manager'
+  | 'Site Supervisor'
+  | 'Foreman'
+  | 'General Foreman'
+  | 'Supervisor'
+  // Real Estate Development
+  | 'Real Estate Developer'
+  | 'Land Acquisition Manager'
+  | 'Property Manager'
+  | 'Leasing Agent'
+  | 'Real Estate Agent'
+  | 'Real Estate Broker'
+  | 'Valuation Specialist'
+  | 'Market Analyst'
+  | 'Land Surveyor'
+  // Design & Architecture
+  | 'Architect'
+  | 'Interior Designer'
+  | 'Landscape Architect'
+  | 'Drafter'
+  | 'BIM Modeler'
+  | '3D Visualizer'
+  // Administrative & Support
+  | 'Accountant'
+  | 'Admin'
+  | 'HR Manager'
+  | 'Procurement Officer'
+  | 'Stock Manager'
+  | 'Warehouse Keeper'
+  | 'Document Controller'
+  | 'Secretary'
+  | 'Receptionist'
+  | 'Legal Advisor'
+  | 'Contract Administrator'
+  // Sales & Marketing
+  | 'Sales Manager'
+  | 'Marketing Manager'
+  | 'Sales Agent'
+  | 'Digital Marketing Specialist'
+  // Operations & Maintenance
+  | 'Facility Manager'
+  | 'Maintenance Technician'
+  | 'Building Inspector'
+  | 'Security Guard'
+  | 'Cleaner'
+  | 'Landscaper'
+  // General Labor
   | 'General Worker'
+  | 'Laborer'
+  | 'Helper'
+  // IT & Technology
+  | 'Web Developer'
+  | 'Mobile App Developer'
+  | 'Software Developer'
+  | 'UI/UX Designer'
+  | 'IT Support'
+  | 'Database Administrator'
+  | 'Network Engineer'
 
 export interface Worker {
   id: string
@@ -98,12 +255,37 @@ export interface PayrollRecord {
 }
 
 // Inventory Types
-export type InventoryCategory = 'HVAC' | 'Electrical' | 'Plumbing' | 'ELV' | 'Tools' | 'Safety' | 'Other'
+export type InventoryCategory =
+  // MEP Categories
+  | 'HVAC'
+  | 'Electrical'
+  | 'Plumbing'
+  | 'ELV'
+  | 'Fire Protection'
+  | 'Gas System'
+  // Building Material Categories
+  | 'Concrete & Cement'
+  | 'Steel & Metal'
+  | 'Wood & Timber'
+  | 'Roofing'
+  | 'Doors & Windows'
+  | 'Tiles & Flooring'
+  | 'Paint & Coating'
+  | 'Insulation'
+  | 'Sand & Aggregate'
+  | 'Bricks & Blocks'
+  | 'Glass & Glazing'
+  | 'Hardware & Fasteners'
+  | 'Plumbing Fixtures'
+  | 'Tools'
+  | 'Safety'
+  | 'Other'
 
 export interface InventoryItem {
   id: string
   name: string
   category: InventoryCategory
+  subCategory?: MEPSubCategory
   description?: string
   quantity: number
   unit: string

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 
 export default function DashboardLayout({
@@ -10,8 +10,15 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobile, setIsMobile] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const handleLogout = () => {
+    localStorage.clear()
+    sessionStorage.clear()
+    router.push('/')
+  }
 
   useEffect(() => {
     const checkMobile = () => {
@@ -69,10 +76,11 @@ export default function DashboardLayout({
     <div className="flex h-screen">
       {/* Sidebar */}
       <div className="w-64 bg-gray-800 text-white relative flex flex-col">
-        <div className="p-4">
-          <Link href="/dashboard">
-            <div className="font-bold text-xl">Construction Pro</div>
-            <div className="text-xs text-gray-400">MEP ERP System</div>
+        <div className="p-4 flex flex-col items-center text-center border-b border-gray-700">
+          <Link href="/dashboard" className="flex flex-col items-center">
+            <img src="/logo.png" alt="Construction Pro" className="w-28 h-28 rounded-full mb-2" />
+            <div className="font-bold text-lg">Construction Pro</div>
+            <div className="text-xs text-gray-400">AI Agent</div>
           </Link>
         </div>
         <nav className="flex-1 mt-4">
@@ -106,6 +114,14 @@ export default function DashboardLayout({
               <Link href="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-700">
                 Settings
               </Link>
+            </li>
+            <li className="border-t border-gray-700 mt-4 pt-2">
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 hover:bg-gray-700 text-red-400 flex items-center gap-2"
+              >
+                <span>🚪</span> Logout
+              </button>
             </li>
           </ul>
         </nav>

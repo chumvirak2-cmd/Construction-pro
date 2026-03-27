@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Project, ProjectStatus, MEPSystem } from '../../types'
+import { Project, ProjectStatus, MEPSystem, BuildingType } from '../../types'
 import { projectsDb } from '../../lib/db'
 
 const statusColors: Record<ProjectStatus, string> = {
@@ -12,7 +12,8 @@ const statusColors: Record<ProjectStatus, string> = {
   cancelled: 'bg-red-100 text-red-800'
 }
 
-const systemOptions: MEPSystem[] = ['HVAC', 'Electrical', 'Plumbing', 'ELV']
+const systemOptions: MEPSystem[] = ['HVAC', 'Electrical', 'Plumbing', 'ELV', 'Fire Protection', 'Gas System', 'Solar/Energy', 'BMS/Controls', 'Lift & Escalator']
+const buildingTypeOptions: BuildingType[] = ['Villa', 'Townhouse', 'Shophouse', 'Apartment', 'Condominium', 'Office Building', 'Shopping Mall', 'Warehouse', 'Factory', 'Hospital', 'School', 'Hotel', 'Resort', 'Mixed-Use', 'Other']
 const statusOptions: ProjectStatus[] = ['planning', 'in_progress', 'on_hold', 'completed', 'cancelled']
 
 export default function Projects() {
@@ -28,10 +29,12 @@ export default function Projects() {
     description: '',
     client: '',
     location: '',
+    buildingType: 'Villa' as BuildingType,
     startDate: '',
     endDate: '',
     status: 'planning' as ProjectStatus,
     systems: [] as MEPSystem[],
+    itSystems: [] as string[],
     budget: 0,
     actualCost: 0,
     manager: ''
@@ -63,10 +66,12 @@ export default function Projects() {
       description: '',
       client: '',
       location: '',
+      buildingType: 'Villa',
       startDate: '',
       endDate: '',
       status: 'planning',
       systems: [],
+      itSystems: [],
       budget: 0,
       actualCost: 0,
       manager: ''
@@ -81,10 +86,12 @@ export default function Projects() {
       description: project.description,
       client: project.client,
       location: project.location,
+      buildingType: project.buildingType || 'Villa',
       startDate: project.startDate.split('T')[0],
       endDate: project.endDate?.split('T')[0] || '',
       status: project.status,
       systems: project.systems,
+      itSystems: project.itSystems || [],
       budget: project.budget,
       actualCost: project.actualCost,
       manager: project.manager
@@ -219,6 +226,18 @@ export default function Projects() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
+                    <label className="block text-sm font-medium mb-1">Building Type *</label>
+                    <select
+                      value={form.buildingType}
+                      onChange={(e) => setForm({ ...form, buildingType: e.target.value as BuildingType })}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    >
+                      {buildingTypeOptions.map(bt => (
+                        <option key={bt} value={bt}>{bt}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium mb-1">Start Date *</label>
                     <input
                       type="date"
@@ -228,15 +247,16 @@ export default function Projects() {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">End Date</label>
-                    <input
-                      type="date"
-                      value={form.endDate}
-                      onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    />
-                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={form.endDate}
+                    onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -307,6 +327,29 @@ export default function Projects() {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium mb-2">IT & Technology</label>
+                  <div className="flex flex-wrap gap-3">
+                    {['Web Development', 'Mobile App Development', 'UI/UX Design', 'Database & CMS', 'E-Commerce', 'SEO & Analytics', 'Hosting & Domain', 'API Integration'].map(it => (
+                      <label key={it} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={form.itSystems.includes(it)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setForm({ ...form, itSystems: [...form.itSystems, it] })
+                            } else {
+                              setForm({ ...form, itSystems: form.itSystems.filter(s => s !== it) })
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <span>{it}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
@@ -352,12 +395,16 @@ export default function Projects() {
                   <span className="font-medium">{project.client}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-gray-500">Building:</span>
+                  <span className="font-medium">{project.buildingType || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-gray-500">Budget:</span>
                   <span className="font-medium">{formatCurrency(project.budget)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Systems:</span>
-                  <span className="font-medium">{project.systems.join(', ')}</span>
+                  <span className="font-medium text-right">{project.systems.join(', ')}</span>
                 </div>
               </div>
               <div className="flex gap-2 mt-4 pt-4 border-t">
@@ -384,6 +431,7 @@ export default function Projects() {
               <tr>
                 <th className="text-left p-4 font-medium">Project</th>
                 <th className="text-left p-4 font-medium">Client</th>
+                <th className="text-left p-4 font-medium">Building Type</th>
                 <th className="text-left p-4 font-medium">Status</th>
                 <th className="text-left p-4 font-medium">Budget</th>
                 <th className="text-left p-4 font-medium">Systems</th>
@@ -398,6 +446,11 @@ export default function Projects() {
                     <div className="text-sm text-gray-500">{project.location}</div>
                   </td>
                   <td className="p-4">{project.client}</td>
+                  <td className="p-4">
+                    <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-medium">
+                      {project.buildingType || 'N/A'}
+                    </span>
+                  </td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[project.status]}`}>
                       {project.status.replace('_', ' ').toUpperCase()}

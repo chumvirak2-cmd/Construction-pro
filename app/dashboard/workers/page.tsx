@@ -393,7 +393,7 @@ export default function Workers() {
                         <input
                           type="number"
                           value={form.hourlyRate}
-                          onChange={(e) => setForm({ ...form, hourlyRate: parseFloat(e.target.value) })}
+                          onChange={(e) => setForm({ ...form, hourlyRate: parseFloat(e.target.value) || 0 })}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                         />
                       </div>
@@ -402,7 +402,7 @@ export default function Workers() {
                         <input
                           type="number"
                           value={form.dailyRate}
-                          onChange={(e) => setForm({ ...form, dailyRate: parseFloat(e.target.value) })}
+                          onChange={(e) => setForm({ ...form, dailyRate: parseFloat(e.target.value) || 0 })}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                         />
                       </div>
@@ -411,7 +411,7 @@ export default function Workers() {
                         <input
                           type="number"
                           value={form.overtimeRate}
-                          onChange={(e) => setForm({ ...form, overtimeRate: parseFloat(e.target.value) })}
+                          onChange={(e) => setForm({ ...form, overtimeRate: parseFloat(e.target.value) || 0 })}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                         />
                       </div>
@@ -574,7 +574,7 @@ export default function Workers() {
                   type="number"
                   step="0.000001"
                   value={siteCenter.lat}
-                  onChange={(e) => setSiteCenter({ ...siteCenter, lat: parseFloat(e.target.value) })}
+                  onChange={(e) => setSiteCenter({ ...siteCenter, lat: parseFloat(e.target.value) || 0 })}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 />
               </div>
@@ -584,7 +584,7 @@ export default function Workers() {
                   type="number"
                   step="0.000001"
                   value={siteCenter.lng}
-                  onChange={(e) => setSiteCenter({ ...siteCenter, lng: parseFloat(e.target.value) })}
+                  onChange={(e) => setSiteCenter({ ...siteCenter, lng: parseFloat(e.target.value) || 0 })}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 />
               </div>
@@ -593,7 +593,7 @@ export default function Workers() {
                 <input
                   type="number"
                   value={siteRadiusMeters}
-                  onChange={(e) => setSiteRadiusMeters(parseInt(e.target.value))}
+                  onChange={(e) => setSiteRadiusMeters(parseInt(e.target.value) || 0)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 />
               </div>

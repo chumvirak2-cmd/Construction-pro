@@ -94,193 +94,163 @@ export default function Dashboard() {
   ]
 
   return (
-    <div>
+    <div className="pb-20 md:pb-6">
       {/* Welcome Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-600">Welcome to AI Agent</p>
+      <div className="mb-4 md:mb-6 text-center">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800">Dashboard</h1>
+        <p className="text-gray-500 text-sm">Welcome to Construction Pro AI Smart Agent</p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Stats Cards - Stacked on mobile, 2x2 grid on tablet, 4 cols on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
         {statCards.map((card, index) => (
-          <Link key={index} href={card.link} className="block">
-            <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6">
+          <Link key={index} href={card.link} className="block group">
+            <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-4 border-l-4 border-transparent hover:border-l-4 group-hover:scale-[1.02]" style={{ borderLeftColor: card.color.replace('bg-', '').includes('blue') ? '#3b82f6' : card.color.replace('bg-', '').includes('green') ? '#22c55e' : card.color.replace('bg-', '').includes('orange') ? '#f97316' : '#a855f7' }}>
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">{card.title}</p>
-                  <p className="text-3xl font-bold mt-1">{card.value}</p>
-                  <p className="text-xs text-gray-400 mt-1">{card.subtext}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">{card.title}</p>
+                  <p className="text-2xl md:text-3xl font-bold mt-1 text-gray-800">{card.value}</p>
+                  <p className="text-xs text-gray-400 mt-1 truncate">{card.subtext}</p>
                 </div>
-                <div className={`${card.color} text-white text-3xl p-3 rounded-xl`}>
+                <div className={`${card.color} text-white text-xl p-2.5 rounded-xl shadow-sm flex-shrink-0 ml-3`}>
                   {card.icon}
                 </div>
               </div>
-              <p className="text-sm text-blue-600 mt-3 font-medium">{card.label} →</p>
+              <p className="text-xs text-blue-600 mt-3 font-medium opacity-0 group-hover:opacity-100 transition-opacity">{card.label} →</p>
             </div>
           </Link>
         ))}
       </div>
 
-      {/* Financial Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white">
-          <p className="text-blue-100">Total Project Budget</p>
-          <p className="text-3xl font-bold mt-2">{formatCurrency(stats.totalRevenue)}</p>
-          <p className="text-blue-100 text-sm mt-2">Across {stats.totalProjects} projects</p>
+      {/* Financial Summary - Stacked on mobile, 3 cols on desktop */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
+        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-sm">
+          <p className="text-blue-100 text-xs uppercase tracking-wider font-medium">Total Project Budget</p>
+          <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(stats.totalRevenue)}</p>
+          <p className="text-blue-200 text-xs mt-1">{stats.totalProjects} projects</p>
         </div>
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white">
-          <p className="text-green-100">Monthly Labor Cost</p>
-          <p className="text-3xl font-bold mt-2">{formatCurrency(stats.monthlyExpenses)}</p>
-          <p className="text-green-100 text-sm mt-2">{stats.activeWorkers} active workers</p>
+        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-sm">
+          <p className="text-green-100 text-xs uppercase tracking-wider font-medium">Monthly Labor Cost</p>
+          <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(stats.monthlyExpenses)}</p>
+          <p className="text-green-200 text-xs mt-1">{stats.activeWorkers} active workers</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
-          <p className="text-purple-100">Inventory Value</p>
-          <p className="text-3xl font-bold mt-2">{formatCurrency(0)}</p>
-          <p className="text-purple-100 text-sm mt-2">{stats.totalInventory} items in stock</p>
+        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-sm">
+          <p className="text-purple-100 text-xs uppercase tracking-wider font-medium">Inventory Value</p>
+          <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(0)}</p>
+          <p className="text-purple-200 text-xs mt-1">{stats.totalInventory} items in stock</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {quickActions.map((action, index) => (
-              <Link
-                key={index}
-                href={action.href}
-                className={`flex items-center gap-3 p-4 rounded-lg ${action.color} hover:opacity-80 transition-opacity`}
-              >
-                <span className="text-2xl">{action.icon}</span>
-                <span className="font-medium">{action.label}</span>
-              </Link>
-            ))}
-          </div>
+      {/* Quick Actions - Full width on mobile, side section on desktop */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-4 md:mb-6">
+        <h2 className="text-base font-bold mb-3 text-gray-800">Quick Actions</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+          {quickActions.map((action, index) => (
+            <Link
+              key={index}
+              href={action.href}
+              className={`flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 p-3 rounded-lg ${action.color} hover:opacity-80 transition-all hover:shadow-sm`}
+            >
+              <span className="text-xl">{action.icon}</span>
+              <span className="font-medium text-sm text-center md:text-left">{action.label}</span>
+            </Link>
+          ))}
         </div>
+      </div>
 
+      {/* Two Column Layout on Desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6">
         {/* Recent Projects */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Recent Projects</h2>
-            <Link href="/dashboard/projects" className="text-sm text-blue-600 hover:underline">
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-bold text-gray-800">Recent Projects</h2>
+            <Link href="/dashboard/projects" className="text-xs text-blue-600 hover:underline font-medium">
               View All →
             </Link>
           </div>
           {recentProjects.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {recentProjects.map((project, index) => (
-                <div key={index} className="p-3 border rounded-lg hover:bg-gray-50">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="font-medium">{project.name}</div>
-                      <div className="text-sm text-gray-500">{project.client}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium">{formatCurrency(project.budget)}</div>
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        project.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                        project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {project.status.replace('_', ' ')}
-                      </span>
+                <Link key={index} href="/dashboard/projects" className="block">
+                  <div className="p-3 border rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">{project.name}</div>
+                        <div className="text-xs text-gray-500 truncate">{project.client}</div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-semibold text-sm text-gray-800">{formatCurrency(project.budget)}</div>
+                        <span className={`text-xs px-2 py-0.5 rounded-full inline-block mt-1 ${
+                          project.status === 'in_progress' ? 'bg-blue-100 text-blue-700' :
+                          project.status === 'completed' ? 'bg-green-100 text-green-700' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {project.status.replace('_', ' ')}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-4xl mb-2">📋</p>
-              <p>No projects yet</p>
-              <Link href="/dashboard/projects" className="text-blue-600 hover:underline text-sm">
+            <div className="text-center py-6 text-gray-500">
+              <p className="text-3xl mb-2">📋</p>
+              <p className="text-sm">No projects yet</p>
+              <Link href="/dashboard/projects" className="text-blue-600 hover:underline text-xs font-medium">
                 Create your first project
               </Link>
             </div>
           )}
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Low Stock Alert */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">⚠️ Low Stock Alerts</h2>
-            <Link href="/dashboard/inventory" className="text-sm text-blue-600 hover:underline">
-              View Inventory →
-            </Link>
-          </div>
-          {lowStockItems.length > 0 ? (
-            <div className="space-y-3">
-              {lowStockItems.map((item, index) => (
-                <div key={index} className="p-3 border border-red-200 rounded-lg bg-red-50">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="font-medium">{item.name}</div>
-                      <div className="text-sm text-gray-500">{item.category}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-red-600">{item.quantity} / {item.minQuantity}</div>
-                      <div className="text-xs text-gray-500">{item.unit}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-4xl mb-2">✅</p>
-              <p>All items are well stocked</p>
-            </div>
-          )}
-        </div>
 
         {/* Recent Workers */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Recent Workers</h2>
-            <Link href="/dashboard/workers" className="text-sm text-blue-600 hover:underline">
+        <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-bold text-gray-800">Recent Workers</h2>
+            <Link href="/dashboard/workers" className="text-xs text-blue-600 hover:underline font-medium">
               View All →
             </Link>
           </div>
-            {recentWorkers.length > 0 ? (
-            <div className="space-y-3">
+          {recentWorkers.length > 0 ? (
+            <div className="space-y-2">
               {recentWorkers.map((worker, index) => (
-                <div key={index} className="p-3 border rounded-lg hover:bg-gray-50">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      {worker.photo ? (
-                        <img src={worker.photo} alt={worker.name} className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm">
-                          👷
+                <Link key={index} href="/dashboard/workers" className="block">
+                  <div className="p-3 border rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors">
+                    <div className="flex justify-between items-center gap-2">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {worker.photo ? (
+                          <img src={worker.photo} alt={worker.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-sm flex-shrink-0">
+                            👷
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-medium text-sm truncate">{worker.name}</div>
+                          <div className="text-xs text-gray-500 truncate">{worker.role}</div>
                         </div>
-                      )}
-                      <div>
-                        <div className="font-medium">{worker.name}</div>
-                        <div className="text-sm text-gray-500">{worker.role}</div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <span className={`text-xs px-2 py-0.5 rounded-full inline-block ${
+                          worker.status === 'active' ? 'bg-green-100 text-green-700' :
+                          worker.status === 'on_leave' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {worker.status}
+                        </span>
+                        <div className="text-xs font-semibold mt-1 text-gray-700">{formatCurrency(worker.dailyRate)}/day</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        worker.status === 'active' ? 'bg-green-100 text-green-800' :
-                        worker.status === 'on_leave' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {worker.status}
-                      </span>
-                      <div className="text-sm font-medium mt-1">{formatCurrency(worker.dailyRate)}/day</div>
-                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <p className="text-4xl mb-2">👷</p>
-              <p>No workers yet</p>
-              <Link href="/dashboard/workers" className="text-blue-600 hover:underline text-sm">
+            <div className="text-center py-6 text-gray-500">
+              <p className="text-3xl mb-2">👷</p>
+              <p className="text-sm">No workers yet</p>
+              <Link href="/dashboard/workers" className="text-blue-600 hover:underline text-xs font-medium">
                 Add your first worker
               </Link>
             </div>
@@ -288,25 +258,60 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* System Info */}
-      <div className="mt-8 bg-gray-50 rounded-lg p-4">
-        <h3 className="font-semibold mb-2">Quick Stats</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <span className="text-gray-500">MEP Systems:</span>
-            <span className="ml-2 font-medium">HVAC, Electrical, Plumbing, ELV</span>
+      {/* Low Stock Alert */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-4 md:mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-bold text-gray-800">⚠️ Low Stock Alerts</h2>
+          <Link href="/dashboard/inventory" className="text-xs text-blue-600 hover:underline font-medium">
+            View Inventory →
+          </Link>
+        </div>
+        {lowStockItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
+            {lowStockItems.map((item, index) => (
+              <Link key={index} href="/dashboard/inventory" className="block">
+                <div className="p-3 border border-red-200 rounded-lg bg-red-50 hover:bg-red-100 transition-colors">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm truncate">{item.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{item.category}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="font-semibold text-red-600 text-sm">{item.quantity} / {item.minQuantity}</div>
+                      <div className="text-xs text-gray-500">{item.unit}</div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
-          <div>
-            <span className="text-gray-500">Categories:</span>
-            <span className="ml-2 font-medium">{stats.totalInventory}</span>
+        ) : (
+          <div className="text-center py-6 text-gray-500">
+            <p className="text-3xl mb-2">✅</p>
+            <p className="text-sm">All items are well stocked</p>
           </div>
-          <div>
-            <span className="text-gray-500">Completed Projects:</span>
-            <span className="ml-2 font-medium">{stats.completedProjects}</span>
+        )}
+      </div>
+
+      {/* Quick Stats Footer */}
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        <h3 className="font-semibold mb-3 text-sm text-gray-800">Quick Stats</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+          <div className="bg-gray-50 rounded-lg p-3">
+            <span className="text-gray-500 block">MEP Systems</span>
+            <span className="font-semibold text-gray-800 mt-1 block">HVAC, Electrical, Plumbing, ELV</span>
           </div>
-          <div>
-            <span className="text-gray-500">Active Workers:</span>
-            <span className="ml-2 font-medium">{stats.activeWorkers}</span>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <span className="text-gray-500 block">Total Items</span>
+            <span className="font-semibold text-gray-800 mt-1 block">{stats.totalInventory}</span>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <span className="text-gray-500 block">Completed</span>
+            <span className="font-semibold text-gray-800 mt-1 block">{stats.completedProjects} projects</span>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3">
+            <span className="text-gray-500 block">Active Workers</span>
+            <span className="font-semibold text-gray-800 mt-1 block">{stats.activeWorkers}</span>
           </div>
         </div>
       </div>

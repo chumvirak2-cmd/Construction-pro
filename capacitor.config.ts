@@ -5,13 +5,21 @@ const config: CapacitorConfig = {
   appName: 'Construction Pro',
   webDir: 'out',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    iosScheme: 'https',
+    allowNavigation: ['*']
   },
   plugins: {
     SplashScreen: {
       launchShowDuration: 0,
       launchAutoHide: true,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#1f2937',
+      androidSplashResourceName: 'splash',
+      showSpinner: false
+    },
+    StatusBar: {
+      style: 'dark',
+      backgroundColor: '#1f2937'
     }
   }
 };

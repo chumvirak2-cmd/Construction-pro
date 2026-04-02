@@ -346,7 +346,7 @@ export default function Inventory() {
                         <input
                           type="number"
                           value={form.quantity}
-                          onChange={(e) => setForm({ ...form, quantity: parseInt(e.target.value) })}
+                          onChange={(e) => setForm({ ...form, quantity: parseInt(e.target.value) || 0 })}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                           required
                         />
@@ -366,7 +366,7 @@ export default function Inventory() {
                         <input
                           type="number"
                           value={form.minQuantity}
-                          onChange={(e) => setForm({ ...form, minQuantity: parseInt(e.target.value) })}
+                          onChange={(e) => setForm({ ...form, minQuantity: parseInt(e.target.value) || 0 })}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                           placeholder="Alert when below"
                         />
@@ -380,7 +380,7 @@ export default function Inventory() {
                           type="number"
                           step="0.01"
                           value={form.unitPrice}
-                          onChange={(e) => setForm({ ...form, unitPrice: parseFloat(e.target.value) })}
+                          onChange={(e) => setForm({ ...form, unitPrice: parseFloat(e.target.value) || 0 })}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                           required
                         />

@@ -1,4 +1,54 @@
-import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats } from '../types'
+import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier } from '../types'
+
+// Subscription Plans
+export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    price: 29,
+    interval: 'month',
+    limits: {
+      maxProjects: 5,
+      maxWorkers: 10,
+      maxInventoryItems: 100,
+      maxStorageMB: 100,
+      features: ['projects', 'workers', 'inventory', 'basic_boq']
+    },
+    stripePriceId: 'price_starter_monthly'
+  },
+  {
+    id: 'professional',
+    name: 'Professional',
+    price: 79,
+    interval: 'month',
+    limits: {
+      maxProjects: 25,
+      maxWorkers: 50,
+      maxInventoryItems: 500,
+      maxStorageMB: 500,
+      features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user']
+    },
+    stripePriceId: 'price_professional_monthly'
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 199,
+    interval: 'month',
+    limits: {
+      maxProjects: -1,
+      maxWorkers: -1,
+      maxInventoryItems: -1,
+      maxStorageMB: -1,
+      features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user', 'api_access', 'priority_support', 'custom_branding']
+    },
+    stripePriceId: 'price_enterprise_monthly'
+  }
+]
+
+export const getPlan = (tier: SubscriptionTier): SubscriptionPlan | undefined => {
+  return SUBSCRIPTION_PLANS.find(p => p.id === tier)
+}
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -11,7 +61,8 @@ const STORAGE_KEYS = {
   PURCHASE_ORDERS: 'cp_purchase_orders',
   USERS: 'cp_users',
   SETTINGS: 'cp_settings',
-  CURRENT_USER: 'cp_current_user'
+  CURRENT_USER: 'cp_current_user',
+  SUBSCRIPTIONS: 'cp_subscriptions'
 }
 
 // Generic CRUD operations
@@ -484,3 +535,95 @@ const allSeedItems = [
   ...mepELVItems,
   ...buildingMaterialItems
 ]
+
+// Demo Mode Configuration
+export const DEMO_MODE_KEY = 'cp_demo_mode'
+
+export const demoDb = {
+  isDemoMode: (): boolean => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem(DEMO_MODE_KEY) === 'true'
+  },
+  enableDemoMode: (): void => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(DEMO_MODE_KEY, 'true')
+  },
+  disableDemoMode: (): void => {
+    if (typeof window === 'undefined') return
+    localStorage.removeItem(DEMO_MODE_KEY)
+  }
+}
+
+// Subscriptions
+export const subscriptionDb = {
+  getAll: () => getCollection<Subscription>(STORAGE_KEYS.SUBSCRIPTIONS),
+  getByUserId: (userId: string) => subscriptionDb.getAll().find(s => s.userId === userId),
+  getById: (id: string) => subscriptionDb.getAll().find(s => s.id === id),
+  create: (subscription: Omit<Subscription, 'id'>): Subscription => {
+    const subscriptions = subscriptionDb.getAll()
+    const newSubscription: Subscription = {
+      ...subscription,
+      id: generateId()
+    }
+    subscriptions.push(newSubscription)
+    setCollection(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions)
+    return newSubscription
+  },
+  update: (id: string, data: Partial<Subscription>) => {
+    const subscriptions = subscriptionDb.getAll()
+    const index = subscriptions.findIndex(s => s.id === id)
+    if (index !== -1) {
+      subscriptions[index] = { ...subscriptions[index], ...data }
+      setCollection(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions)
+      return subscriptions[index]
+    }
+    return null
+  },
+  cancel: (id: string) => {
+    return subscriptionDb.update(id, { cancelAtPeriodEnd: true })
+  },
+  delete: (id: string) => {
+    const subscriptions = subscriptionDb.getAll().filter(s => s.id !== id)
+    setCollection(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions)
+  },
+  hasActiveSubscription: (userId: string): boolean => {
+    const sub = subscriptionDb.getByUserId(userId)
+    if (!sub) return false
+    const activeStatuses: Subscription['status'][] = ['active', 'trialing']
+    return activeStatuses.includes(sub.status)
+  },
+  isSubscriptionValid: (userId: string): { valid: boolean; reason?: string } => {
+    const sub = subscriptionDb.getByUserId(userId)
+    if (!sub) return { valid: false, reason: 'no_subscription' }
+    if (sub.status === 'canceled') return { valid: false, reason: 'subscription_canceled' }
+    if (sub.status === 'past_due') return { valid: false, reason: 'payment_past_due' }
+    if (sub.status === 'unpaid') return { valid: false, reason: 'payment_unpaid' }
+    if (sub.status === 'active' || sub.status === 'trialing') {
+      const endDate = new Date(sub.currentPeriodEnd)
+      if (endDate < new Date()) return { valid: false, reason: 'subscription_expired' }
+      return { valid: true }
+    }
+    return { valid: false, reason: 'invalid_subscription' }
+  },
+  checkLimits: (userId: string): { allowed: boolean; limitType?: string; current: number; limit: number } => {
+    const user = authDb.getCurrentUser()
+    if (!user) return { allowed: false, current: 0, limit: 0 }
+    const sub = subscriptionDb.getByUserId(userId)
+    if (!sub) return { allowed: false, current: 0, limit: 0 }
+    const plan = getPlan(sub.tier)
+    if (!plan) return { allowed: false, current: 0, limit: 0 }
+    const projects = projectsDb.getAll().length
+    const workers = workersDb.getAll().length
+    const inventory = inventoryDb.getAll().length
+    if (plan.limits.maxProjects > 0 && projects >= plan.limits.maxProjects) {
+      return { allowed: false, limitType: 'projects', current: projects, limit: plan.limits.maxProjects }
+    }
+    if (plan.limits.maxWorkers > 0 && workers >= plan.limits.maxWorkers) {
+      return { allowed: false, limitType: 'workers', current: workers, limit: plan.limits.maxWorkers }
+    }
+    if (plan.limits.maxInventoryItems > 0 && inventory >= plan.limits.maxInventoryItems) {
+      return { allowed: false, limitType: 'inventory', current: inventory, limit: plan.limits.maxInventoryItems }
+    }
+    return { allowed: true, current: projects, limit: plan.limits.maxProjects }
+  }
+}

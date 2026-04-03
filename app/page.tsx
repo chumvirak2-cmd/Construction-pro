@@ -1,64 +1,99 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { authDb, subscriptionDb, demoDb } from './lib/db'
 
 export default function Home() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const isDemo = demoDb.isDemoMode()
+    if (isDemo) {
+      router.push('/dashboard')
+      return
+    }
+    
+    const user = authDb.getCurrentUser()
+    if (user) {
+      const sub = subscriptionDb.getByUserId(user.id)
+      if (sub && (sub.status === 'active' || sub.status === 'trialing')) {
+        router.push('/dashboard')
+      }
+    }
+  }, [router])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (email && password) {
-      localStorage.setItem('loggedIn', 'true')
-      router.push('/dashboard')
+    setError('')
+    
+    if (!email || !password) {
+      setError('Please enter email and password')
+      return
     }
+    
+    localStorage.setItem('loggedIn', 'true')
+    router.push('/dashboard')
+  }
+
+  const handleDemoLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    demoDb.enableDemoMode()
+    localStorage.setItem('loggedIn', 'true')
+    router.push('/dashboard')
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white p-6 md:p-8 rounded-lg shadow-md w-full max-w-md">
-        <div className="flex flex-col items-center mb-6">
-          <img src="/logo.png" alt="Construction Pro" className="w-32 h-32 md:w-48 md:h-48 mb-4 rounded-full" />
-          <h1 className="text-xl md:text-2xl font-bold">CONSTRUCTION PRO</h1>
-          <p className="text-gray-500 text-sm mt-1">AI Agent for MEP Companies</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', padding: '12px', overflowY: 'auto' }}>
+      <div style={{ background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', width: '100%', maxWidth: '360px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px' }}>
+          <img src="/logo.png" alt="Construction Pro" style={{ width: '70px', height: '70px', borderRadius: '50%', marginBottom: '8px' }} />
+          <h1 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
+          <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>AI Agent for MEP Companies</p>
         </div>
-        <h2 className="text-lg font-semibold mb-4 text-center">Sign In</h2>
+        <h2 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px', textAlign: 'center' }}>Sign In</h2>
         <form onSubmit={handleLogin}>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Email</label>
+          <div style={{ marginBottom: '10px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500 }}>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-3"
-              style={{ fontSize: '16px' }}
+              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 10px', fontSize: '14px', boxSizing: 'border-box' }}
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium">Password</label>
+          <div style={{ marginBottom: '10px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500 }}>Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-3"
-              style={{ fontSize: '16px' }}
+              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 10px', fontSize: '14px', boxSizing: 'border-box' }}
               required
             />
           </div>
-          <button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-md font-medium">
+          <button type="submit" style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '10px', borderRadius: '6px', fontWeight: 500, fontSize: '14px', border: 'none', cursor: 'pointer' }}>
             Sign In
           </button>
         </form>
-        <p className="mt-4 text-center text-sm">
-          Don&apos;t have an account? <Link href="/signup" className="text-blue-500 font-medium">Sign Up</Link>
+        <button 
+          type="button"
+          onClick={handleDemoLogin}
+          style={{ width: '100%', background: '#10b981', color: 'white', padding: '10px', borderRadius: '6px', fontWeight: 500, fontSize: '14px', border: 'none', cursor: 'pointer', marginTop: '8px' }}
+        >
+          Try Demo (Free)
+        </button>
+        <p style={{ marginTop: '10px', textAlign: 'center', fontSize: '12px' }}>
+          Don&apos;t have an account? <Link href="/signup" style={{ color: '#3b82f6', fontWeight: 500 }}>Sign Up</Link>
         </p>
-        <div className="mt-6 text-center text-xs text-gray-400">
-          <p>© 2026 BEE-TRUST ENGINEERING</p>
-          <p>All rights reserved.</p>
+        <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '10px', color: '#9ca3af' }}>
+          <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>
+          <p style={{ margin: 0 }}>All rights reserved.</p>
         </div>
       </div>
     </div>

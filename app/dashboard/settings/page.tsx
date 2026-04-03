@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { authDb, subscriptionDb, SUBSCRIPTION_PLANS, getPlan } from '../../lib/db'
 
 interface AppSettings {
   currency: string
@@ -105,11 +108,24 @@ export default function Settings() {
   }
 
   const tabs = [
+    { id: 'subscription', label: 'Subscription' },
     { id: 'general', label: 'General' },
     { id: 'notifications', label: 'Notifications' },
     { id: 'appearance', label: 'Appearance' },
     { id: 'data', label: 'Data Management' }
   ]
+
+  const router = useRouter()
+  const [user, setUser] = useState(authDb.getCurrentUser())
+  const [subscription, setSubscription] = useState(user ? subscriptionDb.getByUserId(user.id) : null)
+  
+  useEffect(() => {
+    const currentUser = authDb.getCurrentUser()
+    setUser(currentUser)
+    if (currentUser) {
+      setSubscription(subscriptionDb.getByUserId(currentUser.id))
+    }
+  }, [])
 
   return (
     <div>
@@ -131,6 +147,68 @@ export default function Settings() {
           </button>
         ))}
       </div>
+
+      {/* Subscription Tab */}
+      {activeTab === 'subscription' && (
+        <div className="space-y-6">
+          <div className="bg-white p-4 rounded border">
+            <h2 className="text-lg font-semibold mb-4">Current Subscription</h2>
+            {subscription ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded">
+                  <div>
+                    <div className="font-medium text-lg">
+                      {SUBSCRIPTION_PLANS.find(p => p.id === subscription.tier)?.name || subscription.tier} Plan
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Status: <span className={subscription.status === 'active' ? 'text-green-600' : 'text-red-600'}>
+                        {subscription.status}
+                      </span>
+                    </div>
+                  </div>
+                  <Link
+                    href="/subscription"
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    {subscription.status === 'active' ? 'Change Plan' : 'Subscribe'}
+                  </Link>
+                </div>
+                <div className="text-sm text-gray-600">
+                  <div>Current period: {new Date(subscription.currentPeriodStart).toLocaleDateString()} - {new Date(subscription.currentPeriodEnd).toLocaleDateString()}</div>
+                  {subscription.cancelAtPeriodEnd && (
+                    <div className="text-orange-600 mt-2">
+                      Your subscription will be canceled at the end of the current billing period.
+                    </div>
+                  )}
+                </div>
+                {getPlan(subscription.tier) && (
+                  <div className="mt-4">
+                    <h3 className="font-medium mb-2">Plan Limits</h3>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="text-gray-600">Projects:</div>
+                      <div>{getPlan(subscription.tier)?.limits.maxProjects === -1 ? 'Unlimited' : getPlan(subscription.tier)?.limits.maxProjects}</div>
+                      <div className="text-gray-600">Workers:</div>
+                      <div>{getPlan(subscription.tier)?.limits.maxWorkers === -1 ? 'Unlimited' : getPlan(subscription.tier)?.limits.maxWorkers}</div>
+                      <div className="text-gray-600">Inventory Items:</div>
+                      <div>{getPlan(subscription.tier)?.limits.maxInventoryItems === -1 ? 'Unlimited' : getPlan(subscription.tier)?.limits.maxInventoryItems}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="text-gray-500 mb-4">No active subscription</div>
+                <Link
+                  href="/subscription"
+                  className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 inline-block"
+                >
+                  Subscribe Now
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* General Settings */}
       {activeTab === 'general' && (

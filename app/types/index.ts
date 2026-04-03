@@ -8,6 +8,7 @@ export interface User {
   role: 'admin' | 'manager' | 'user'
   createdAt: string
   logoUrl?: string
+  subscriptionId?: string
 }
 
 // Project Types
@@ -359,4 +360,35 @@ export interface AppSettings {
   defaultProjectView: 'grid' | 'list'
   autoSave: boolean
   compactMode: boolean
+}
+
+// Subscription Types
+export type SubscriptionTier = 'free' | 'starter' | 'professional' | 'enterprise'
+export type SubscriptionStatus = 'active' | 'past_due' | 'canceled' | 'trialing' | 'unpaid' | 'none'
+
+export interface SubscriptionPlan {
+  id: SubscriptionTier
+  name: string
+  price: number
+  interval: 'month' | 'year'
+  limits: {
+    maxProjects: number
+    maxWorkers: number
+    maxInventoryItems: number
+    maxStorageMB: number
+    features: string[]
+  }
+  stripePriceId: string
+}
+
+export interface Subscription {
+  id: string
+  userId: string
+  tier: SubscriptionTier
+  status: SubscriptionStatus
+  currentPeriodStart: string
+  currentPeriodEnd: string
+  cancelAtPeriodEnd: boolean
+  stripeCustomerId?: string
+  stripeSubscriptionId?: string
 }

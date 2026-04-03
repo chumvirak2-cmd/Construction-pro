@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { authDb, subscriptionDb, demoDb } from '../lib/db'
 
 export default function DashboardLayout({
   children,
@@ -13,8 +14,15 @@ export default function DashboardLayout({
   const router = useRouter()
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isReady, setIsReady] = useState(false)
+  const [isDemo, setIsDemo] = useState(false)
+
+  useEffect(() => {
+    setIsDemo(demoDb.isDemoMode())
+  }, [])
 
   const handleLogout = () => {
+    demoDb.disableDemoMode()
     localStorage.clear()
     sessionStorage.clear()
     router.push('/')
@@ -28,6 +36,38 @@ export default function DashboardLayout({
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  useEffect(() => {
+    const isDemo = demoDb.isDemoMode()
+    const user = authDb.getCurrentUser()
+    
+    if (isDemo) {
+      setIsReady(true)
+      return
+    }
+    
+    if (user) {
+      const sub = subscriptionDb.getByUserId(user.id)
+      if (!sub || (sub.status !== 'active' && sub.status !== 'trialing')) {
+        router.push('/subscription')
+      } else {
+        setIsReady(true)
+      }
+    } else {
+      router.push('/')
+    }
+  }, [router])
+
+  if (!isReady) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800 mx-auto mb-4"></div>
+          <p className="text-gray-500 text-sm">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   const navItems = [
     { href: '/dashboard', label: 'Home', icon: '🏠' },
@@ -47,12 +87,15 @@ export default function DashboardLayout({
             <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
             <span className="font-bold text-sm">Construction Pro</span>
           </Link>
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="text-white text-2xl leading-none"
-          >
-            ☰
-          </button>
+          <div className="flex items-center gap-2">
+            {isDemo && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO</span>}
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-white text-2xl leading-none"
+            >
+              ☰
+            </button>
+          </div>
         </header>
 
         {/* Mobile Menu Dropdown */}
@@ -119,6 +162,7 @@ export default function DashboardLayout({
             <img src="/logo.png" alt="Construction Pro" className="w-24 h-24 rounded-full mb-2" />
             <div className="font-bold text-lg">Construction Pro</div>
             <div className="text-xs text-gray-400">AI Agent</div>
+            {isDemo && <span className="mt-1 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO MODE</span>}
           </Link>
         </div>
         <nav className="flex-1 mt-4 px-2">

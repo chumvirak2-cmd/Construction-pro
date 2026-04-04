@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Worker, WorkerRole, AttendanceRecord } from '../../types'
-import { workersDb, attendanceDb } from '../../lib/db'
+import { Worker, WorkerRole, AttendanceRecord, WorkerLocation, TrackingAlert, SiteConfig } from '../../types'
+import { workersDb, attendanceDb, workerLocationDb, trackingAlertDb, siteConfigDb, SiteConfig as SiteConfigType } from '../../lib/db'
 
 const roleOptions: WorkerRole[] = [
   // Construction & MEP Trades
@@ -49,7 +49,7 @@ const statusColors = {
 export default function Workers() {
   const [workers, setWorkers] = useState<Worker[]>([])
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([])
-  const [view, setView] = useState<'workers' | 'attendance'>('workers')
+  const [view, setView] = useState<'workers' | 'attendance' | 'tracking'>('workers')
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState<WorkerRole | 'all'>('all')
   const [showForm, setShowForm] = useState(false)
@@ -58,6 +58,10 @@ export default function Workers() {
 
   const [siteCenter, setSiteCenter] = useState({ lat: 40.7128, lng: -74.0060 })
   const [siteRadiusMeters, setSiteRadiusMeters] = useState(500)
+  const [siteConfig, setSiteConfig] = useState<SiteConfigType | null>(null)
+  const [activeWorkers, setActiveWorkers] = useState<WorkerLocation[]>([])
+  const [alerts, setAlerts] = useState<TrackingAlert[]>([])
+  const [workerLocations, setWorkerLocations] = useState<Map<string, WorkerLocation>>(new Map())
 
   const [form, setForm] = useState({
     name: '',
@@ -77,11 +81,50 @@ export default function Workers() {
 
   useEffect(() => {
     loadData()
+    loadTrackingData()
   }, [])
 
   const loadData = () => {
     setWorkers(workersDb.getAll())
     setAttendance(attendanceDb.getAll())
+  }
+
+  const loadTrackingData = () => {
+    const config = siteConfigDb.get()
+    if (config) {
+      setSiteConfig(config)
+      setSiteCenter({ lat: config.latitude, lng: config.longitude })
+      setSiteRadiusMeters(config.radiusMeters)
+    }
+    
+    const active = workerLocationDb.getActiveWorkers()
+    const activeAlerts = trackingAlertDb.getActive()
+    setActiveWorkers(active)
+    setAlerts(activeAlerts)
+    
+    const locationMap = new Map<string, WorkerLocation>()
+    active.forEach(loc => locationMap.set(loc.workerId, loc))
+    setWorkerLocations(locationMap)
+  }
+
+  const saveSiteConfig = () => {
+    if (!siteConfig) {
+      siteConfigDb.save({
+        name: 'Construction Site',
+        latitude: siteCenter.lat,
+        longitude: siteCenter.lng,
+        radiusMeters: siteRadiusMeters,
+        isActive: true
+      })
+    } else {
+      siteConfigDb.update({
+        latitude: siteCenter.lat,
+        longitude: siteCenter.lng,
+        radiusMeters: siteRadiusMeters
+      })
+    }
+    setSiteConfig(siteConfigDb.get())
+    loadTrackingData()
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -291,6 +334,15 @@ export default function Workers() {
             className={`px-4 py-2 rounded-lg ${view === 'attendance' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
           >
             Attendance
+          </button>
+          <button
+            onClick={() => { setView('tracking'); loadTrackingData(); }}
+            className={`px-4 py-2 rounded-lg flex items-center gap-2 ${view === 'tracking' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+          >
+            Tracking
+            {alerts.length > 0 && (
+              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{alerts.length}</span>
+            )}
           </button>
         </div>
       </div>
@@ -716,6 +768,179 @@ export default function Workers() {
                 })}
               </tbody>
             </table>
+          </div>
+        </>
+      ) : view === 'tracking' ? (
+        <>
+          {/* Tracking Alerts */}
+          {alerts.length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-red-700 flex items-center gap-2">
+                  ⚠ Outside Site Alerts ({alerts.length})
+                </h3>
+                <button
+                  onClick={loadTrackingData}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Refresh
+                </button>
+              </div>
+              <div className="space-y-2">
+                {alerts.map(alert => (
+                  <div key={alert.id} className="bg-white rounded-lg p-3 flex items-center justify-between">
+                    <div>
+                      <div className="font-medium">{alert.workerName}</div>
+                      <div className="text-sm text-gray-500">
+                        Phone: {alert.phone} • Distance: {alert.distanceFromSite}m from site
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {new Date(alert.timestamp).toLocaleString()}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        trackingAlertDb.resolveAlert(alert.id)
+                        loadTrackingData()
+                      }}
+                      className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200"
+                    >
+                      Resolve
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Site Configuration */}
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <h3 className="font-semibold mb-3">Site Configuration</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Site Latitude</label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={siteCenter.lat}
+                  onChange={(e) => setSiteCenter({ ...siteCenter, lat: parseFloat(e.target.value) || 0 })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Site Longitude</label>
+                <input
+                  type="number"
+                  step="0.000001"
+                  value={siteCenter.lng}
+                  onChange={(e) => setSiteCenter({ ...siteCenter, lng: parseFloat(e.target.value) || 0 })}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Alert Radius (m)</label>
+                <input
+                  type="number"
+                  value={siteRadiusMeters}
+                  onChange={(e) => setSiteRadiusMeters(parseInt(e.target.value) || 0)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                />
+              </div>
+            </div>
+            <button
+              onClick={saveSiteConfig}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              Save Site Configuration
+            </button>
+          </div>
+
+          {/* Worker Tracking Status */}
+          <div className="bg-white rounded-xl shadow overflow-hidden">
+            <div className="p-4 bg-gray-50 border-b">
+              <h3 className="font-semibold">Worker Location Status</h3>
+              <p className="text-sm text-gray-500">Workers report location via phone API</p>
+            </div>
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="text-left p-4 font-medium">Worker</th>
+                  <th className="text-left p-4 font-medium">Phone</th>
+                  <th className="text-left p-4 font-medium">Last Location</th>
+                  <th className="text-left p-4 font-medium">Distance</th>
+                  <th className="text-left p-4 font-medium">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {workers.filter(w => w.status === 'active').map(worker => {
+                  const location = workerLocations.get(worker.id)
+                  const isOutside = location?.isOutsideSite || false
+                  return (
+                    <tr key={worker.id} className="border-t hover:bg-gray-50">
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          {worker.photo ? (
+                            <img src={worker.photo} alt={worker.name} className="w-10 h-10 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm">
+                              👷
+                            </div>
+                          )}
+                          <div className="font-medium">{worker.name}</div>
+                        </div>
+                      </td>
+                      <td className="p-4 text-gray-500">{worker.phone}</td>
+                      <td className="p-4">
+                        {location ? (
+                          <div className="text-sm">
+                            <div>{location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}</div>
+                            <div className="text-gray-400">
+                              {new Date(location.timestamp).toLocaleTimeString()}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">No data</span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {location ? (
+                          <span className={`font-medium ${location.distanceFromSite > siteRadiusMeters ? 'text-red-600' : 'text-green-600'}`}>
+                            {location.distanceFromSite}m
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        {location ? (
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            isOutside ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                          }`}>
+                            {isOutside ? 'OUTSIDE' : 'AT SITE'}
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            UNKNOWN
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Instructions for Workers */}
+          <div className="mt-6 bg-blue-50 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-700 mb-2">📱 How Workers Report Location</h4>
+            <p className="text-sm text-blue-600 mb-2">
+              Workers can send their location using the API endpoint. The system will automatically alert when they are more than {siteRadiusMeters}m from the site.
+            </p>
+            <div className="bg-white rounded p-3 text-sm font-mono">
+              POST /api/worker-location<br />
+              {'{'} "phone": "worker_phone_number", "latitude": 40.7128, "longitude": -74.0060, "accuracy": 10 {'}'}
+            </div>
           </div>
         </>
       )}

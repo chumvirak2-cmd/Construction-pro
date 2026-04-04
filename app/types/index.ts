@@ -242,6 +242,31 @@ export interface AttendanceRecord {
   notes?: string
 }
 
+export interface WorkerLocation {
+  id: string
+  phone: string
+  workerId: string
+  latitude: number
+  longitude: number
+  accuracy: number
+  timestamp: string
+  distanceFromSite: number
+  isOutsideSite: boolean
+}
+
+export interface TrackingAlert {
+  id: string
+  workerId: string
+  phone: string
+  workerName: string
+  latitude: number
+  longitude: number
+  distanceFromSite: number
+  timestamp: string
+  status: 'active' | 'resolved'
+  resolvedAt?: string
+}
+
 export interface PayrollRecord {
   id: string
   workerId: string

@@ -1,4 +1,4 @@
-import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier } from '../types'
+import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert } from '../types'
 
 // Subscription Plans
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
@@ -62,7 +62,10 @@ const STORAGE_KEYS = {
   USERS: 'cp_users',
   SETTINGS: 'cp_settings',
   CURRENT_USER: 'cp_current_user',
-  SUBSCRIPTIONS: 'cp_subscriptions'
+  SUBSCRIPTIONS: 'cp_subscriptions',
+  WORKER_LOCATIONS: 'cp_worker_locations',
+  TRACKING_ALERTS: 'cp_tracking_alerts',
+  SITE_CONFIG: 'cp_site_config'
 }
 
 // Generic CRUD operations
@@ -283,6 +286,139 @@ export const settingsDb = {
   save: (settings: AppSettings) => {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings))
   }
+}
+
+export interface SiteConfig {
+  id: string
+  name: string
+  latitude: number
+  longitude: number
+  radiusMeters: number
+  isActive: boolean
+}
+
+export const siteConfigDb = {
+  get: (): SiteConfig | null => {
+    const config = localStorage.getItem(STORAGE_KEYS.SITE_CONFIG)
+    return config ? JSON.parse(config) : null
+  },
+  save: (config: Omit<SiteConfig, 'id'>) => {
+    const newConfig: SiteConfig = { ...config, id: generateId() }
+    localStorage.setItem(STORAGE_KEYS.SITE_CONFIG, JSON.stringify(newConfig))
+    return newConfig
+  },
+  update: (config: Partial<SiteConfig>) => {
+    const existing = siteConfigDb.get()
+    if (existing) {
+      const updated = { ...existing, ...config }
+      localStorage.setItem(STORAGE_KEYS.SITE_CONFIG, JSON.stringify(updated))
+      return updated
+    }
+    return null
+  },
+  clear: () => {
+    localStorage.removeItem(STORAGE_KEYS.SITE_CONFIG)
+  }
+}
+
+// Worker Location Tracking
+export const workerLocationDb = {
+  getAll: () => getCollection<WorkerLocation>(STORAGE_KEYS.WORKER_LOCATIONS),
+  getByPhone: (phone: string) => workerLocationDb.getAll().filter(l => l.phone === phone),
+  getLatestByPhone: (phone: string) => {
+    const locations = workerLocationDb.getByPhone(phone)
+    if (locations.length === 0) return null
+    return locations.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]
+  },
+  create: (location: Omit<WorkerLocation, 'id' | 'distanceFromSite' | 'isOutsideSite'>, siteLat: number, siteLng: number, siteRadius: number) => {
+    const locations = workerLocationDb.getAll()
+    const distance = calculateHaversineDistance(location.latitude, location.longitude, siteLat, siteLng)
+    const newLocation: WorkerLocation = {
+      ...location,
+      id: generateId(),
+      distanceFromSite: Math.round(distance),
+      isOutsideSite: distance > siteRadius
+    }
+    locations.push(newLocation)
+    setCollection(STORAGE_KEYS.WORKER_LOCATIONS, locations)
+    
+    if (newLocation.isOutsideSite) {
+      trackingAlertDb.createAlert(location.workerId, location.phone, location.latitude, location.longitude, distance)
+    }
+    
+    return newLocation
+  },
+  getActiveWorkers: () => {
+    const locations = workerLocationDb.getAll()
+    const now = new Date()
+    const activeWorkers = new Map<string, WorkerLocation>()
+    
+    locations.forEach(loc => {
+      const locTime = new Date(loc.timestamp)
+      const diffMinutes = (now.getTime() - locTime.getTime()) / (1000 * 60)
+      if (diffMinutes < 30) {
+        const existing = activeWorkers.get(loc.phone)
+        if (!existing || new Date(loc.timestamp) > new Date(existing.timestamp)) {
+          activeWorkers.set(loc.phone, loc)
+        }
+      }
+    })
+    
+    return Array.from(activeWorkers.values())
+  }
+}
+
+function calculateHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const toRad = (v: number) => (v * Math.PI) / 180
+  const R = 6371000
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+// Tracking Alerts
+export const trackingAlertDb = {
+  getAll: () => getCollection<TrackingAlert>(STORAGE_KEYS.TRACKING_ALERTS),
+  getActive: () => trackingAlertDb.getAll().filter(a => a.status === 'active'),
+  createAlert: (workerId: string, phone: string, lat: number, lng: number, distance: number) => {
+    const alerts = trackingAlertDb.getActive()
+    const existingAlert = alerts.find(a => a.workerId === workerId && a.status === 'active')
+    
+    if (existingAlert) return existingAlert
+    
+    const workers = workersDb.getAll()
+    const worker = workers.find(w => w.id === workerId)
+    
+    const newAlert: TrackingAlert = {
+      id: generateId(),
+      workerId,
+      phone,
+      workerName: worker?.name || 'Unknown',
+      latitude: lat,
+      longitude: lng,
+      distanceFromSite: Math.round(distance),
+      timestamp: new Date().toISOString(),
+      status: 'active'
+    }
+    alerts.push(newAlert)
+    setCollection(STORAGE_KEYS.TRACKING_ALERTS, alerts)
+    return newAlert
+  },
+  resolveAlert: (id: string) => {
+    const alerts = trackingAlertDb.getAll()
+    const index = alerts.findIndex(a => a.id === id)
+    if (index !== -1) {
+      alerts[index] = { ...alerts[index], status: 'resolved', resolvedAt: new Date().toISOString() }
+      setCollection(STORAGE_KEYS.TRACKING_ALERTS, alerts)
+      return alerts[index]
+    }
+    return null
+  },
+  getByWorker: (workerId: string) => trackingAlertDb.getAll().filter(a => a.workerId === workerId)
 }
 
 // User Authentication (simplified)

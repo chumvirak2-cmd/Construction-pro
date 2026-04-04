@@ -37,6 +37,8 @@ export default function SubscriptionPage() {
       
       if (data.url) {
         window.location.href = data.url
+      } else if (data.error) {
+        alert(data.error + '\n\nFor demo/testing, click "Try Demo Mode" below.')
       } else {
         alert('Unable to create checkout session. Please try again.')
       }
@@ -45,6 +47,20 @@ export default function SubscriptionPage() {
       alert('An error occurred. Please try again.')
     } finally {
       setLoading(null)
+    }
+  }
+
+  const handleDemoMode = () => {
+    if (currentUser) {
+      subscriptionDb.create({
+        userId: currentUser.id,
+        tier: 'professional',
+        status: 'active',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false
+      })
+      router.push('/dashboard')
     }
   }
 
@@ -215,6 +231,18 @@ export default function SubscriptionPage() {
         <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '11px', color: '#9ca3af' }}>
           <p style={{ margin: '0 0 4px' }}>Secure payments powered by Stripe. Cancel anytime.</p>
           <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING. All rights reserved.</p>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+          <button
+            onClick={handleDemoMode}
+            style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', fontWeight: '500' }}
+          >
+            Try Demo Mode (Free)
+          </button>
+          <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '8px' }}>
+            Test all features without payment
+          </p>
         </div>
       </div>
     </div>

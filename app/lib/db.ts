@@ -1,4 +1,4 @@
-import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert } from '../types'
+import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert, TeamMember } from '../types'
 
 // Subscription Plans
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
@@ -65,7 +65,8 @@ const STORAGE_KEYS = {
   SUBSCRIPTIONS: 'cp_subscriptions',
   WORKER_LOCATIONS: 'cp_worker_locations',
   TRACKING_ALERTS: 'cp_tracking_alerts',
-  SITE_CONFIG: 'cp_site_config'
+  SITE_CONFIG: 'cp_site_config',
+  TEAM_MEMBERS: 'cp_team_members'
 }
 
 // Generic CRUD operations
@@ -671,6 +672,58 @@ const allSeedItems = [
   ...mepELVItems,
   ...buildingMaterialItems
 ]
+
+// Team Members Management
+export const teamDb = {
+  getAll: (): TeamMember[] => {
+    if (typeof window === 'undefined') return []
+    const data = localStorage.getItem(STORAGE_KEYS.TEAM_MEMBERS)
+    return data ? JSON.parse(data) : []
+  },
+  getByUserId: (userId: string): TeamMember[] => {
+    return teamDb.getAll().filter(m => m.userId === userId)
+  },
+  getById: (id: string): TeamMember | undefined => {
+    return teamDb.getAll().find(m => m.id === id)
+  },
+  create: (member: Omit<TeamMember, 'id'>): TeamMember => {
+    const members = teamDb.getAll()
+    const newMember: TeamMember = {
+      ...member,
+      id: generateId()
+    }
+    members.push(newMember)
+    localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(members))
+    return newMember
+  },
+  update: (id: string, data: Partial<TeamMember>): boolean => {
+    const members = teamDb.getAll()
+    const index = members.findIndex(m => m.id === id)
+    if (index === -1) return false
+    members[index] = { ...members[index], ...data }
+    localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(members))
+    return true
+  },
+  delete: (id: string): boolean => {
+    const members = teamDb.getAll()
+    const filtered = members.filter(m => m.id !== id)
+    if (filtered.length === members.length) return false
+    localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(filtered))
+    return true
+  },
+  invite: (email: string, fullName: string, role: TeamMember['role'], permissions: string[], invitedBy: string): TeamMember => {
+    return teamDb.create({
+      userId: invitedBy,
+      email,
+      fullName,
+      role,
+      permissions,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      invitedBy
+    })
+  }
+}
 
 // Demo Mode Configuration
 export const DEMO_MODE_KEY = 'cp_demo_mode'

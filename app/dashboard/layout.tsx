@@ -16,6 +16,7 @@ export default function DashboardLayout({
   const [menuOpen, setMenuOpen] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const [isDemo, setIsDemo] = useState(false)
+  const [subscription, setSubscription] = useState<any>(null)
 
   useEffect(() => {
     setIsDemo(demoDb.isDemoMode())
@@ -48,6 +49,7 @@ export default function DashboardLayout({
     
     if (user) {
       const sub = subscriptionDb.getByUserId(user.id)
+      setSubscription(sub)
       if (!sub || (sub.status !== 'active' && sub.status !== 'trialing')) {
         router.push('/subscription')
       } else {
@@ -69,12 +71,15 @@ export default function DashboardLayout({
     )
   }
 
+  const canAddUsers = subscription?.tier === 'professional' || subscription?.tier === 'enterprise'
+
   const navItems = [
     { href: '/dashboard', label: 'Home', icon: '🏠' },
     { href: '/dashboard/projects', label: 'Projects', icon: '📋' },
     { href: '/dashboard/workers', label: 'Workers', icon: '👷' },
     { href: '/dashboard/inventory', label: 'Inventory', icon: '📦' },
     { href: '/dashboard/boq', label: 'BOQ', icon: '🧮' },
+    ...(canAddUsers ? [{ href: '/dashboard/users', label: 'Users', icon: '👥' }] : []),
   ]
 
   // Mobile Bottom Navigation
@@ -149,6 +154,7 @@ export default function DashboardLayout({
     { href: '/dashboard/workers', label: 'Workers', icon: '👷' },
     { href: '/dashboard/inventory', label: 'Inventory', icon: '📦' },
     { href: '/dashboard/boq', label: 'BOQ Calculator', icon: '🧮' },
+    ...(canAddUsers ? [{ href: '/dashboard/users', label: 'Team Users', icon: '👥' }] : []),
     { href: '/dashboard/settings', label: 'Settings', icon: '⚙️' },
   ]
 

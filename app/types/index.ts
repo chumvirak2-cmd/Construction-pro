@@ -11,6 +11,19 @@ export interface User {
   subscriptionId?: string
 }
 
+export interface TeamMember {
+  id: string
+  userId: string
+  email: string
+  fullName: string
+  phone?: string
+  role: 'manager' | 'worker' | 'viewer'
+  status: 'active' | 'inactive'
+  permissions: string[]
+  createdAt: string
+  invitedBy?: string
+}
+
 // Project Types
 export type ProjectStatus = 'planning' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled'
 

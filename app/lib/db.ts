@@ -12,6 +12,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       maxWorkers: 10,
       maxInventoryItems: 100,
       maxStorageMB: 100,
+      maxUsers: 5,
       features: ['projects', 'workers', 'inventory', 'basic_boq']
     },
     stripePriceId: 'price_starter_monthly'
@@ -26,6 +27,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       maxWorkers: 50,
       maxInventoryItems: 500,
       maxStorageMB: 500,
+      maxUsers: 10,
       features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user']
     },
     stripePriceId: 'price_professional_monthly'
@@ -40,6 +42,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       maxWorkers: -1,
       maxInventoryItems: -1,
       maxStorageMB: -1,
+      maxUsers: -1,
       features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user', 'api_access', 'priority_support', 'custom_branding']
     },
     stripePriceId: 'price_enterprise_monthly'

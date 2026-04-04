@@ -110,7 +110,7 @@ export default function UsersPage() {
   }
 
   const maxUsers = subscription?.tier === 'enterprise' ? -1 : 
-    subscription?.tier === 'professional' ? 10 : 3
+    subscription?.tier === 'professional' ? 10 : 5
 
   const canAddMore = maxUsers === -1 || members.length < maxUsers
 

@@ -414,6 +414,7 @@ export interface SubscriptionPlan {
     maxWorkers: number
     maxInventoryItems: number
     maxStorageMB: number
+    maxUsers: number
     features: string[]
   }
   stripePriceId: string

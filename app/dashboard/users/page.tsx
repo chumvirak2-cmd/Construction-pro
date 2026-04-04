@@ -7,7 +7,9 @@ import { teamDb, authDb, subscriptionDb } from '../../lib/db'
 const ROLE_OPTIONS = [
   { value: 'manager', label: 'Manager', description: 'Full access to all features' },
   { value: 'worker', label: 'Worker', description: 'Can check in/out and view projects' },
-  { value: 'viewer', label: 'Viewer', description: 'View-only access' }
+  { value: 'viewer', label: 'Viewer', description: 'View-only access' },
+  { value: 'marketing', label: 'Marketing', description: 'Can manage marketing and sales leads' },
+  { value: 'sell', label: 'Sales', description: 'Can manage sales and proposals' }
 ]
 
 const PERMISSION_OPTIONS = [
@@ -16,6 +18,8 @@ const PERMISSION_OPTIONS = [
   { value: 'inventory', label: 'Inventory' },
   { value: 'boq', label: 'BOQ Calculator' },
   { value: 'reports', label: 'Reports' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'sell', label: 'Sales' },
   { value: 'users', label: 'Manage Users' },
   { value: 'settings', label: 'Settings' }
 ]
@@ -32,7 +36,7 @@ export default function UsersPage() {
     fullName: '',
     phone: '',
     role: 'manager' as TeamMember['role'],
-    permissions: ['projects', 'workers', 'inventory', 'boq']
+    permissions: ['projects', 'workers', 'inventory', 'boq', 'reports']
   })
 
   useEffect(() => {
@@ -75,7 +79,7 @@ export default function UsersPage() {
       fullName: '',
       phone: '',
       role: 'manager',
-      permissions: ['projects', 'workers', 'inventory', 'boq']
+      permissions: ['projects', 'workers', 'inventory', 'boq', 'reports']
     })
     setShowForm(false)
     setEditingMember(null)
@@ -263,6 +267,8 @@ export default function UsersPage() {
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       member.role === 'manager' ? 'bg-blue-100 text-blue-700' :
                       member.role === 'worker' ? 'bg-green-100 text-green-700' :
+                      member.role === 'marketing' ? 'bg-pink-100 text-pink-700' :
+                      member.role === 'sell' ? 'bg-purple-100 text-purple-700' :
                       'bg-gray-100 text-gray-700'
                     }`}>
                       {member.role}
@@ -301,25 +307,31 @@ export default function UsersPage() {
       </div>
 
       {/* Stats */}
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg p-4 shadow">
           <div className="text-2xl font-bold text-blue-600">{members.length}</div>
           <div className="text-gray-500 text-sm">Total Members</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-green-600">
+          <div className="text-2xl font-bold text-blue-600">
             {members.filter(m => m.role === 'manager').length}
           </div>
           <div className="text-gray-500 text-sm">Managers</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-purple-600">
+          <div className="text-2xl font-bold text-green-600">
             {members.filter(m => m.role === 'worker').length}
           </div>
           <div className="text-gray-500 text-sm">Workers</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-orange-600">
+          <div className="text-2xl font-bold text-pink-600">
+            {members.filter(m => m.role === 'marketing').length}
+          </div>
+          <div className="text-gray-500 text-sm">Marketing</div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow">
+          <div className="text-2xl font-bold text-purple-600">
             {subscription?.tier === 'professional' ? '10' : subscription?.tier === 'enterprise' ? '∞' : '3'}
           </div>
           <div className="text-gray-500 text-sm">Max Users</div>

@@ -17,7 +17,7 @@ export interface TeamMember {
   email: string
   fullName: string
   phone?: string
-  role: 'manager' | 'worker' | 'viewer'
+  role: 'manager' | 'worker' | 'viewer' | 'marketing' | 'sell'
   status: 'active' | 'inactive'
   permissions: string[]
   createdAt: string

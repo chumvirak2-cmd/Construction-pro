@@ -170,28 +170,46 @@ export default function Workers() {
     return R * c
   }
 
-  const handleScanLocation = (workerId: string) => {
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser.')
+  const handleScanLocation = (workerId: string, useLocation: boolean = true) => {
+    const existingRecord = attendance.find(a => a.workerId === workerId && a.date === selectedDate)
+    
+    if (existingRecord && existingRecord.checkIn && !existingRecord.checkOut) {
+      if (useLocation && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords
+            attendanceDb.update(existingRecord.id, {
+              checkOut: new Date().toISOString(),
+              location: { lat: latitude, lng: longitude }
+            })
+            alert('✓ Check-out recorded!')
+            loadData()
+          },
+          () => {
+            attendanceDb.update(existingRecord.id, {
+              checkOut: new Date().toISOString()
+            })
+            alert('✓ Check-out recorded (no location)!')
+            loadData()
+          }
+        )
+      } else {
+        attendanceDb.update(existingRecord.id, {
+          checkOut: new Date().toISOString()
+        })
+        alert('✓ Check-out recorded!')
+        loadData()
+      }
       return
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords
-        const distance = haversineDistance(latitude, longitude, siteCenter.lat, siteCenter.lng)
-        const isValid = distance <= siteRadiusMeters
-        
-        // Record attendance
-        const existingRecord = attendance.find(a => a.workerId === workerId && a.date === selectedDate)
-        
-        if (existingRecord) {
-          attendanceDb.update(existingRecord.id, {
-            checkOut: new Date().toISOString(),
-            location: { lat: latitude, lng: longitude },
-            status: isValid ? 'present' : 'late'
-          })
-        } else {
+    if (useLocation && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords
+          const distance = haversineDistance(latitude, longitude, siteCenter.lat, siteCenter.lng)
+          const isValid = distance <= siteRadiusMeters
+          
           attendanceDb.create({
             workerId,
             date: selectedDate,
@@ -199,13 +217,31 @@ export default function Workers() {
             location: { lat: latitude, lng: longitude },
             status: isValid ? 'present' : 'late'
           })
+          
+          alert(isValid ? '✓ Check-in successful! You are at the site.' : '⚠ You are outside the site area.')
+          loadData()
+        },
+        () => {
+          attendanceDb.create({
+            workerId,
+            date: selectedDate,
+            checkIn: new Date().toISOString(),
+            status: 'present'
+          })
+          alert('✓ Check-in recorded (no location)!')
+          loadData()
         }
-        
-        alert(isValid ? '✓ Check-in successful! You are at the site.' : '⚠ You are outside the site area.')
-        loadData()
-      },
-      () => alert('Unable to get location. Please allow location access.')
-    )
+      )
+    } else {
+      attendanceDb.create({
+        workerId,
+        date: selectedDate,
+        checkIn: new Date().toISOString(),
+        status: 'present'
+      })
+      alert('✓ Check-in recorded!')
+      loadData()
+    }
   }
 
   const markAbsent = (workerId: string) => {
@@ -648,18 +684,31 @@ export default function Workers() {
                       </td>
                       <td className="p-4">
                         <div className="flex gap-2">
-                          <button
-                            onClick={() => handleScanLocation(worker.id)}
-                            className="bg-blue-100 text-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-200"
-                          >
-                            Check In/Out
-                          </button>
-                          <button
-                            onClick={() => markAbsent(worker.id)}
-                            className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200"
-                          >
-                            Mark Absent
-                          </button>
+                          {!record?.checkIn ? (
+                            <button
+                              onClick={() => handleScanLocation(worker.id, true)}
+                              className="bg-green-100 text-green-600 px-3 py-1 rounded text-sm hover:bg-green-200"
+                            >
+                              Check In
+                            </button>
+                          ) : !record?.checkOut ? (
+                            <button
+                              onClick={() => handleScanLocation(worker.id, true)}
+                              className="bg-orange-100 text-orange-600 px-3 py-1 rounded text-sm hover:bg-orange-200"
+                            >
+                              Check Out
+                            </button>
+                          ) : (
+                            <span className="text-green-600 text-sm">✓ Completed</span>
+                          )}
+                          {!record?.checkIn && (
+                            <button
+                              onClick={() => markAbsent(worker.id)}
+                              className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200"
+                            >
+                              Mark Absent
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

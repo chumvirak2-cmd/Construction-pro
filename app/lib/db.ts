@@ -4,7 +4,7 @@ import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecor
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'starter',
-    name: 'Starter',
+    name: 'Basic',
     price: 29,
     interval: 'month',
     limits: {
@@ -13,14 +13,14 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       maxInventoryItems: 100,
       maxStorageMB: 100,
       maxUsers: 5,
-      features: ['projects', 'workers', 'inventory', 'basic_boq']
+      features: ['projects', 'workers', 'limited_inventory', 'basic_boq']
     },
     stripePriceId: 'price_starter_monthly'
   },
   {
     id: 'professional',
     name: 'Professional',
-    price: 79,
+    price: 199,
     interval: 'month',
     limits: {
       maxProjects: 25,
@@ -35,7 +35,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 199,
+    price: 799,
     interval: 'month',
     limits: {
       maxProjects: -1,
@@ -723,7 +723,8 @@ export const teamDb = {
       permissions,
       status: 'active',
       createdAt: new Date().toISOString(),
-      invitedBy
+      invitedBy,
+      isTrackingEnabled: false
     })
   }
 }

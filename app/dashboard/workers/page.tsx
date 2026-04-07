@@ -428,8 +428,11 @@ export default function Workers() {
                         <label className="block text-sm font-medium mb-1">Hourly Rate ($)</label>
                         <input
                           type="number"
-                          value={form.hourlyRate}
-                          onChange={(e) => setForm({ ...form, hourlyRate: parseFloat(e.target.value) })}
+                          value={form.hourlyRate || ''}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setForm({ ...form, hourlyRate: isNaN(val) ? 0 : val });
+                          }}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                         />
                       </div>
@@ -437,8 +440,11 @@ export default function Workers() {
                         <label className="block text-sm font-medium mb-1">Daily Rate ($)</label>
                         <input
                           type="number"
-                          value={form.dailyRate}
-                          onChange={(e) => setForm({ ...form, dailyRate: parseFloat(e.target.value) })}
+                          value={form.dailyRate || ''}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setForm({ ...form, dailyRate: isNaN(val) ? 0 : val });
+                          }}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                         />
                       </div>
@@ -446,8 +452,11 @@ export default function Workers() {
                         <label className="block text-sm font-medium mb-1">Overtime Rate ($)</label>
                         <input
                           type="number"
-                          value={form.overtimeRate}
-                          onChange={(e) => setForm({ ...form, overtimeRate: parseFloat(e.target.value) })}
+                          value={form.overtimeRate || ''}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setForm({ ...form, overtimeRate: isNaN(val) ? 0 : val });
+                          }}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                         />
                       </div>
@@ -609,8 +618,11 @@ export default function Workers() {
                 <input
                   type="number"
                   step="0.000001"
-                  value={siteCenter.lat}
-                  onChange={(e) => setSiteCenter({ ...siteCenter, lat: parseFloat(e.target.value) })}
+                  value={siteCenter.lat || ''}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    setSiteCenter({ ...siteCenter, lat: isNaN(val) ? 0 : val });
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 />
               </div>
@@ -619,8 +631,11 @@ export default function Workers() {
                 <input
                   type="number"
                   step="0.000001"
-                  value={siteCenter.lng}
-                  onChange={(e) => setSiteCenter({ ...siteCenter, lng: parseFloat(e.target.value) })}
+                  value={siteCenter.lng || ''}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    setSiteCenter({ ...siteCenter, lng: isNaN(val) ? 0 : val });
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 />
               </div>
@@ -628,8 +643,11 @@ export default function Workers() {
                 <label className="block text-sm font-medium mb-1">Allowed Radius (m)</label>
                 <input
                   type="number"
-                  value={siteRadiusMeters}
-                  onChange={(e) => setSiteRadiusMeters(parseInt(e.target.value))}
+                  value={siteRadiusMeters || ''}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    setSiteRadiusMeters(isNaN(val) ? 0 : val);
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 />
               </div>

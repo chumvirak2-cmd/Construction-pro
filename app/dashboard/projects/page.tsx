@@ -288,8 +288,11 @@ export default function Projects() {
                     <label className="block text-sm font-medium mb-1">Budget ($)</label>
                     <input
                       type="number"
-                      value={form.budget}
-                      onChange={(e) => setForm({ ...form, budget: parseFloat(e.target.value) || 0 })}
+                      value={form.budget || ''}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setForm({ ...form, budget: isNaN(val) ? 0 : val });
+                      }}
                       className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     />
                   </div>
@@ -297,8 +300,11 @@ export default function Projects() {
                     <label className="block text-sm font-medium mb-1">Actual Cost ($)</label>
                     <input
                       type="number"
-                      value={form.actualCost}
-                      onChange={(e) => setForm({ ...form, actualCost: parseFloat(e.target.value) || 0 })}
+                      value={form.actualCost || ''}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        setForm({ ...form, actualCost: isNaN(val) ? 0 : val });
+                      }}
                       className="w-full border border-gray-300 rounded-lg px-4 py-2"
                     />
                   </div>

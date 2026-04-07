@@ -419,8 +419,11 @@ export default function UsersPage() {
             <input
               type="number"
               step="0.000001"
-              value={siteCenter.lat}
-              onChange={(e) => setSiteCenter({ ...siteCenter, lat: parseFloat(e.target.value) })}
+              value={siteCenter.lat || ''}
+              onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  setSiteCenter({ ...siteCenter, lat: isNaN(val) ? 0 : val });
+                }}
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
             />
           </div>
@@ -429,8 +432,11 @@ export default function UsersPage() {
             <input
               type="number"
               step="0.000001"
-              value={siteCenter.lng}
-              onChange={(e) => setSiteCenter({ ...siteCenter, lng: parseFloat(e.target.value) })}
+              value={siteCenter.lng || ''}
+              onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  setSiteCenter({ ...siteCenter, lng: isNaN(val) ? 0 : val });
+                }}
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
             />
           </div>
@@ -438,8 +444,11 @@ export default function UsersPage() {
             <label className="block text-sm font-medium mb-1">Allowed Radius (m)</label>
             <input
               type="number"
-              value={siteRadiusMeters}
-              onChange={(e) => setSiteRadiusMeters(parseInt(e.target.value))}
+              value={siteRadiusMeters || ''}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
+                setSiteRadiusMeters(isNaN(val) ? 0 : val);
+              }}
               className="w-full border border-gray-300 rounded-lg px-4 py-2"
             />
           </div>

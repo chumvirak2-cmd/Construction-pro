@@ -345,8 +345,17 @@ export default function Inventory() {
                         <label className="block text-sm font-medium mb-1">Quantity *</label>
                         <input
                           type="number"
-                          value={form.quantity}
-                          onChange={(e) => setForm({ ...form, quantity: parseInt(e.target.value) || 0 })}
+                          min="1"
+                          max="10"
+                          value={form.quantity || ''}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            if (!isNaN(val) && val >= 1 && val <= 10) {
+                              setForm({ ...form, quantity: val });
+                            } else if (e.target.value === '') {
+                              setForm({ ...form, quantity: 0 });
+                            }
+                          }}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                           required
                         />
@@ -365,8 +374,11 @@ export default function Inventory() {
                         <label className="block text-sm font-medium mb-1">Min Stock Level</label>
                         <input
                           type="number"
-                          value={form.minQuantity}
-                          onChange={(e) => setForm({ ...form, minQuantity: parseInt(e.target.value) || 0 })}
+                          value={form.minQuantity || ''}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            setForm({ ...form, minQuantity: isNaN(val) ? 0 : val });
+                          }}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                           placeholder="Alert when below"
                         />
@@ -379,8 +391,11 @@ export default function Inventory() {
                         <input
                           type="number"
                           step="0.01"
-                          value={form.unitPrice}
-                          onChange={(e) => setForm({ ...form, unitPrice: parseFloat(e.target.value) || 0 })}
+                          value={form.unitPrice || ''}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            setForm({ ...form, unitPrice: isNaN(val) ? 0 : val });
+                          }}
                           className="w-full border border-gray-300 rounded-lg px-4 py-2"
                           required
                         />

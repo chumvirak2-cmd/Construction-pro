@@ -5,7 +5,8 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'starter',
     name: 'Basic',
-    price: 79,
+    price: 29.99,
+    yearlyPrice: 129,
     interval: 'month',
     limits: {
       maxProjects: 5,
@@ -15,12 +16,14 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       maxUsers: 5,
       features: ['projects', 'workers', 'limited_inventory', 'basic_boq']
     },
-    stripePriceId: 'price_starter_monthly'
+    stripePriceIdMonthly: 'price_basic_monthly',
+    stripePriceIdYearly: 'price_basic_yearly'
   },
   {
     id: 'professional',
-    name: 'Professional',
-    price: 199,
+    name: 'Pro',
+    price: 599,
+    yearlyPrice: 799,
     interval: 'month',
     limits: {
       maxProjects: 25,
@@ -28,14 +31,16 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       maxInventoryItems: 500,
       maxStorageMB: 500,
       maxUsers: 10,
-      features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user']
+      features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user', 'advanced_analytics']
     },
-    stripePriceId: 'price_professional_monthly'
+    stripePriceIdMonthly: 'price_pro_monthly',
+    stripePriceIdYearly: 'price_pro_yearly'
   },
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 799,
+    price: 899,
+    yearlyPrice: 999,
     interval: 'month',
     limits: {
       maxProjects: -1,
@@ -43,9 +48,10 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       maxInventoryItems: -1,
       maxStorageMB: -1,
       maxUsers: -1,
-      features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user', 'api_access', 'priority_support', 'custom_branding']
+      features: ['projects', 'workers', 'inventory', 'boq', 'reports', 'multi_user', 'api_access', 'priority_support', 'custom_branding', 'full_access']
     },
-    stripePriceId: 'price_enterprise_monthly'
+    stripePriceIdMonthly: 'price_enterprise_monthly',
+    stripePriceIdYearly: 'price_enterprise_yearly'
   }
 ]
 

@@ -12,6 +12,7 @@ export default function SubscriptionPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null)
   const [isClient, setIsClient] = useState(false)
+  const [billingCycle, setBillingCycle] = useState<'month' | 'year'>('month')
 
   useEffect(() => {
     setIsClient(true)
@@ -30,7 +31,7 @@ export default function SubscriptionPage() {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId, userId: currentUser?.id })
+        body: JSON.stringify({ planId, userId: currentUser?.id, billingCycle })
       })
       
       const data = await response.json()
@@ -54,7 +55,7 @@ export default function SubscriptionPage() {
     if (currentUser) {
       subscriptionDb.create({
         userId: currentUser.id,
-        tier: 'professional',
+        tier: 'starter',
         status: 'active',
         currentPeriodStart: new Date().toISOString(),
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -123,6 +124,21 @@ export default function SubscriptionPage() {
               </span>
             </div>
           )}
+
+          <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+            <button
+              onClick={() => setBillingCycle('month')}
+              style={{ padding: '8px 20px', borderRadius: '20px', border: 'none', fontSize: '14px', fontWeight: 500, cursor: 'pointer', background: billingCycle === 'month' ? '#3b82f6' : '#e5e7eb', color: billingCycle === 'month' ? 'white' : '#6b7280' }}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('year')}
+              style={{ padding: '8px 20px', borderRadius: '20px', border: 'none', fontSize: '14px', fontWeight: 500, cursor: 'pointer', background: billingCycle === 'year' ? '#3b82f6' : '#e5e7eb', color: billingCycle === 'year' ? 'white' : '#6b7280' }}
+            >
+              Yearly {billingCycle === 'year' && '(Save up to 50%)'}
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
@@ -151,8 +167,13 @@ export default function SubscriptionPage() {
                 <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 8px', color: '#111827' }}>{plan.name}</h3>
                 
                 <div style={{ marginBottom: '16px' }}>
-                  <span style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827' }}>${plan.price}</span>
-                  <span style={{ color: '#6b7280', fontSize: '14px' }}>/{plan.interval}</span>
+                  <span style={{ fontSize: '36px', fontWeight: 'bold', color: '#111827' }}>${billingCycle === 'month' ? plan.price : plan.yearlyPrice}</span>
+                  <span style={{ color: '#6b7280', fontSize: '14px' }}>/{billingCycle === 'month' ? 'month' : 'year'}</span>
+                  {billingCycle === 'year' && (
+                    <div style={{ fontSize: '12px', color: '#10b981', marginTop: '4px' }}>
+                      Save ${Math.round(plan.price * 12 - plan.yearlyPrice)}/year
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>

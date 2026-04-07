@@ -415,6 +415,7 @@ export interface SubscriptionPlan {
   id: SubscriptionTier
   name: string
   price: number
+  yearlyPrice: number
   interval: 'month' | 'year'
   limits: {
     maxProjects: number
@@ -424,7 +425,8 @@ export interface SubscriptionPlan {
     maxUsers: number
     features: string[]
   }
-  stripePriceId: string
+  stripePriceIdMonthly: string
+  stripePriceIdYearly: string
 }
 
 export interface Subscription {

@@ -36,7 +36,7 @@ export default function Signup() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', padding: '12px', overflowY: 'auto' }}>
       <div style={{ background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', width: '100%', maxWidth: '360px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px' }}>
-          <img src="/logo.png" alt="Construction Pro" style={{ width: '70px', height: '70px', borderRadius: '50%', marginBottom: '8px' }} />
+          <img src="/logo.png?v=2" alt="Construction Pro" style={{ width: '70px', height: '70px', borderRadius: '50%', marginBottom: '8px' }} />
           <h1 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
           <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>AI Agent for MEP Companies</p>
         </div>

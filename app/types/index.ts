@@ -22,6 +22,13 @@ export interface TeamMember {
   permissions: string[]
   createdAt: string
   invitedBy?: string
+  lastLocation?: {
+    lat: number
+    lng: number
+    timestamp: string
+    accuracy: number
+  }
+  isTrackingEnabled: boolean
 }
 
 // Project Types

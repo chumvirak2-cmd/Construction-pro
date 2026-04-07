@@ -5,7 +5,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'starter',
     name: 'Basic',
-    price: 29,
+    price: 79,
     interval: 'month',
     limits: {
       maxProjects: 5,

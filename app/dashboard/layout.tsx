@@ -89,7 +89,7 @@ export default function DashboardLayout({
         {/* Mobile Header */}
         <header className="bg-gray-800 text-white px-4 py-3 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo.png" alt="Logo" className="w-8 h-8 rounded-full" />
+            <img src="/logo.png?v=2" alt="Logo" className="w-8 h-8 rounded-full" />
             <span className="font-bold text-sm">Construction Pro</span>
           </Link>
           <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function DashboardLayout({
       <div className="w-64 bg-gray-800 text-white relative flex flex-col flex-shrink-0">
         <div className="p-5 flex flex-col items-center text-center border-b border-gray-700">
           <Link href="/dashboard" className="flex flex-col items-center">
-            <img src="/logo.png" alt="Construction Pro" className="w-24 h-24 rounded-full mb-2" />
+            <img src="/logo.png?v=2" alt="Construction Pro" className="w-24 h-24 rounded-full mb-2" />
             <div className="font-bold text-lg">Construction Pro</div>
             <div className="text-xs text-gray-400">AI Agent</div>
             {isDemo && <span className="mt-1 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO MODE</span>}

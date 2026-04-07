@@ -110,7 +110,7 @@ export default function SubscriptionPage() {
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <img src="/logo.png" alt="ConstructionPro" style={{ width: '60px', height: '60px', borderRadius: '50%', marginBottom: '12px' }} />
+            <img src="/logo.png?v=2" alt="ConstructionPro" style={{ width: '60px', height: '60px', borderRadius: '50%', marginBottom: '12px' }} />
           </Link>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px', color: '#111827' }}>Choose Your Plan</h1>
           <p style={{ color: '#6b7280', fontSize: '14px', margin: 0 }}>

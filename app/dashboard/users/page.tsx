@@ -36,8 +36,12 @@ export default function UsersPage() {
     fullName: '',
     phone: '',
     role: 'manager' as TeamMember['role'],
-    permissions: ['projects', 'workers', 'inventory', 'boq', 'reports']
+    permissions: ['projects', 'workers', 'inventory', 'boq', 'reports'],
+    isTrackingEnabled: false
   })
+  const [trackingView, setTrackingView] = useState<'list' | 'map'>('list')
+  const [siteCenter, setSiteCenter] = useState({ lat: 40.7128, lng: -74.0060 })
+  const [siteRadiusMeters, setSiteRadiusMeters] = useState(500)
 
   useEffect(() => {
     loadData()
@@ -57,7 +61,8 @@ export default function UsersPage() {
         fullName: form.fullName,
         phone: form.phone,
         role: form.role,
-        permissions: form.permissions
+        permissions: form.permissions,
+        isTrackingEnabled: form.isTrackingEnabled
       })
     } else {
       teamDb.invite(
@@ -79,7 +84,8 @@ export default function UsersPage() {
       fullName: '',
       phone: '',
       role: 'manager',
-      permissions: ['projects', 'workers', 'inventory', 'boq', 'reports']
+      permissions: ['projects', 'workers', 'inventory', 'boq', 'reports'],
+      isTrackingEnabled: false
     })
     setShowForm(false)
     setEditingMember(null)
@@ -91,7 +97,8 @@ export default function UsersPage() {
       fullName: member.fullName,
       phone: member.phone || '',
       role: member.role,
-      permissions: member.permissions
+      permissions: member.permissions,
+      isTrackingEnabled: member.isTrackingEnabled || false
     })
     setEditingMember(member)
     setShowForm(true)
@@ -111,6 +118,56 @@ export default function UsersPage() {
         ? prev.permissions.filter(p => p !== perm)
         : [...prev.permissions, perm]
     }))
+  }
+
+  const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const toRad = (v: number) => (v * Math.PI) / 180
+    const R = 6371000
+    const dLat = toRad(lat2 - lat1)
+    const dLon = toRad(lon2 - lon1)
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return R * c
+  }
+
+  const getMemberDistance = (member: TeamMember) => {
+    if (!member.lastLocation) return null
+    return haversineDistance(
+      member.lastLocation.lat,
+      member.lastLocation.lng,
+      siteCenter.lat,
+      siteCenter.lng
+    )
+  }
+
+  const updateMemberLocation = (memberId: string) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude, accuracy } = position.coords
+          const member = members.find(m => m.id === memberId)
+          if (member) {
+            teamDb.update(memberId, {
+              lastLocation: {
+                lat: latitude,
+                lng: longitude,
+                timestamp: new Date().toISOString(),
+                accuracy: accuracy
+              }
+            })
+            loadData()
+            alert('✓ Location updated!')
+          }
+        },
+        () => {
+          alert('Failed to get location. Please enable GPS.')
+        }
+      )
+    } else {
+      alert('Geolocation is not supported by this browser.')
+    }
   }
 
   const maxUsers = subscription?.tier === 'enterprise' ? -1 : 
@@ -208,6 +265,19 @@ export default function UsersPage() {
                   </select>
                 </div>
 
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isTrackingEnabled"
+                    checked={form.isTrackingEnabled}
+                    onChange={(e) => setForm({ ...form, isTrackingEnabled: e.target.checked })}
+                    className="rounded border-gray-300"
+                  />
+                  <label htmlFor="isTrackingEnabled" className="text-sm font-medium">
+                    Enable Location Tracking
+                  </label>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">Permissions</label>
                   <div className="grid grid-cols-2 gap-2">
@@ -248,13 +318,14 @@ export default function UsersPage() {
               <th className="text-left p-4 font-medium">Email</th>
               <th className="text-left p-4 font-medium">Role</th>
               <th className="text-left p-4 font-medium">Permissions</th>
+              <th className="text-left p-4 font-medium">Location</th>
               <th className="text-left p-4 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {members.length === 0 ? (
               <tr>
-                <td colSpan={5} className="p-8 text-center text-gray-500">
+                <td colSpan={6} className="p-8 text-center text-gray-500">
                   No team members yet. Add your first team member.
                 </td>
               </tr>
@@ -284,6 +355,39 @@ export default function UsersPage() {
                     </div>
                   </td>
                   <td className="p-4">
+                    {member.isTrackingEnabled ? (
+                      member.lastLocation ? (
+                        <div className="text-sm">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            (getMemberDistance(member) || 0) <= siteRadiusMeters 
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-red-100 text-red-700'
+                          }`}>
+                            {(getMemberDistance(member) || 0) <= siteRadiusMeters ? 'At Site' : 'Off Site'}
+                          </span>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {Math.round(getMemberDistance(member) || 0)}m from site
+                          </div>
+                          <button
+                            onClick={() => updateMemberLocation(member.id)}
+                            className="text-blue-600 hover:underline text-xs"
+                          >
+                            Update
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => updateMemberLocation(member.id)}
+                          className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs"
+                        >
+                          Track Location
+                        </button>
+                      )
+                    ) : (
+                      <span className="text-gray-400 text-xs">Not tracked</span>
+                    )}
+                  </td>
+                  <td className="p-4">
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleEdit(member)}
@@ -304,6 +408,42 @@ export default function UsersPage() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Site Location Settings */}
+      <div className="bg-white rounded-lg shadow p-4 mt-6">
+        <h3 className="font-semibold mb-3">Site Location Settings</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Site Latitude</label>
+            <input
+              type="number"
+              step="0.000001"
+              value={siteCenter.lat}
+              onChange={(e) => setSiteCenter({ ...siteCenter, lat: parseFloat(e.target.value) })}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Site Longitude</label>
+            <input
+              type="number"
+              step="0.000001"
+              value={siteCenter.lng}
+              onChange={(e) => setSiteCenter({ ...siteCenter, lng: parseFloat(e.target.value) })}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Allowed Radius (m)</label>
+            <input
+              type="number"
+              value={siteRadiusMeters}
+              onChange={(e) => setSiteRadiusMeters(parseInt(e.target.value))}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Stats */}

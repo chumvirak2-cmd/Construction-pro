@@ -11,10 +11,19 @@ function getStripe() {
   return stripe
 }
 
-const PRICE_IDS: Record<string, string> = {
-  starter: process.env.STRIPE_STARTER_PRICE_ID || 'price_starter',
-  professional: process.env.STRIPE_PROFESSIONAL_PRICE_ID || 'price_professional',
-  enterprise: process.env.STRIPE_ENTERPRISE_PRICE_ID || 'price_enterprise'
+const PRICE_IDS: Record<string, { monthly: string; yearly: string }> = {
+  starter: {
+    monthly: process.env.STRIPE_STARTER_MONTHLY_ID || 'price_basic_monthly',
+    yearly: process.env.STRIPE_STARTER_YEARLY_ID || 'price_basic_yearly'
+  },
+  professional: {
+    monthly: process.env.STRIPE_PRO_MONTHLY_ID || 'price_pro_monthly',
+    yearly: process.env.STRIPE_PRO_YEARLY_ID || 'price_pro_yearly'
+  },
+  enterprise: {
+    monthly: process.env.STRIPE_ENTERPRISE_MONTHLY_ID || 'price_enterprise_monthly',
+    yearly: process.env.STRIPE_ENTERPRISE_YEARLY_ID || 'price_enterprise_yearly'
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -24,22 +33,23 @@ export async function POST(request: NextRequest) {
   }
   
   try {
-    const { planId, userId, email } = await request.json()
+    const { planId, userId, billingCycle = 'month' } = await request.json()
     
     if (!planId || !userId) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
     
-    const priceId = PRICE_IDS[planId]
-    if (!priceId) {
+    const priceConfig = PRICE_IDS[planId]
+    if (!priceConfig) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
     
+    const priceId = billingCycle === 'year' ? priceConfig.yearly : priceConfig.monthly
     const domain = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
     
     const checkoutSession = await stripeInstance.checkout.sessions.create({
       mode: 'subscription',
-      payment_method_types: ['card'],
+      payment_method_types: ['card', 'paypal'],
       line_items: [
         {
           price: priceId,
@@ -51,7 +61,8 @@ export async function POST(request: NextRequest) {
       client_reference_id: userId,
       metadata: {
         userId,
-        planId
+        planId,
+        billingCycle
       }
     })
     

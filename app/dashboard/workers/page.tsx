@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Worker, WorkerRole, AttendanceRecord } from '../../types'
-import { workersDb, attendanceDb } from '../../lib/db'
+import { Worker, WorkerRole, AttendanceRecord, WorkerLocation, TrackingAlert } from '../../types'
+import { workersDb, attendanceDb, workerLocationDb, trackingAlertDb } from '../../lib/db'
 
 const roleOptions: WorkerRole[] = [
   // Construction & MEP Trades
@@ -49,12 +49,15 @@ const statusColors = {
 export default function Workers() {
   const [workers, setWorkers] = useState<Worker[]>([])
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([])
-  const [view, setView] = useState<'workers' | 'attendance'>('workers')
+  const [view, setView] = useState<'workers' | 'attendance' | 'tracking'>('workers')
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState<WorkerRole | 'all'>('all')
   const [showForm, setShowForm] = useState(false)
   const [editingWorker, setEditingWorker] = useState<Worker | null>(null)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [trackingPhone, setTrackingPhone] = useState('')
+  const [trackedLocations, setTrackedLocations] = useState<WorkerLocation[]>([])
+  const [activeAlerts, setActiveAlerts] = useState<TrackingAlert[]>([])
 
   const [siteCenter, setSiteCenter] = useState({ lat: 40.7128, lng: -74.0060 })
   const [siteRadiusMeters, setSiteRadiusMeters] = useState(500)
@@ -82,6 +85,27 @@ export default function Workers() {
   const loadData = () => {
     setWorkers(workersDb.getAll())
     setAttendance(attendanceDb.getAll())
+    setActiveAlerts(trackingAlertDb.getActive())
+  }
+
+  const handleTrackByPhone = () => {
+    if (!trackingPhone.trim()) {
+      alert('Please enter a phone number')
+      return
+    }
+    const locations = workerLocationDb.getByPhone(trackingPhone.trim())
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    setTrackedLocations(locations)
+    
+    if (locations.length === 0) {
+      alert('No tracking records found for this phone number')
+    }
+  }
+
+  const handleResolveAlert = (alertId: string) => {
+    trackingAlertDb.resolveAlert(alertId)
+    loadData()
+    alert('Alert resolved!')
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -291,6 +315,12 @@ export default function Workers() {
             className={`px-4 py-2 rounded-lg ${view === 'attendance' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
           >
             Attendance
+          </button>
+          <button
+            onClick={() => setView('tracking')}
+            className={`px-4 py-2 rounded-lg ${view === 'tracking' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+          >
+            Track by Phone
           </button>
         </div>
       </div>
@@ -736,6 +766,113 @@ export default function Workers() {
             </table>
           </div>
         </>
+      )}
+
+      {view === 'tracking' && (
+        <div>
+          {/* Track by Phone View */}
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 className="font-semibold text-lg mb-4">Track Worker by Phone</h3>
+            <p className="text-gray-500 text-sm mb-4">Enter a worker's phone number to view their location history</p>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <input
+                  type="tel"
+                  placeholder="Enter phone number (e.g., +1234567890)"
+                  value={trackingPhone}
+                  onChange={(e) => setTrackingPhone(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3"
+                />
+              </div>
+              <button
+                onClick={handleTrackByPhone}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+              >
+                Track
+              </button>
+            </div>
+          </div>
+
+          {/* Tracking Results */}
+          {trackedLocations.length > 0 && (
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+              <h3 className="font-semibold mb-4">Location History ({trackedLocations.length} records)</h3>
+              <div className="space-y-3">
+                {trackedLocations.slice(0, 10).map((loc, idx) => (
+                  <div key={loc.id} className={`p-4 border rounded-lg ${loc.isOutsideSite ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-medium">
+                          {idx === 0 ? 'Current Location' : `Location ${idx + 1}`}
+                        </div>
+                        <div className="text-sm text-gray-600">Lat: {loc.latitude.toFixed(6)}, Lng: {loc.longitude.toFixed(6)}</div>
+                        <div className="text-sm text-gray-500">Accuracy: {loc.accuracy}m - Distance from site: {loc.distanceFromSite}m</div>
+                        <div className="text-sm text-gray-500">{new Date(loc.timestamp).toLocaleString()}</div>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${loc.isOutsideSite ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'}`}>
+                        {loc.isOutsideSite ? 'Outside Site' : 'At Site'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Active Alerts */}
+          {activeAlerts.length > 0 && (
+            <div className="bg-white rounded-lg shadow p-6 mb-6">
+              <h3 className="font-semibold text-lg mb-4 text-red-600">Active Alerts ({activeAlerts.length})</h3>
+              <div className="space-y-3">
+                {activeAlerts.map(alert => (
+                  <div key={alert.id} className="p-4 border border-red-200 rounded-lg bg-red-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-medium">{alert.workerName}</div>
+                        <div className="text-sm text-gray-600">{alert.phone}</div>
+                        <div className="text-sm">Distance: {alert.distanceFromSite}m from site</div>
+                        <div className="text-sm text-gray-500">{new Date(alert.timestamp).toLocaleString()}</div>
+                      </div>
+                      <button
+                        onClick={() => handleResolveAlert(alert.id)}
+                        className="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700"
+                      >
+                        Resolve
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quick Worker List */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="font-semibold text-lg mb-4">Workers with Phone Numbers</h3>
+            <div className="space-y-2">
+              {workers.filter(w => w.phone).map(worker => (
+                <div key={worker.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <div className="font-medium">{worker.name}</div>
+                    <div className="text-sm text-gray-500">{worker.phone}</div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setTrackingPhone(worker.phone)
+                      handleTrackByPhone()
+                    }}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Track
+                  </button>
+                </div>
+              ))}
+            </div>
+            {workers.filter(w => w.phone).length === 0 && (
+              <p className="text-gray-500 text-center py-4">No workers with phone numbers</p>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Stats */}

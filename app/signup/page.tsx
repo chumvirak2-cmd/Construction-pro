@@ -33,64 +33,69 @@ export default function Signup() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', padding: '12px', overflowY: 'auto' }}>
-      <div style={{ background: 'white', padding: '16px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', width: '100%', maxWidth: '360px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px' }}>
-          <img src="/logo.png?v=2" alt="Construction Pro" style={{ width: '70px', height: '70px', borderRadius: '50%', marginBottom: '8px' }} />
-          <h1 style={{ fontSize: '16px', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
-          <p style={{ color: '#6b7280', fontSize: '11px', marginTop: '2px' }}>AI Agent for MEP Companies</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', padding: 'clamp(8px, 3vw, 24px)', paddingBottom: 'env(safe-area-inset-bottom, 16px)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ background: 'white', padding: 'clamp(16px, 5vw, 32px)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px' }}>
+          <img src="/logo.png?v=2" alt="Construction Pro" style={{ width: 'clamp(56px, 18vw, 80px)', height: 'clamp(56px, 18vw, 80px)', borderRadius: '50%', marginBottom: '12px' }} />
+          <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
+          <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}>AI Agent for MEP Companies</p>
         </div>
-        <h2 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '10px', textAlign: 'center' }}>Sign Up</h2>
-        {error && <p style={{ color: '#dc2626', fontSize: '12px', textAlign: 'center', marginBottom: '10px' }}>{error}</p>}
+        <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>Sign Up</h2>
+        {error && <p style={{ color: '#dc2626', fontSize: 'clamp(12px, 3.5vw, 14px)', textAlign: 'center', marginBottom: '12px' }}>{error}</p>}
         <form onSubmit={handleSignup}>
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500 }}>Full Name</label>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Full Name</label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 10px', fontSize: '14px', boxSizing: 'border-box' }}
+              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
               required
+              autoComplete="name"
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500 }}>Company Name</label>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Company Name</label>
             <input
               type="text"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 10px', fontSize: '14px', boxSizing: 'border-box' }}
+              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
               required
+              autoComplete="organization"
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500 }}>Email</label>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 10px', fontSize: '14px', boxSizing: 'border-box' }}
+              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
               required
+              autoComplete="email"
+              inputMode="email"
             />
           </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 500 }}>Password</label>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '6px', padding: '8px 10px', fontSize: '14px', boxSizing: 'border-box' }}
+              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
               required
+              autoComplete="new-password"
             />
           </div>
-          <button type="submit" style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '10px', borderRadius: '6px', fontWeight: 500, fontSize: '14px', border: 'none', cursor: 'pointer' }}>
+          <button type="submit" style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', touchAction: 'manipulation', minHeight: '48px' }}>
             Sign Up
           </button>
         </form>
-        <p style={{ marginTop: '10px', textAlign: 'center', fontSize: '12px' }}>
-          Already have an account? <Link href="/" style={{ color: '#3b82f6', fontWeight: 500 }}>Sign In</Link>
+        <p style={{ marginTop: '14px', textAlign: 'center', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
+          Already have an account? <Link href="/" style={{ color: '#3b82f6', fontWeight: 600 }}>Sign In</Link>
         </p>
-        <div style={{ marginTop: '12px', textAlign: 'center', fontSize: '10px', color: '#9ca3af' }}>
+        <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
           <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>
           <p style={{ margin: 0 }}>All rights reserved.</p>
         </div>

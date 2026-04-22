@@ -128,16 +128,16 @@ export default function Settings() {
   }, [])
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Settings</h1>
+    <div className="px-1 md:px-0">
+      <h1 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">Settings</h1>
       
-      {/* Tabs */}
-      <div className="flex border-b mb-6">
+      {/* Tabs - Scrollable on mobile */}
+      <div className="flex border-b mb-4 md:mb-6 overflow-x-auto scrollbar-hide">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 font-medium ${
+            className={`px-3 md:px-4 py-2.5 font-medium whitespace-nowrap min-h-[44px] ${
               activeTab === tab.id
                 ? 'border-b-2 border-blue-500 text-blue-600'
                 : 'text-gray-500 hover:text-gray-700'

@@ -69,8 +69,8 @@ export default function Profile() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Company Information</h1>
+    <div className="px-1 md:px-0">
+      <h1 className="text-lg md:text-2xl font-bold mb-4 md:mb-6">Company Information</h1>
       
       {/* Profile Information */}
       <div className="mb-8">
@@ -116,7 +116,7 @@ export default function Profile() {
                 type="text"
                 value={profile.fullName}
                 onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 min-h-[44px]"
                 required
               />
             </div>
@@ -126,7 +126,7 @@ export default function Profile() {
                 type="email"
                 value={profile.email}
                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 min-h-[44px]"
                 required
               />
             </div>
@@ -136,14 +136,14 @@ export default function Profile() {
                 type="text"
                 value={profile.companyName}
                 onChange={(e) => setProfile({ ...profile, companyName: e.target.value })}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 min-h-[44px]"
                 required
               />
             </div>
-            <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded mr-2">
+            <button type="submit" className="bg-green-500 text-white px-4 py-2.5 rounded mr-2 min-h-[44px]">
               Save Changes
             </button>
-            <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-500 text-white px-4 py-2 rounded">
+            <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-500 text-white px-4 py-2.5 rounded min-h-[44px]">
               Cancel
             </button>
           </form>
@@ -154,13 +154,13 @@ export default function Profile() {
       <div>
         <h2 className="text-xl font-semibold mb-4">Change Password</h2>
         <form onSubmit={handlePasswordSubmit}>
-          <div className="mb-4">
+<div className="mb-4">
             <label className="block text-sm font-medium">Current Password</label>
             <input
               type="password"
               value={passwordForm.currentPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 min-h-[44px]"
               required
             />
           </div>
@@ -170,21 +170,21 @@ export default function Profile() {
               type="password"
               value={passwordForm.newPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 min-h-[44px]"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium">Confirm New Password</label>
+            <label className="block text-sm font-medium">Confirm Password</label>
             <input
               type="password"
               value={passwordForm.confirmPassword}
               onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2.5 min-h-[44px]"
               required
             />
           </div>
-          <button type="submit" className="bg-red-500 text-white px-4 py-2 rounded">
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2.5 rounded min-h-[44px]">
             Change Password
           </button>
         </form>

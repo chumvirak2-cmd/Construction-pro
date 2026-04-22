@@ -1,3 +1,93 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --sat: env(safe-area-inset-top);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+    --sar: env(safe-area-inset-right);
+  }
+  
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  body {
+    @apply antialiased;
+    text-size-adjust: 100%;
+    overscroll-behavior: none;
+  }
+  
+  input, textarea, select, button {
+    font-size: 16px !important;
+  }
+  
+  @media (max-width: 768px) {
+    .safe-area-pb {
+      padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    }
+    
+    .safe-area-pt {
+      padding-top: calc(0.5rem + env(safe-area-inset-top));
+    }
+    
+    .safe-area-pl {
+      padding-left: calc(0.5rem + env(safe-area-inset-left));
+    }
+    
+    .safe-area-pr {
+      padding-right: calc(0.5rem + env(safe-area-inset-right));
+    }
+  }
+  
+  @media (hover: none) and (pointer: coarse) {
+    button, a, input, select, textarea {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    .touch-manipulation {
+      touch-action: manipulation;
+    }
+  }
+}
+
+@layer components {
+  .btn-mobile {
+    @apply min-h-[44px] px-4 py-2;
+    @apply transition-colors duration-150;
+  }
+  
+  .input-mobile {
+    @apply text-base;
+    @apply min-h-[44px];
+  }
+  
+  .card-mobile {
+    @apply rounded-lg;
+    @apply shadow-sm;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -205,8 +205,8 @@ export default function BOQ() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Calculate BOQ</h1>
+    <div className="px-1 md:px-0">
+      <h1 className="text-lg md:text-2xl font-bold mb-4">Calculate BOQ</h1>
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex-1">
           <label className="block text-sm font-medium">Upload XLSX File</label>
@@ -214,15 +214,15 @@ export default function BOQ() {
             type="file"
             accept=".xlsx"
             onChange={handleFileUpload}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2 min-h-[44px]"
           />
         </div>
         <button
           type="button"
           onClick={downloadTemplate}
-          className="mt-2 md:mt-0 inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+          className="mt-2 md:mt-0 inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 min-h-[44px]"
         >
-          Download XLSX Template
+          Template
         </button>
       </div>
 

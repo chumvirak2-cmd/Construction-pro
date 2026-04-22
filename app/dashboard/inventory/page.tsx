@@ -201,25 +201,25 @@ export default function Inventory() {
   }))
 
   return (
-    <div>
+    <div className="px-1 md:px-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Inventory & Materials</h1>
-          <p className="text-gray-500">Manage materials, tools, and supplies</p>
+          <h1 className="text-lg md:text-2xl font-bold">Inventory & Materials</h1>
+          <p className="text-gray-500 text-xs md:text-sm">Manage materials, tools, and supplies</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setView('inventory')}
-            className={`px-4 py-2 rounded-lg ${view === 'inventory' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+            className={`px-3 md:px-4 py-2.5 rounded-lg min-h-[44px] ${view === 'inventory' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
           >
             Inventory
           </button>
           <button
             onClick={() => setView('purchase')}
-            className={`px-4 py-2 rounded-lg ${view === 'purchase' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+            className={`px-3 md:px-4 py-2.5 rounded-lg min-h-[44px] ${view === 'purchase' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
           >
-            Purchase Orders
+            Orders
           </button>
         </div>
       </div>
@@ -241,42 +241,42 @@ export default function Inventory() {
           )}
 
           {/* Filters */}
-          <div className="bg-white rounded-lg shadow p-4 mb-6">
-            <div className="flex flex-col md:flex-row gap-4">
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 md:mb-6">
+            <div className="flex flex-col md:flex-row gap-2 md:gap-4">
               <input
                 type="text"
                 placeholder="Search inventory..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
               />
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value as InventoryCategory | 'all')}
-                className="border border-gray-300 rounded-lg px-4 py-2"
+                className="border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
               >
                 <option value="all">All Categories</option>
                 {categoryOptions.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
               <button
                 onClick={exportToExcel}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                className="bg-green-600 text-white px-3 md:px-4 py-2.5 rounded-lg hover:bg-green-700 min-h-[44px]"
               >
-                📥 Export Excel
+                📥
               </button>
               <button
                 onClick={() => setShowForm(!showForm)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                className="bg-blue-600 text-white px-3 md:px-4 py-2.5 rounded-lg hover:bg-blue-700 min-h-[44px]"
               >
-                + Add Item
+                + Add
               </button>
               {items.length === 0 && (
                 <button
                   onClick={handleSeedData}
                   disabled={seeding}
-                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                  className="bg-purple-600 text-white px-3 md:px-4 py-2.5 rounded-lg hover:bg-purple-700 disabled:opacity-50 min-h-[44px]"
                 >
-                  {seeding ? 'Loading...' : ' Load Sample Data'}
+                  {seeding ? '...' : 'Sample'}
                 </button>
               )}
             </div>
@@ -297,14 +297,14 @@ export default function Inventory() {
 
           {/* Item Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
               <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold">{editingItem ? 'Edit Item' : 'Add New Item'}</h2>
-                    <button onClick={resetForm} className="text-gray-500 hover:text-gray-700">✕</button>
+                <div className="p-4 md:p-6">
+                  <div className="flex justify-between items-center mb-4 md:mb-6">
+                    <h2 className="text-lg md:text-xl font-bold">{editingItem ? 'Edit Item' : 'Add New Item'}</h2>
+                    <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 min-h-[44px] min-w-[44px]">✕</button>
                   </div>
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-1">Item Name *</label>
@@ -422,11 +422,11 @@ export default function Inventory() {
                       />
                     </div>
 
-                    <div className="flex gap-3 pt-4">
-                      <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                    <div className="flex gap-2 md:gap-3 pt-3 md:pt-4">
+                      <button type="submit" className="bg-blue-600 text-white px-4 md:px-6 py-2.5 rounded-lg hover:bg-blue-700 min-h-[44px]">
                         {editingItem ? 'Update Item' : 'Add Item'}
                       </button>
-                      <button type="button" onClick={resetForm} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg">
+                      <button type="button" onClick={resetForm} className="bg-gray-200 text-gray-700 px-4 md:px-6 py-2.5 rounded-lg min-h-[44px]">
                         Cancel
                       </button>
                     </div>
@@ -437,22 +437,22 @@ export default function Inventory() {
           )}
 
           {/* Inventory Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {filteredItems.map(item => {
               const isLowStock = item.minQuantity > 0 && item.quantity < item.minQuantity
               return (
-                <div key={item.id} className={`bg-white rounded-xl shadow p-6 ${isLowStock ? 'border-2 border-red-300' : ''}`}>
-                  <div className="flex justify-between items-start mb-4">
+                <div key={item.id} className={`bg-white rounded-xl shadow p-4 md:p-6 ${isLowStock ? 'border-2 border-red-300' : ''}`}>
+                  <div className="flex justify-between items-start mb-3 md:mb-4">
                     <div>
-                      <h3 className="font-bold text-lg">{item.name}</h3>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${categoryColors[item.category]}`}>
+                      <h3 className="font-bold text-sm md:text-lg truncate max-w-[140px] md:max-w-none">{item.name}</h3>
+                      <span className={`px-2 py-0.5 md:py-1 rounded text-[10px] md:text-xs font-medium ${categoryColors[item.category]}`}>
                         {item.category}
                       </span>
                     </div>
-                    {isLowStock && <span className="text-red-500">⚠️</span>}
+                    {isLowStock && <span className="text-red-500 text-lg">⚠️</span>}
                   </div>
                   
-                  <div className="space-y-2 text-sm mb-4">
+                  <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm mb-3 md:mb-4">
                     <div className="flex justify-between">
                       <span className="text-gray-500">Quantity:</span>
                       <span className={`font-medium ${isLowStock ? 'text-red-600' : ''}`}>
@@ -470,39 +470,39 @@ export default function Inventory() {
                     {item.supplier && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Supplier:</span>
-                        <span>{item.supplier}</span>
+                        <span className="truncate max-w-[100px]">{item.supplier}</span>
                       </div>
                     )}
                     {item.location && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Location:</span>
-                        <span>{item.location}</span>
+                        <span className="truncate max-w-[100px]">{item.location}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 pt-4 border-t">
+                  <div className="flex items-center gap-1 md:gap-2 pt-3 md:pt-4 border-t">
                     <button
                       onClick={() => updateQuantity(item.id, -1)}
-                      className="px-3 py-1 border rounded hover:bg-gray-100"
+                      className="px-3 py-1.5 md:py-2 border rounded hover:bg-gray-100 min-h-[44px]"
                     >
                       -
                     </button>
                     <button
                       onClick={() => updateQuantity(item.id, 1)}
-                      className="px-3 py-1 border rounded hover:bg-gray-100"
+                      className="px-3 py-1.5 md:py-2 border rounded hover:bg-gray-100 min-h-[44px]"
                     >
                       +
                     </button>
                     <button
                       onClick={() => handleEdit(item)}
-                      className="flex-1 bg-blue-50 text-blue-600 py-1 rounded hover:bg-blue-100 text-sm"
+                      className="flex-1 bg-blue-50 text-blue-600 py-1.5 md:py-2 rounded hover:bg-blue-100 text-xs md:text-sm min-h-[44px]"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="flex-1 bg-red-50 text-red-600 py-1 rounded hover:bg-red-100 text-sm"
+                      className="flex-1 bg-red-50 text-red-600 py-1.5 md:py-2 rounded hover:bg-red-100 text-xs md:text-sm min-h-[44px]"
                     >
                       Delete
                     </button>

@@ -94,29 +94,29 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className="pb-20 md:pb-6">
+    <div className="pb-20 md:pb-6 px-2 md:px-0">
       {/* Welcome Header */}
       <div className="mb-4 md:mb-6 text-center">
-        <h1 className="text-xl md:text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-500 text-sm">Welcome to Construction Pro AI Smart Agent</p>
+        <h1 className="text-lg md:text-2xl font-bold text-gray-800">Dashboard</h1>
+        <p className="text-gray-500 text-xs md:text-sm">Welcome to Construction Pro AI Smart Agent</p>
       </div>
 
       {/* Stats Cards - Stacked on mobile, 2x2 grid on tablet, 4 cols on desktop */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
         {statCards.map((card, index) => (
           <Link key={index} href={card.link} className="block group">
-            <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-4 border-l-4 border-transparent hover:border-l-4 group-hover:scale-[1.02]" style={{ borderLeftColor: card.color.replace('bg-', '').includes('blue') ? '#3b82f6' : card.color.replace('bg-', '').includes('green') ? '#22c55e' : card.color.replace('bg-', '').includes('orange') ? '#f97316' : '#a855f7' }}>
+            <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-3 md:p-4 border-l-4 border-transparent hover:border-l-4 group-hover:scale-[1.02]" style={{ borderLeftColor: card.color.replace('bg-', '').includes('blue') ? '#3b82f6' : card.color.replace('bg-', '').includes('green') ? '#22c55e' : card.color.replace('bg-', '').includes('orange') ? '#f97316' : '#a855f7' }}>
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">{card.title}</p>
-                  <p className="text-2xl md:text-3xl font-bold mt-1 text-gray-800">{card.value}</p>
-                  <p className="text-xs text-gray-400 mt-1 truncate">{card.subtext}</p>
+                  <p className="text-[10px] md:text-xs text-gray-500 uppercase tracking-wider font-medium">{card.title}</p>
+                  <p className="text-xl md:text-3xl font-bold mt-1 text-gray-800">{card.value}</p>
+                  <p className="text-[10px] md:text-xs text-gray-400 mt-1 truncate">{card.subtext}</p>
                 </div>
-                <div className={`${card.color} text-white text-xl p-2.5 rounded-xl shadow-sm flex-shrink-0 ml-3`}>
+                <div className={`${card.color} text-white text-lg md:text-xl p-2 rounded-xl shadow-sm flex-shrink-0 ml-2`}>
                   {card.icon}
                 </div>
               </div>
-              <p className="text-xs text-blue-600 mt-3 font-medium opacity-0 group-hover:opacity-100 transition-opacity">{card.label} →</p>
+              <p className="text-[10px] md:text-xs text-blue-600 mt-2 font-medium opacity-0 group-hover:opacity-100 transition-opacity">{card.label} →</p>
             </div>
           </Link>
         ))}
@@ -142,17 +142,17 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Actions - Full width on mobile, side section on desktop */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-4 md:mb-6">
-        <h2 className="text-base font-bold mb-3 text-gray-800">Quick Actions</h2>
+      <div className="bg-white rounded-xl shadow-sm p-3 md:p-4 mb-4 md:mb-6">
+        <h2 className="text-sm md:text-base font-bold mb-3 text-gray-800">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
           {quickActions.map((action, index) => (
             <Link
               key={index}
               href={action.href}
-              className={`flex flex-col md:flex-row items-center justify-center md:justify-start gap-2 p-3 rounded-lg ${action.color} hover:opacity-80 transition-all hover:shadow-sm`}
+              className={`flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-2 p-2 md:p-3 rounded-lg ${action.color} hover:opacity-80 transition-all hover:shadow-sm min-h-[44px]`}
             >
-              <span className="text-xl">{action.icon}</span>
-              <span className="font-medium text-sm text-center md:text-left">{action.label}</span>
+              <span className="text-lg md:text-xl">{action.icon}</span>
+              <span className="font-medium text-xs md:text-sm text-center md:text-left">{action.label}</span>
             </Link>
           ))}
         </div>

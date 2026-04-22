@@ -119,35 +119,35 @@ export default function Projects() {
   }
 
   return (
-    <div>
+    <div className="px-1 md:px-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Projects</h1>
-          <p className="text-gray-500">Manage your construction projects</p>
+          <h1 className="text-lg md:text-2xl font-bold">Projects</h1>
+          <p className="text-gray-500 text-xs md:text-sm">Manage your construction projects</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          className="bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 flex items-center gap-2 min-h-[44px]"
         >
-          <span>+</span> New Project
+          <span>+</span> <span className="hidden sm:inline">New Project</span>
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 md:mb-6">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-4">
           <input
             type="text"
             placeholder="Search projects..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
           />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as ProjectStatus | 'all')}
-            className="border border-gray-300 rounded-lg px-4 py-2"
+            className="border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
           >
             <option value="all">All Status</option>
             {statusOptions.map(s => (
@@ -157,13 +157,13 @@ export default function Projects() {
           <div className="flex gap-2">
             <button
               onClick={() => setView('grid')}
-              className={`px-4 py-2 rounded-lg ${view === 'grid' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+              className={`px-3 py-2.5 rounded-lg min-h-[44px] ${view === 'grid' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
             >
               Grid
             </button>
             <button
               onClick={() => setView('list')}
-              className={`px-4 py-2 rounded-lg ${view === 'list' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+              className={`px-3 py-2.5 rounded-lg min-h-[44px] ${view === 'list' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
             >
               List
             </button>
@@ -173,12 +173,12 @@ export default function Projects() {
 
       {/* Project Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold">{editingProject ? 'Edit Project' : 'New Project'}</h2>
-                <button onClick={resetForm} className="text-gray-500 hover:text-gray-700">✕</button>
+            <div className="p-4 md:p-6">
+              <div className="flex justify-between items-center mb-4 md:mb-6">
+                <h2 className="text-lg md:text-xl font-bold">{editingProject ? 'Edit Project' : 'New Project'}</h2>
+                <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 min-h-[44px] min-w-[44px]">✕</button>
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -356,17 +356,17 @@ export default function Projects() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-2 md:gap-3 pt-3 md:pt-4">
                   <button
                     type="submit"
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                    className="bg-blue-600 text-white px-4 md:px-6 py-2.5 rounded-lg hover:bg-blue-700 min-h-[44px]"
                   >
                     {editingProject ? 'Update Project' : 'Create Project'}
                   </button>
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
+                    className="bg-gray-200 text-gray-700 px-4 md:px-6 py-2.5 rounded-lg hover:bg-gray-300 min-h-[44px]"
                   >
                     Cancel
                   </button>
@@ -385,20 +385,20 @@ export default function Projects() {
           <p className="text-gray-500">Create your first project to get started</p>
         </div>
       ) : view === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           {filteredProjects.map(project => (
-            <div key={project.id} className="bg-white rounded-xl shadow hover:shadow-md transition-shadow p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="font-bold text-lg">{project.name}</h3>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[project.status]}`}>
+            <div key={project.id} className="bg-white rounded-xl shadow hover:shadow-md transition-shadow p-4 md:p-6">
+              <div className="flex justify-between items-start mb-3 md:mb-4">
+                <h3 className="font-bold text-sm md:text-lg truncate flex-1">{project.name}</h3>
+                <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium ${statusColors[project.status]} ml-2`}>
                   {project.status.replace('_', ' ').toUpperCase()}
                 </span>
               </div>
-              <p className="text-gray-600 text-sm mb-4">{project.description || 'No description'}</p>
-              <div className="space-y-2 text-sm">
+              <p className="text-gray-600 text-xs md:text-sm mb-3 md:mb-4 line-clamp-2">{project.description || 'No description'}</p>
+              <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Client:</span>
-                  <span className="font-medium">{project.client}</span>
+                  <span className="font-medium truncate ml-2">{project.client}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Building:</span>
@@ -410,19 +410,19 @@ export default function Projects() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Systems:</span>
-                  <span className="font-medium text-right">{project.systems.join(', ')}</span>
+                  <span className="font-medium text-right truncate md:truncate-none max-w-[120px] md:max-w-none">{project.systems.join(', ')}</span>
                 </div>
               </div>
-              <div className="flex gap-2 mt-4 pt-4 border-t">
+              <div className="flex gap-2 mt-3 md:pt-4 border-t">
                 <button
                   onClick={() => handleEdit(project)}
-                  className="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg hover:bg-blue-100 text-sm"
+                  className="flex-1 bg-blue-50 text-blue-600 py-2 md:py-2 rounded-lg hover:bg-blue-100 text-xs md:text-sm min-h-[44px]"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDelete(project.id)}
-                  className="flex-1 bg-red-50 text-red-600 py-2 rounded-lg hover:bg-red-100 text-sm"
+                  className="flex-1 bg-red-50 text-red-600 py-2 md:py-2 rounded-lg hover:bg-red-100 text-xs md:text-sm min-h-[44px]"
                 >
                   Delete
                 </button>

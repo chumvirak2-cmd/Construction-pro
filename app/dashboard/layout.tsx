@@ -87,16 +87,16 @@ export default function DashboardLayout({
     return (
       <div className="flex flex-col h-screen bg-gray-50">
         {/* Mobile Header */}
-        <header className="bg-gray-800 text-white px-4 py-3 flex items-center justify-between">
+        <header className="bg-gray-800 text-white px-3 py-3 flex items-center justify-between sticky top-0 z-50">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo.png?v=2" alt="Logo" className="w-8 h-8 rounded-full" />
-            <span className="font-bold text-sm">Construction Pro</span>
+            <img src="/logo.png?v=2" alt="Logo" className="w-7 h-7 rounded-full" />
+            <span className="font-bold text-sm truncate">Construction Pro</span>
           </Link>
           <div className="flex items-center gap-2">
             {isDemo && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO</span>}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="text-white text-2xl leading-none"
+              className="text-white text-2xl leading-none p-1"
             >
               ☰
             </button>
@@ -124,8 +124,8 @@ export default function DashboardLayout({
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-          <div className="flex justify-around items-center h-14">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-pb">
+          <div className="flex justify-around items-center h-16">
             {navItems.map((item) => {
               const isActive = pathname === item.href ||
                 (item.href !== '/dashboard' && pathname.startsWith(item.href))
@@ -133,10 +133,10 @@ export default function DashboardLayout({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex flex-col items-center justify-center flex-1 h-full ${isActive ? 'text-blue-600' : 'text-gray-500'
+                  className={`flex flex-col items-center justify-center flex-1 h-full py-2 ${isActive ? 'text-blue-600' : 'text-gray-500'
                     }`}
                 >
-                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-xl">{item.icon}</span>
                   <span className="text-[10px] mt-0.5">{item.label}</span>
                 </Link>
               )

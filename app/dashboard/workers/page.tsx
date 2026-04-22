@@ -296,58 +296,60 @@ export default function Workers() {
   }
 
   return (
-    <div>
+    <div className="px-1 md:px-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Workers & Attendance</h1>
-          <p className="text-gray-500">Manage workers and track attendance</p>
+          <h1 className="text-lg md:text-2xl font-bold">Workers & Attendance</h1>
+          <p className="text-gray-500 text-xs md:text-sm">Manage workers and track attendance</p>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setView('workers')}
-            className={`px-4 py-2 rounded-lg ${view === 'workers' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-          >
-            Workers
-          </button>
-          <button
-            onClick={() => setView('attendance')}
-            className={`px-4 py-2 rounded-lg ${view === 'attendance' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-          >
-            Attendance
-          </button>
-          <button
-            onClick={() => setView('tracking')}
-            className={`px-4 py-2 rounded-lg ${view === 'tracking' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-          >
-            Track by Phone
-          </button>
-        </div>
+      </div>
+
+      {/* View Tabs - Scrollable on mobile */}
+      <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
+        <button
+          onClick={() => setView('workers')}
+          className={`px-3 md:px-4 py-2.5 rounded-lg whitespace-nowrap min-h-[44px] ${view === 'workers' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+        >
+          Workers
+        </button>
+        <button
+          onClick={() => setView('attendance')}
+          className={`px-3 md:px-4 py-2.5 rounded-lg whitespace-nowrap min-h-[44px] ${view === 'attendance' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+        >
+          Attendance
+        </button>
+        <button
+          onClick={() => setView('tracking')}
+          className={`px-3 md:px-4 py-2.5 rounded-lg whitespace-nowrap min-h-[44px] ${view === 'tracking' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+        >
+          Track by Phone
+        </button>
       </div>
 
       {view === 'workers' ? (
         <>
           {/* Filters and Add Button */}
-          <div className="bg-white rounded-lg shadow p-4 mb-6">
-            <div className="flex flex-col md:flex-row gap-4">
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 md:mb-6">
+            <div className="flex flex-col md:flex-row gap-2 md:gap-4">
               <input
                 type="text"
                 placeholder="Search workers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-2"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
               />
               <select
                 value={filterRole}
                 onChange={(e) => setFilterRole(e.target.value as WorkerRole | 'all')}
-                className="border border-gray-300 rounded-lg px-4 py-2"
+                className="border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
               >
                 <option value="all">All Roles</option>
                 {roleOptions.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
               <button
                 onClick={() => setShowForm(!showForm)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                className="bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 min-h-[44px]"
               >
                 + Add Worker
               </button>
@@ -356,14 +358,14 @@ export default function Workers() {
 
           {/* Worker Form Modal */}
           {showForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
               <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold">{editingWorker ? 'Edit Worker' : 'Add New Worker'}</h2>
-                    <button onClick={resetForm} className="text-gray-500 hover:text-gray-700">✕</button>
+                <div className="p-4 md:p-6">
+                  <div className="flex justify-between items-center mb-4 md:mb-6">
+                    <h2 className="text-lg md:text-xl font-bold">{editingWorker ? 'Edit Worker' : 'Add New Worker'}</h2>
+                    <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 min-h-[44px] min-w-[44px]">✕</button>
                   </div>
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-1">Full Name *</label>
@@ -526,11 +528,11 @@ export default function Workers() {
                       )}
                     </div>
 
-                    <div className="flex gap-3 pt-4 col-span-2">
-                      <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                    <div className="flex gap-2 md:gap-3 pt-3 md:pt-4 col-span-2">
+                      <button type="submit" className="bg-blue-600 text-white px-4 md:px-6 py-2.5 rounded-lg hover:bg-blue-700 min-h-[44px]">
                         {editingWorker ? 'Update Worker' : 'Add Worker'}
                       </button>
-                      <button type="button" onClick={resetForm} className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg">
+                      <button type="button" onClick={resetForm} className="bg-gray-200 text-gray-700 px-4 md:px-6 py-2.5 rounded-lg min-h-[44px]">
                         Cancel
                       </button>
                     </div>
@@ -541,29 +543,29 @@ export default function Workers() {
           )}
 
           {/* Workers Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {filteredWorkers.map(worker => (
-              <div key={worker.id} className="bg-white rounded-xl shadow p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-3">
+              <div key={worker.id} className="bg-white rounded-xl shadow p-4 md:p-6">
+                <div className="flex justify-between items-start mb-3 md:mb-4">
+                  <div className="flex items-center gap-2 md:gap-3">
                     {worker.photo ? (
-                      <img src={worker.photo} alt={worker.name} className="w-16 h-16 rounded-full object-cover" />
+                      <img src={worker.photo} alt={worker.name} className="w-12 md:w-16 h-12 md:h-16 rounded-full object-cover" />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl">
+                      <div className="w-12 md:w-16 h-12 md:h-16 rounded-full bg-gray-200 flex items-center justify-center text-lg md:text-2xl">
                         👷
                       </div>
                     )}
                     <div>
-                      <h3 className="font-bold text-lg">{worker.name}</h3>
-                      <p className="text-gray-500 text-sm">{worker.role}</p>
+                      <h3 className="font-bold text-sm md:text-lg truncate max-w-[120px] md:max-w-none">{worker.name}</h3>
+                      <p className="text-gray-500 text-xs md:text-sm">{worker.role}</p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[worker.status]}`}>
+                  <span className={`px-2 md:px-3 py-0.5 rounded-full text-[10px] md:text-xs font-medium ${statusColors[worker.status]}`}>
                     {worker.status.replace('_', ' ').toUpperCase()}
                   </span>
                 </div>
                 
-                <div className="space-y-2 text-sm mb-4">
+                <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm mb-3 md:mb-4">
                   <div className="flex justify-between">
                     <span className="text-gray-500">Phone:</span>
                     <span>{worker.phone}</span>
@@ -576,22 +578,25 @@ export default function Workers() {
                     <span className="text-gray-500">Skills:</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {worker.skills.map((skill, i) => (
+                    {worker.skills.slice(0, 3).map((skill, i) => (
                       <span key={i} className="px-2 py-0.5 bg-gray-100 rounded text-xs">{skill}</span>
                     ))}
+                    {worker.skills.length > 3 && (
+                      <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">+{worker.skills.length - 3}</span>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-4 border-t">
+                <div className="flex gap-2 mt-3 md:pt-4 border-t">
                   <button
                     onClick={() => handleEdit(worker)}
-                    className="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg hover:bg-blue-100 text-sm"
+                    className="flex-1 bg-blue-50 text-blue-600 py-2 md:py-2 rounded-lg hover:bg-blue-100 text-xs md:text-sm min-h-[44px]"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(worker.id)}
-                    className="flex-1 bg-red-50 text-red-600 py-2 rounded-lg hover:bg-red-100 text-sm"
+                    className="flex-1 bg-red-50 text-red-600 py-2 md:py-2 rounded-lg hover:bg-red-100 text-xs md:text-sm min-h-[44px]"
                   >
                     Delete
                   </button>
@@ -773,7 +778,7 @@ export default function Workers() {
           {/* Track by Phone View */}
           <div className="bg-white rounded-lg shadow p-6 mb-6">
             <h3 className="font-semibold text-lg mb-4">Track Worker by Phone</h3>
-            <p className="text-gray-500 text-sm mb-4">Enter a worker's phone number to view their location history</p>
+             <p className="text-gray-500 text-sm mb-4">Enter a worker&apos;s phone number to view their location history</p>
             <div className="flex gap-4">
               <div className="flex-1">
                 <input

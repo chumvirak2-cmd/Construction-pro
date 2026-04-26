@@ -54,6 +54,12 @@ export default function DashboardLayout({
     }
     
     if (user) {
+      // Redirect workers to their dedicated page
+      if (user.managementLevel === 'worker') {
+        router.push('/dashboard/worker')
+        return
+      }
+
       const sub = subscriptionDb.getByUserId(user.id)
       setSubscription(sub)
       if (!sub || (sub.status !== 'active' && sub.status !== 'trialing')) {

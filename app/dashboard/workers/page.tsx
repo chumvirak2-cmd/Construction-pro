@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Worker, WorkerRole, AttendanceRecord, WorkerLocation, TrackingAlert } from '../../types'
-import { workersDb, attendanceDb, workerLocationDb, trackingAlertDb } from '../../lib/db'
+import { Worker, WorkerRole, AttendanceRecord, WorkerLocation, TrackingAlert, User } from '../../types'
+import { workersDb, attendanceDb, workerLocationDb, trackingAlertDb, authDb } from '../../lib/db'
+import { hasPermission, FeaturePermissions } from '../../lib/permissions'
 
 const roleOptions: WorkerRole[] = [
   // Construction & MEP Trades
@@ -47,6 +48,7 @@ const statusColors = {
 }
 
 export default function Workers() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [workers, setWorkers] = useState<Worker[]>([])
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([])
   const [view, setView] = useState<'workers' | 'attendance' | 'tracking'>('workers')
@@ -61,6 +63,8 @@ export default function Workers() {
 
   const [siteCenter, setSiteCenter] = useState({ lat: 40.7128, lng: -74.0060 })
   const [siteRadiusMeters, setSiteRadiusMeters] = useState(500)
+
+  const canViewSalary = hasPermission(currentUser, 'view_financial')
 
   const [form, setForm] = useState({
     name: '',
@@ -79,6 +83,7 @@ export default function Workers() {
   })
 
   useEffect(() => {
+    setCurrentUser(authDb.getCurrentUser())
     loadData()
   }, [])
 
@@ -455,44 +460,46 @@ export default function Workers() {
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Hourly Rate ($)</label>
-                        <input
-                          type="number"
-                          value={form.hourlyRate || ''}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            setForm({ ...form, hourlyRate: isNaN(val) ? 0 : val });
-                          }}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                        />
+                    {canViewSalary && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Hourly Rate ($)</label>
+                          <input
+                            type="number"
+                            value={form.hourlyRate || ''}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              setForm({ ...form, hourlyRate: isNaN(val) ? 0 : val });
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Daily Rate ($)</label>
+                          <input
+                            type="number"
+                            value={form.dailyRate || ''}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              setForm({ ...form, dailyRate: isNaN(val) ? 0 : val });
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Overtime Rate ($)</label>
+                          <input
+                            type="number"
+                            value={form.overtimeRate || ''}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              setForm({ ...form, overtimeRate: isNaN(val) ? 0 : val });
+                            }}
+                            className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Daily Rate ($)</label>
-                        <input
-                          type="number"
-                          value={form.dailyRate || ''}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            setForm({ ...form, dailyRate: isNaN(val) ? 0 : val });
-                          }}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Overtime Rate ($)</label>
-                        <input
-                          type="number"
-                          value={form.overtimeRate || ''}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            setForm({ ...form, overtimeRate: isNaN(val) ? 0 : val });
-                          }}
-                          className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                        />
-                      </div>
-                    </div>
+                    )}
 
                     <div>
                       <label className="block text-sm font-medium mb-1">Status</label>
@@ -570,10 +577,12 @@ export default function Workers() {
                     <span className="text-gray-500">Phone:</span>
                     <span>{worker.phone}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Daily Rate:</span>
-                    <span>{formatCurrency(worker.dailyRate)}</span>
-                  </div>
+                  {canViewSalary && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Daily Rate:</span>
+                      <span>{formatCurrency(worker.dailyRate)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-gray-500">Skills:</span>
                   </div>
@@ -890,14 +899,18 @@ export default function Workers() {
           <div className="text-2xl font-bold text-green-600">{workers.filter(w => w.status === 'active').length}</div>
           <div className="text-gray-500 text-sm">Active Workers</div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-purple-600">{formatCurrency(workers.reduce((sum, w) => sum + w.dailyRate, 0))}</div>
-          <div className="text-gray-500 text-sm">Daily Labor Cost</div>
-        </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-orange-600">{formatCurrency(workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0))}</div>
-          <div className="text-gray-500 text-sm">Monthly Labor Cost</div>
-        </div>
+        {canViewSalary && (
+          <>
+            <div className="bg-white rounded-lg p-4 shadow">
+              <div className="text-2xl font-bold text-purple-600">{formatCurrency(workers.reduce((sum, w) => sum + w.dailyRate, 0))}</div>
+              <div className="text-gray-500 text-sm">Daily Labor Cost</div>
+            </div>
+            <div className="bg-white rounded-lg p-4 shadow">
+              <div className="text-2xl font-bold text-orange-600">{formatCurrency(workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0))}</div>
+              <div className="text-gray-500 text-sm">Monthly Labor Cost</div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

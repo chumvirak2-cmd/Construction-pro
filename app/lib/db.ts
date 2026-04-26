@@ -452,10 +452,17 @@ export const authDb = {
   },
   register: (userData: Omit<User, 'id' | 'createdAt'>): User => {
     const users = getCollection<User>(STORAGE_KEYS.USERS)
+    
+    // Set default management level and permissions based on userType
+    const managementLevel = userData.managementLevel || (userData.userType === 'company_admin' ? 'company_admin' : 'worker')
+    const permissions = userData.permissions || []
+    
     const newUser: User = {
       ...userData,
       id: generateId(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      managementLevel,
+      permissions
     }
     users.push(newUser)
     setCollection(STORAGE_KEYS.USERS, users)
@@ -469,6 +476,42 @@ export const authDb = {
   getById: (id: string): User | null => {
     const users = getCollection<User>(STORAGE_KEYS.USERS)
     return users.find(u => u.id === id) || null
+  },
+  hasPermission: (userId: string, permission: string): boolean => {
+    const user = authDb.getById(userId)
+    if (!user) return false
+    
+    // Super admin and company admin have all permissions
+    if (user.managementLevel === 'super_admin' || user.managementLevel === 'company_admin') {
+      return true
+    }
+    
+    // Check if permission is in user's permissions array
+    if (user.permissions.includes(permission)) {
+      return true
+    }
+    
+    // Check management level permissions
+    const levelPermissions: Record<string, string[]> = {
+      manager: ['view_projects', 'edit_projects', 'view_workers', 'view_inventory', 'view_boq'],
+      supervisor: ['view_projects', 'view_workers', 'track_workers'],
+      worker: ['view_projects'],
+      viewer: []
+    }
+    
+    return levelPermissions[user.managementLevel]?.includes(permission) || false
+  },
+  canAccessDepartment: (userId: string, department: string): boolean => {
+    const user = authDb.getById(userId)
+    if (!user) return false
+    
+    // Super admin and company admin can access all departments
+    if (user.managementLevel === 'super_admin' || user.managementLevel === 'company_admin') {
+      return true
+    }
+    
+    // Check if user's department matches
+    return user.department === department
   }
 }
 

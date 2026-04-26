@@ -1,4 +1,6 @@
 // User and Authentication Types
+export type ManagementLevel = 'super_admin' | 'company_admin' | 'manager' | 'supervisor' | 'worker' | 'viewer'
+
 export interface User {
   id: string
   email: string
@@ -7,7 +9,10 @@ export interface User {
   phone?: string
   role: 'admin' | 'manager' | 'user'
   userType: 'company_admin' | 'worker'
+  managementLevel: ManagementLevel
   companyId?: string
+  department?: 'marketing' | 'sales' | 'operations' | 'mep' | 'finance' | 'hr'
+  permissions: string[]
   createdAt: string
   logoUrl?: string
   subscriptionId?: string
@@ -457,3 +462,160 @@ export interface Subscription {
   stripeCustomerId?: string
   stripeSubscriptionId?: string
 }
+
+// Permission and Access Control Types
+export const PERMISSIONS = {
+  // User Management
+  MANAGE_USERS: 'manage_users',
+  VIEW_USERS: 'view_users',
+  INVITE_USERS: 'invite_users',
+  
+  // Company Management
+  MANAGE_COMPANY: 'manage_company',
+  VIEW_COMPANY_SETTINGS: 'view_company_settings',
+  
+  // Projects
+  CREATE_PROJECTS: 'create_projects',
+  EDIT_PROJECTS: 'edit_projects',
+  DELETE_PROJECTS: 'delete_projects',
+  VIEW_PROJECTS: 'view_projects',
+  
+  // Workers
+  CREATE_WORKERS: 'create_workers',
+  EDIT_WORKERS: 'edit_workers',
+  DELETE_WORKERS: 'delete_workers',
+  VIEW_WORKERS: 'view_workers',
+  TRACK_WORKERS: 'track_workers',
+  
+  // Inventory
+  CREATE_INVENTORY: 'create_inventory',
+  EDIT_INVENTORY: 'edit_inventory',
+  DELETE_INVENTORY: 'delete_inventory',
+  VIEW_INVENTORY: 'view_inventory',
+  
+  // BOQ
+  CREATE_BOQ: 'create_boq',
+  EDIT_BOQ: 'edit_boq',
+  DELETE_BOQ: 'delete_boq',
+  VIEW_BOQ: 'view_boq',
+  
+  // Financial
+  VIEW_FINANCIAL: 'view_financial',
+  MANAGE_SUBSCRIPTION: 'manage_subscription',
+  
+  // Marketing
+  MANAGE_CAMPAIGNS: 'manage_campaigns',
+  VIEW_ANALYTICS: 'view_analytics',
+  MANAGE_LEADS: 'manage_leads',
+  
+  // Sales
+  MANAGE_CLIENTS: 'manage_clients',
+  MANAGE_DEALS: 'manage_deals',
+  CREATE_QUOTES: 'create_quotes',
+  
+  // MEP Systems
+  VIEW_MEP_SYSTEMS: 'view_mep_systems',
+  MANAGE_MEP_SYSTEMS: 'manage_mep_systems'
+} as const
+
+export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS]
+
+export const MANAGEMENT_LEVEL_PERMISSIONS: Record<ManagementLevel, Permission[]> = {
+  super_admin: Object.values(PERMISSIONS),
+  company_admin: [
+    PERMISSIONS.MANAGE_USERS,
+    PERMISSIONS.VIEW_USERS,
+    PERMISSIONS.INVITE_USERS,
+    PERMISSIONS.MANAGE_COMPANY,
+    PERMISSIONS.VIEW_COMPANY_SETTINGS,
+    PERMISSIONS.CREATE_PROJECTS,
+    PERMISSIONS.EDIT_PROJECTS,
+    PERMISSIONS.DELETE_PROJECTS,
+    PERMISSIONS.VIEW_PROJECTS,
+    PERMISSIONS.CREATE_WORKERS,
+    PERMISSIONS.EDIT_WORKERS,
+    PERMISSIONS.DELETE_WORKERS,
+    PERMISSIONS.VIEW_WORKERS,
+    PERMISSIONS.TRACK_WORKERS,
+    PERMISSIONS.CREATE_INVENTORY,
+    PERMISSIONS.EDIT_INVENTORY,
+    PERMISSIONS.DELETE_INVENTORY,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.CREATE_BOQ,
+    PERMISSIONS.EDIT_BOQ,
+    PERMISSIONS.DELETE_BOQ,
+    PERMISSIONS.VIEW_BOQ,
+    PERMISSIONS.VIEW_FINANCIAL,
+    PERMISSIONS.MANAGE_SUBSCRIPTION,
+    PERMISSIONS.MANAGE_CAMPAIGNS,
+    PERMISSIONS.VIEW_ANALYTICS,
+    PERMISSIONS.MANAGE_LEADS,
+    PERMISSIONS.MANAGE_CLIENTS,
+    PERMISSIONS.MANAGE_DEALS,
+    PERMISSIONS.CREATE_QUOTES,
+    PERMISSIONS.VIEW_MEP_SYSTEMS,
+    PERMISSIONS.MANAGE_MEP_SYSTEMS
+  ],
+  manager: [
+    PERMISSIONS.VIEW_USERS,
+    PERMISSIONS.INVITE_USERS,
+    PERMISSIONS.CREATE_PROJECTS,
+    PERMISSIONS.EDIT_PROJECTS,
+    PERMISSIONS.VIEW_PROJECTS,
+    PERMISSIONS.CREATE_WORKERS,
+    PERMISSIONS.EDIT_WORKERS,
+    PERMISSIONS.VIEW_WORKERS,
+    PERMISSIONS.TRACK_WORKERS,
+    PERMISSIONS.CREATE_INVENTORY,
+    PERMISSIONS.EDIT_INVENTORY,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.CREATE_BOQ,
+    PERMISSIONS.EDIT_BOQ,
+    PERMISSIONS.VIEW_BOQ,
+    PERMISSIONS.VIEW_FINANCIAL,
+    PERMISSIONS.MANAGE_CAMPAIGNS,
+    PERMISSIONS.VIEW_ANALYTICS,
+    PERMISSIONS.MANAGE_LEADS,
+    PERMISSIONS.MANAGE_CLIENTS,
+    PERMISSIONS.MANAGE_DEALS,
+    PERMISSIONS.CREATE_QUOTES,
+    PERMISSIONS.VIEW_MEP_SYSTEMS,
+    PERMISSIONS.MANAGE_MEP_SYSTEMS
+  ],
+  supervisor: [
+    PERMISSIONS.VIEW_PROJECTS,
+    PERMISSIONS.VIEW_WORKERS,
+    PERMISSIONS.TRACK_WORKERS,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.VIEW_BOQ,
+    PERMISSIONS.VIEW_MEP_SYSTEMS
+  ],
+  worker: [
+    PERMISSIONS.VIEW_PROJECTS,
+    PERMISSIONS.VIEW_WORKERS,
+    PERMISSIONS.VIEW_INVENTORY,
+    PERMISSIONS.VIEW_BOQ,
+    PERMISSIONS.VIEW_MEP_SYSTEMS
+  ],
+  viewer: [
+    PERMISSIONS.VIEW_PROJECTS
+  ]
+}
+
+export function hasPermission(user: User, permission: Permission): boolean {
+  return user.permissions.includes(permission) || 
+         MANAGEMENT_LEVEL_PERMISSIONS[user.managementLevel].includes(permission)
+}
+
+export function canAccessDepartment(user: User, department: string): boolean {
+  if (user.managementLevel === 'super_admin' || user.managementLevel === 'company_admin') {
+    return true
+  }
+  
+  if (!user.department) {
+    return false
+  }
+  
+  return user.department === department
+}
+

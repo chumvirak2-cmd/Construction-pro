@@ -36,7 +36,9 @@ export default function Signup() {
       fullName,
       companyName,
       role: 'admin',
-      userType: 'company_admin'
+      userType: 'company_admin',
+      managementLevel: 'company_admin',
+      permissions: []
     })
     
     router.push('/subscription')

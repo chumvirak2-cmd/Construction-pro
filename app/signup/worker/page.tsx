@@ -43,7 +43,9 @@ export default function WorkerSignup() {
       companyName: company.name,
       role: 'user',
       userType: 'worker',
-      companyId: company.id
+      companyId: company.id,
+      managementLevel: 'worker',
+      permissions: []
     })
     
     router.push('/dashboard')

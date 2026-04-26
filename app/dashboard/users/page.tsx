@@ -1,8 +1,26 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TeamMember } from '../../types'
+import { TeamMember, User, ManagementLevel, MANAGEMENT_LEVEL_PERMISSIONS } from '../../types'
 import { teamDb, authDb, subscriptionDb } from '../../lib/db'
+import { hasPermission, canAccessDepartment, FeaturePermissions } from '../../lib/permissions'
+
+const MANAGEMENT_LEVEL_OPTIONS: { value: ManagementLevel; label: string; description: string }[] = [
+  { value: 'company_admin', label: 'Company Admin', description: 'Full access to all company data and settings' },
+  { value: 'manager', label: 'Manager', description: 'Can manage projects, workers, and inventory' },
+  { value: 'supervisor', label: 'Supervisor', description: 'Can view and supervise operations' },
+  { value: 'worker', label: 'Worker', description: 'Basic access to assigned tasks' },
+  { value: 'viewer', label: 'Viewer', description: 'Read-only access to projects' }
+]
+
+const DEPARTMENT_OPTIONS = [
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'sales', label: 'Sales' },
+  { value: 'operations', label: 'Operations' },
+  { value: 'mep', label: 'MEP Systems' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'hr', label: 'HR' }
+]
 
 const ROLE_OPTIONS = [
   { value: 'manager', label: 'Manager', description: 'Full access to all features' },
@@ -36,6 +54,8 @@ export default function UsersPage() {
     fullName: '',
     phone: '',
     role: 'manager' as TeamMember['role'],
+    managementLevel: 'worker' as ManagementLevel,
+    department: '' as string,
     permissions: ['projects', 'workers', 'inventory', 'boq', 'reports'],
     isTrackingEnabled: false
   })
@@ -84,6 +104,8 @@ export default function UsersPage() {
       fullName: '',
       phone: '',
       role: 'manager',
+      managementLevel: 'worker',
+      department: '',
       permissions: ['projects', 'workers', 'inventory', 'boq', 'reports'],
       isTrackingEnabled: false
     })
@@ -97,6 +119,8 @@ export default function UsersPage() {
       fullName: member.fullName,
       phone: member.phone || '',
       role: member.role,
+      managementLevel: 'worker',
+      department: '',
       permissions: member.permissions,
       isTrackingEnabled: member.isTrackingEnabled || false
     })
@@ -263,6 +287,38 @@ export default function UsersPage() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Management Level</label>
+                  <select
+                    value={form.managementLevel}
+                    onChange={(e) => setForm({ ...form, managementLevel: e.target.value as ManagementLevel })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                  >
+                    {MANAGEMENT_LEVEL_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label} - {opt.description}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">Department (Optional)</label>
+                  <select
+                    value={form.department}
+                    onChange={(e) => setForm({ ...form, department: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                  >
+                    <option value="">No Department</option>
+                    {DEPARTMENT_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">Leave empty for company-wide access</p>
                 </div>
 
                 <div className="flex items-center gap-2">

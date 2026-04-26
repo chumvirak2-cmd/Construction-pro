@@ -309,6 +309,9 @@ export type InventoryCategory =
   | 'ELV'
   | 'Fire Protection'
   | 'Gas System'
+  | 'Solar/Energy'
+  | 'BMS/Controls'
+  | 'Lift & Escalator'
   // Building Material Categories
   | 'Concrete & Cement'
   | 'Steel & Metal'

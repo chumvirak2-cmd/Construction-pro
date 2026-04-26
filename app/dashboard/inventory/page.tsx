@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx'
 
 const categoryOptions: InventoryCategory[] = [
   'HVAC', 'Electrical', 'Plumbing', 'ELV', 'Fire Protection', 'Gas System',
+  'Solar/Energy', 'BMS/Controls', 'Lift & Escalator',
   'Concrete & Cement', 'Steel & Metal', 'Wood & Timber', 'Roofing',
   'Doors & Windows', 'Tiles & Flooring', 'Paint & Coating', 'Insulation',
   'Sand & Aggregate', 'Bricks & Blocks', 'Glass & Glazing', 'Hardware & Fasteners',
@@ -21,6 +22,9 @@ const categoryColors: Record<InventoryCategory, string> = {
   ELV: 'bg-purple-100 text-purple-800',
   'Fire Protection': 'bg-red-100 text-red-800',
   'Gas System': 'bg-orange-100 text-orange-800',
+  'Solar/Energy': 'bg-yellow-50 text-yellow-700',
+  'BMS/Controls': 'bg-indigo-100 text-indigo-800',
+  'Lift & Escalator': 'bg-slate-100 text-slate-800',
   'Concrete & Cement': 'bg-stone-100 text-stone-800',
   'Steel & Metal': 'bg-slate-100 text-slate-800',
   'Wood & Timber': 'bg-amber-100 text-amber-800',

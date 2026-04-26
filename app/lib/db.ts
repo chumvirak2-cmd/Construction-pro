@@ -1,4 +1,4 @@
-import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert, TeamMember } from '../types'
+import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, Company, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert, TeamMember } from '../types'
 
 // Subscription Plans
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
@@ -69,6 +69,7 @@ const STORAGE_KEYS = {
   PAYROLL: 'cp_payroll',
   PURCHASE_ORDERS: 'cp_purchase_orders',
   USERS: 'cp_users',
+  COMPANIES: 'cp_companies',
   SETTINGS: 'cp_settings',
   CURRENT_USER: 'cp_current_user',
   SUBSCRIPTIONS: 'cp_subscriptions',
@@ -460,6 +461,52 @@ export const authDb = {
     setCollection(STORAGE_KEYS.USERS, users)
     localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(newUser))
     return newUser
+  },
+  getByEmail: (email: string): User | null => {
+    const users = getCollection<User>(STORAGE_KEYS.USERS)
+    return users.find(u => u.email === email) || null
+  },
+  getById: (id: string): User | null => {
+    const users = getCollection<User>(STORAGE_KEYS.USERS)
+    return users.find(u => u.id === id) || null
+  }
+}
+
+// Company Database
+export const companyDb = {
+  getAll: () => getCollection<Company>(STORAGE_KEYS.COMPANIES),
+  register: (companyData: Omit<Company, 'id' | 'createdAt'>): Company => {
+    const companies = getCollection<Company>(STORAGE_KEYS.COMPANIES)
+    const newCompany: Company = {
+      ...companyData,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    }
+    companies.push(newCompany)
+    setCollection(STORAGE_KEYS.COMPANIES, companies)
+    return newCompany
+  },
+  findByEmail: (email: string): Company | null => {
+    const companies = getCollection<Company>(STORAGE_KEYS.COMPANIES)
+    // Find by exact email match or domain match
+    return companies.find(c => 
+      c.email === email || 
+      (email.includes('@') && email.endsWith('@' + c.email.split('@')[1]))
+    ) || null
+  },
+  findById: (id: string): Company | null => {
+    const companies = getCollection<Company>(STORAGE_KEYS.COMPANIES)
+    return companies.find(c => c.id === id) || null
+  },
+  update: (id: string, updates: Partial<Company>): Company | null => {
+    const companies = getCollection<Company>(STORAGE_KEYS.COMPANIES)
+    const index = companies.findIndex(c => c.id === id)
+    if (index !== -1) {
+      companies[index] = { ...companies[index], ...updates }
+      setCollection(STORAGE_KEYS.COMPANIES, companies)
+      return companies[index]
+    }
+    return null
   }
 }
 
@@ -721,8 +768,13 @@ export const teamDb = {
     return true
   },
   invite: (email: string, fullName: string, role: TeamMember['role'], permissions: string[], invitedBy: string): TeamMember => {
+    // Get the inviter's company ID
+    const inviter = authDb.getById(invitedBy)
+    const companyId = inviter?.companyId || ''
+    
     return teamDb.create({
       userId: invitedBy,
+      companyId,
       email,
       fullName,
       role,

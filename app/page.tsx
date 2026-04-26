@@ -56,6 +56,7 @@ export default function Home() {
           <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}>AI Agent for MEP Companies</p>
         </div>
         <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>Sign In</h2>
+        {error && <p style={{ color: '#dc2626', fontSize: 'clamp(12px, 3.5vw, 14px)', textAlign: 'center', marginBottom: '12px' }}>{error}</p>}
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: '12px' }}>
             <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Email</label>
@@ -93,6 +94,9 @@ export default function Home() {
         </button>
         <p style={{ marginTop: '14px', textAlign: 'center', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
           Don&apos;t have an account? <Link href="/signup" style={{ color: '#3b82f6', fontWeight: 600 }}>Sign Up</Link>
+        </p>
+        <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'clamp(11px, 3vw, 12px)' }}>
+          Are you a worker? <Link href="/signup/worker" style={{ color: '#10b981', fontWeight: 600 }}>Worker Sign Up</Link>
         </p>
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
           <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>

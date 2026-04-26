@@ -6,14 +6,28 @@ export interface User {
   companyName: string
   phone?: string
   role: 'admin' | 'manager' | 'user'
+  userType: 'company_admin' | 'worker'
+  companyId?: string
   createdAt: string
   logoUrl?: string
   subscriptionId?: string
 }
 
+export interface Company {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  address?: string
+  logoUrl?: string
+  subscriptionId?: string
+  createdAt: string
+}
+
 export interface TeamMember {
   id: string
   userId: string
+  companyId: string
   email: string
   fullName: string
   phone?: string

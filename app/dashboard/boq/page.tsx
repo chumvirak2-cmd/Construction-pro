@@ -13,6 +13,9 @@ export default function BOQ() {
   const [headerRowIndex, setHeaderRowIndex] = useState<number | null>(null)
   const [detectedHeaderRow, setDetectedHeaderRow] = useState<number | null>(null)
   const [mappedColumns, setMappedColumns] = useState<{ qty?: string; unitPrice?: string; description?: string }>({})
+  const [totalArea, setTotalArea] = useState<string>('')
+  const [designFee, setDesignFee] = useState<string>('')
+  const [showQuotation, setShowQuotation] = useState(false)
 
   const parseNumber = (value: any) => {
     if (value === null || value === undefined) return undefined
@@ -204,9 +207,104 @@ export default function BOQ() {
     XLSX.writeFile(wb, `boq-result-${new Date().toISOString().split('T')[0]}.xlsx`)
   }
 
+  const scopeOfWorkItems = [
+    'Electrical MV/LV',
+    'Plumbing & Water supply',
+    'Drainage system',
+    'Telecom/ICT',
+    'Water Treatment'
+  ]
+
+  const includedServices = [
+    'Concept & Detail design (plan, profile, schematic...)',
+    'Design report and calculation',
+    'Design drawing',
+    'Equipment sizing and BOQ',
+    'Technical Specification',
+    'Coordination with Civil and Architecture Team',
+    'Cost estimation'
+  ]
+
   return (
     <div className="px-1 md:px-0">
       <h1 className="text-lg md:text-2xl font-bold mb-4">Calculate BOQ</h1>
+      
+      {/* Quotation Section */}
+      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-bold text-gray-800">Quotation - MEP Design Services</h2>
+          <button
+            onClick={() => setShowQuotation(!showQuotation)}
+            className="text-sm text-blue-600 hover:underline font-medium"
+          >
+            {showQuotation ? 'Hide' : 'Show'} Quotation
+          </button>
+        </div>
+
+        {showQuotation && (
+          <div className="space-y-6">
+            {/* Total Area Input */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Total Area (m²)
+                </label>
+                <input
+                  type="number"
+                  value={totalArea}
+                  onChange={(e) => setTotalArea(e.target.value)}
+                  placeholder="Enter total area"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Typical Design Fee (USD)
+                </label>
+                <input
+                  type="number"
+                  value={designFee}
+                  onChange={(e) => setDesignFee(e.target.value)}
+                  placeholder="Enter design fee"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Scope of Work */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-800 mb-3">1. Scope of Work Design & Modified:</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 ml-4">
+                {scopeOfWorkItems.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Design Fee Display */}
+            {designFee && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800 mb-2">2. Typical Design Fee</h3>
+                <p className="text-sm text-gray-700">
+                  Total Design Fee: <span className="font-semibold">${parseFloat(designFee).toLocaleString()}</span>
+                  {totalArea && ` (${(parseFloat(designFee) / parseFloat(totalArea)).toFixed(2)} USD/m²)`}
+                </p>
+              </div>
+            )}
+
+            {/* Included Services */}
+            <div>
+              <h3 className="text-sm font-semibold text-gray-800 mb-3">3. This quotation includes:</h3>
+              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 ml-4">
+                {includedServices.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex-1">
           <label className="block text-sm font-medium">Upload XLSX File</label>

@@ -698,87 +698,89 @@ export default function Workers() {
             </div>
           </div>
 
-          {/* Attendance List */}
-          <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left p-4 font-medium">Worker</th>
-                  <th className="text-left p-4 font-medium">Role</th>
-                  <th className="text-left p-4 font-medium">Check In</th>
-                  <th className="text-left p-4 font-medium">Check Out</th>
-                  <th className="text-left p-4 font-medium">Status</th>
-                  <th className="text-left p-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {workers.map(worker => {
-                  const record = getAttendanceStatus(worker.id)
-                  return (
-                    <tr key={worker.id} className="border-t hover:bg-gray-50">
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          {worker.photo ? (
-                            <img src={worker.photo} alt={worker.name} className="w-10 h-10 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm">
-                              👷
-                            </div>
-                          )}
-                          <div className="font-medium">{worker.name}</div>
-                        </div>
-                      </td>
-                      <td className="p-4 text-gray-500">{worker.role}</td>
-                      <td className="p-4">
-                        {record?.checkIn ? new Date(record.checkIn).toLocaleTimeString() : '-'}
-                      </td>
-                      <td className="p-4">
-                        {record?.checkOut ? new Date(record.checkOut).toLocaleTimeString() : '-'}
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          record?.status === 'present' ? 'bg-green-100 text-green-800' :
-                          record?.status === 'absent' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {record?.status?.toUpperCase() || 'NOT MARKED'}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-2">
-                          {!record?.checkIn ? (
-                            <button
-                              onClick={() => handleScanLocation(worker.id)}
-                              className="bg-green-100 text-green-600 px-3 py-1 rounded text-sm hover:bg-green-200"
-                            >
-                              Check In
-                            </button>
-                          ) : !record?.checkOut ? (
-                            <button
-                              onClick={() => handleScanLocation(worker.id)}
-                              className="bg-orange-100 text-orange-600 px-3 py-1 rounded text-sm hover:bg-orange-200"
-                            >
-                              Check Out
-                            </button>
-                          ) : (
-                            <span className="text-green-600 text-sm">✓ Completed</span>
-                          )}
-                          {!record?.checkIn && (
-                            <button
-                              onClick={() => markAbsent(worker.id)}
-                              className="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200"
-                            >
-                              Absent
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
+       {/* Attendance List */}
+       <div className="bg-white rounded-xl shadow overflow-hidden">
+         <div className="overflow-x-auto">
+           <table className="w-full min-w-[600px]">
+             <thead className="bg-gray-50">
+               <tr>
+                 <th className="text-left p-4 font-medium">Worker</th>
+                 <th className="text-left p-4 font-medium">Role</th>
+                 <th className="text-left p-4 font-medium">Check In</th>
+                 <th className="text-left p-4 font-medium">Check Out</th>
+                 <th className="text-left p-4 font-medium">Status</th>
+                 <th className="text-left p-4 font-medium">Actions</th>
+               </tr>
+             </thead>
+             <tbody>
+               {workers.map(worker => {
+                 const record = getAttendanceStatus(worker.id)
+                 return (
+                   <tr key={worker.id} className="border-t hover:bg-gray-50">
+                     <td className="p-4">
+                       <div className="flex items-center gap-3">
+                         {worker.photo ? (
+                           <img src={worker.photo} alt={worker.name} className="w-10 h-10 rounded-full object-cover" />
+                         ) : (
+                           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-sm">
+                             👷
+                           </div>
+                         )}
+                         <div className="font-medium">{worker.name}</div>
+                       </div>
+                     </td>
+                     <td className="p-4 text-gray-500">{worker.role}</td>
+                     <td className="p-4">
+                       {record?.checkIn ? new Date(record.checkIn).toLocaleTimeString() : '-'}
+                     </td>
+                     <td className="p-4">
+                       {record?.checkOut ? new Date(record.checkOut).toLocaleTimeString() : '-'}
+                     </td>
+                     <td className="p-4">
+                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                         record?.status === 'present' ? 'bg-green-100 text-green-800' :
+                         record?.status === 'absent' ? 'bg-red-100 text-red-800' :
+                         'bg-gray-100 text-gray-800'
+                       }`}>
+                         {record?.status?.toUpperCase() || 'NOT MARKED'}
+                       </span>
+                     </td>
+                     <td className="p-4">
+                       <div className="flex gap-2">
+                         {!record?.checkIn ? (
+                           <button
+                             onClick={() => handleScanLocation(worker.id)}
+                             className="bg-green-100 text-green-600 px-4 py-2 rounded text-sm hover:bg-green-200 min-h-[44px] min-w-[80px]"
+                           >
+                             Check In
+                           </button>
+                         ) : !record?.checkOut ? (
+                           <button
+                             onClick={() => handleScanLocation(worker.id)}
+                             className="bg-orange-100 text-orange-600 px-4 py-2 rounded text-sm hover:bg-orange-200 min-h-[44px] min-w-[80px]"
+                           >
+                             Check Out
+                           </button>
+                         ) : (
+                           <span className="text-green-600 text-sm">✓ Completed</span>
+                         )}
+                         {!record?.checkIn && (
+                           <button
+                             onClick={() => markAbsent(worker.id)}
+                             className="bg-red-100 text-red-600 px-4 py-2 rounded text-sm hover:bg-red-200 min-h-[44px] min-w-[80px]"
+                           >
+                             Absent
+                           </button>
+                         )}
+                       </div>
+                     </td>
+                   </tr>
+                 )
+               })}
+             </tbody>
+           </table>
+         </div>
+       </div>
         </>
       )}
 
@@ -788,23 +790,23 @@ export default function Workers() {
           <div className="bg-white rounded-lg shadow p-6 mb-6">
             <h3 className="font-semibold text-lg mb-4">Track Worker by Phone</h3>
              <p className="text-gray-500 text-sm mb-4">Enter a worker&apos;s phone number to view their location history</p>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <input
-                  type="tel"
-                  placeholder="Enter phone number (e.g., +1234567890)"
-                  value={trackingPhone}
-                  onChange={(e) => setTrackingPhone(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3"
-                />
-              </div>
-              <button
-                onClick={handleTrackByPhone}
-                className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-              >
-                Track
-              </button>
-            </div>
+           <div className="flex gap-4">
+               <div className="flex-1">
+                 <input
+                   type="tel"
+                   placeholder="Enter phone number (e.g., +1234567890)"
+                   value={trackingPhone}
+                   onChange={(e) => setTrackingPhone(e.target.value)}
+                   className="w-full border border-gray-300 rounded-lg px-4 py-3"
+                 />
+               </div>
+               <button
+                 onClick={handleTrackByPhone}
+                 className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 min-h-[44px]"
+               >
+                 Track
+               </button>
+             </div>
           </div>
 
           {/* Tracking Results */}
@@ -860,32 +862,32 @@ export default function Workers() {
             </div>
           )}
 
-          {/* Quick Worker List */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="font-semibold text-lg mb-4">Workers with Phone Numbers</h3>
-            <div className="space-y-2">
-              {workers.filter(w => w.phone).map(worker => (
-                <div key={worker.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <div className="font-medium">{worker.name}</div>
-                    <div className="text-sm text-gray-500">{worker.phone}</div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setTrackingPhone(worker.phone)
-                      handleTrackByPhone()
-                    }}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Track
-                  </button>
-                </div>
-              ))}
-            </div>
-            {workers.filter(w => w.phone).length === 0 && (
-              <p className="text-gray-500 text-center py-4">No workers with phone numbers</p>
-            )}
-          </div>
+           {/* Quick Worker List */}
+           <div className="bg-white rounded-lg shadow p-6">
+             <h3 className="font-semibold text-lg mb-4">Workers with Phone Numbers</h3>
+             <div className="space-y-2">
+               {workers.filter(w => w.phone).map(worker => (
+                 <div key={worker.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                   <div>
+                     <div className="font-medium">{worker.name}</div>
+                     <div className="text-sm text-gray-500">{worker.phone}</div>
+                   </div>
+                   <button
+                     onClick={() => {
+                       setTrackingPhone(worker.phone)
+                       handleTrackByPhone()
+                     }}
+                     className="bg-blue-50 text-blue-600 px-3 py-2 rounded hover:bg-blue-100 text-sm min-h-[44px] min-w-[60px]"
+                   >
+                     Track
+                   </button>
+                 </div>
+               ))}
+             </div>
+             {workers.filter(w => w.phone).length === 0 && (
+               <p className="text-gray-500 text-center py-4">No workers with phone numbers</p>
+             )}
+           </div>
         </div>
       )}
 

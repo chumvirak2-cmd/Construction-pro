@@ -23,7 +23,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'professional',
     name: 'Pro',
     price: 599,
-    yearlyPrice: 799,
+    yearlyPrice: 650,
     interval: 'month',
     limits: {
       maxProjects: 25,
@@ -40,7 +40,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'enterprise',
     name: 'Enterprise',
     price: 899,
-    yearlyPrice: 999,
+    yearlyPrice: 850,
     interval: 'month',
     limits: {
       maxProjects: -1,

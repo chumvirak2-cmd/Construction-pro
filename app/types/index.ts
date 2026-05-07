@@ -306,6 +306,18 @@ export interface TrackingAlert {
   resolvedAt?: string
 }
 
+export interface ManagerNotification {
+  id: string
+  type: 'geofence_violation' | 'system' | 'warning'
+  title: string
+  message: string
+  workerId?: string
+  workerName?: string
+  timestamp: string
+  read: boolean
+  actionUrl?: string
+}
+
 export interface PayrollRecord {
   id: string
   workerId: string

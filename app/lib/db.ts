@@ -1,4 +1,4 @@
-import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, Company, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert, TeamMember } from '../types'
+import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, Company, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert, TeamMember, ManagerNotification } from '../types'
 
 // Subscription Plans
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
@@ -76,7 +76,8 @@ const STORAGE_KEYS = {
   WORKER_LOCATIONS: 'cp_worker_locations',
   TRACKING_ALERTS: 'cp_tracking_alerts',
   SITE_CONFIG: 'cp_site_config',
-  TEAM_MEMBERS: 'cp_team_members'
+  TEAM_MEMBERS: 'cp_team_members',
+  MANAGER_NOTIFICATIONS: 'cp_manager_notifications'
 }
 
 // Generic CRUD operations
@@ -355,6 +356,17 @@ export const workerLocationDb = {
     
     if (newLocation.isOutsideSite) {
       trackingAlertDb.createAlert(location.workerId, location.phone, location.latitude, location.longitude, distance)
+      
+      const workers = workersDb.getAll()
+      const worker = workers.find(w => w.id === location.workerId)
+      
+      managerNotificationDb.create({
+        type: 'geofence_violation',
+        title: '⚠️ Worker Outside Site Boundary',
+        message: `${worker?.name || 'Unknown worker'} (${worker?.role || 'Worker'}) is ${Math.round(distance)}m from site (limit: ${siteRadius}m)`,
+        workerId: location.workerId,
+        workerName: worker?.name
+      })
     }
     
     return newLocation
@@ -430,6 +442,60 @@ export const trackingAlertDb = {
     return null
   },
   getByWorker: (workerId: string) => trackingAlertDb.getAll().filter(a => a.workerId === workerId)
+}
+
+// Manager Notifications
+export const managerNotificationDb = {
+  getAll: () => getCollection<ManagerNotification>(STORAGE_KEYS.MANAGER_NOTIFICATIONS),
+  getUnread: () => managerNotificationDb.getAll().filter(n => !n.read),
+  getByType: (type: ManagerNotification['type']) => managerNotificationDb.getAll().filter(n => n.type === type),
+  create: (notification: Omit<ManagerNotification, 'id' | 'timestamp' | 'read'>) => {
+    const notifications = managerNotificationDb.getAll()
+    const newNotification: ManagerNotification = {
+      ...notification,
+      id: generateId(),
+      timestamp: new Date().toISOString(),
+      read: false
+    }
+    notifications.push(newNotification)
+    setCollection(STORAGE_KEYS.MANAGER_NOTIFICATIONS, notifications)
+    
+    if (typeof window !== 'undefined') {
+      const settings = settingsDb.get()
+      if (settings.pushNotifications && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification(notification.title, {
+          body: notification.message,
+          icon: '/logo.png',
+          tag: newNotification.id
+        })
+      }
+    }
+    
+    return newNotification
+  },
+  markAsRead: (id: string) => {
+    const notifications = managerNotificationDb.getAll()
+    const index = notifications.findIndex(n => n.id === id)
+    if (index !== -1) {
+      notifications[index] = { ...notifications[index], read: true }
+      setCollection(STORAGE_KEYS.MANAGER_NOTIFICATIONS, notifications)
+      return notifications[index]
+    }
+    return null
+  },
+  markAllAsRead: () => {
+    const notifications = managerNotificationDb.getAll()
+    const updated = notifications.map(n => ({ ...n, read: true }))
+    setCollection(STORAGE_KEYS.MANAGER_NOTIFICATIONS, updated)
+    return updated
+  },
+  delete: (id: string) => {
+    const notifications = managerNotificationDb.getAll().filter(n => n.id !== id)
+    setCollection(STORAGE_KEYS.MANAGER_NOTIFICATIONS, notifications)
+  },
+  clearAll: () => {
+    setCollection(STORAGE_KEYS.MANAGER_NOTIFICATIONS, [])
+  }
 }
 
 // User Authentication (simplified)

@@ -322,12 +322,31 @@ export default function Settings() {
                 <div className="font-medium">Push Notifications</div>
                 <div className="text-sm text-gray-500">Receive browser push notifications</div>
               </div>
-              <input
-                type="checkbox"
-                checked={settings.pushNotifications}
-                onChange={(e) => setSettings({ ...settings, pushNotifications: e.target.checked })}
-                className="w-5 h-5"
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={settings.pushNotifications}
+                  onChange={(e) => setSettings({ ...settings, pushNotifications: e.target.checked })}
+                  className="w-5 h-5"
+                />
+                {settings.pushNotifications && (
+                  <button
+                    onClick={async () => {
+                      if ('Notification' in window) {
+                        const permission = await Notification.requestPermission()
+                        if (permission === 'granted') {
+                          alert('✓ Push notifications enabled!')
+                        } else {
+                          alert('⚠️ Please enable notifications in your browser settings')
+                        }
+                      }
+                    }}
+                    className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded hover:bg-blue-200"
+                  >
+                    Test
+                  </button>
+                )}
+              </div>
             </label>
             <label className="flex items-center justify-between p-3 border rounded">
               <div>

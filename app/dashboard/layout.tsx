@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { authDb, subscriptionDb, demoDb } from '../lib/db'
+import NotificationBell from '../components/NotificationBell'
 
 export default function DashboardLayout({
   children,
@@ -175,6 +176,7 @@ export default function DashboardLayout({
           </Link>
           <div className="flex items-center gap-2">
             {isDemo && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO</span>}
+            <NotificationBell />
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="text-white text-2xl leading-none p-1"
@@ -273,6 +275,12 @@ export default function DashboardLayout({
             {isDemo && <span className="mt-1 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO MODE</span>}
           </Link>
         </div>
+        
+        {/* Notification Bell - Desktop */}
+        <div className="px-4 py-3 border-b border-gray-700 flex justify-end">
+          <NotificationBell />
+        </div>
+        
         <nav className="flex-1 mt-4 px-2">
           <ul className="space-y-1">
             {/* Dashboard Home */}

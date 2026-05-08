@@ -1,0 +1,68 @@
+{
+  "app": {
+    "title": "កំពុង​ដំឡើង​សាង​សង់​",
+    "subtitle": "AI Agent សម្រាប់ក្រុមហ៊ុន MEP"
+  },
+  "auth": {
+    "signIn": "ចូល",
+    "email": "អ៊ីមែល",
+    "password": "លេខសំងាត់",
+    "errorRequired": "សូមបញ្ចូលអ៊ីមែល និងលេខសំងាត់",
+    "demo": "សាកល្បង​ពាក្យ​ទេស​(ឥតគិតថ្លៃ)"
+  },
+  "navigation": {
+    "noAccount": "មិនទាន់មានគណនី?",
+    "signUp": "កត់ឈ្មោះ",
+    "isWorker": "តើអ្នកជារកម៉្ស៍?",
+    "workerSignUp": "កត់ឈ្មោះរកម៉្ស៍"
+  },
+  "footer": {
+    "copyright": "© 2026 BEE-TRUST ENGINEERING",
+    "rights": "All rights reserved."
+  },
+  "language": {
+    "select": "ជ្រើសរើសភាសា"
+  },
+  "dashboard": {
+    "welcome": {
+      "title": "ផ្ទះត្រកូល",
+      "subtitle": "សូមស្វាគមន៍មកកាន់ Construction Pro AI Smart Agent"
+    },
+    "stats": {
+      "projects": {
+        "title": "ចំនួនគ្រប់គ្រង",
+        "label": "មើលគ្រប់គ្រង",
+        "subtext": "{active} ស្រឡាញ់, {completed} បញ្ចប់"
+      },
+      "workers": {
+        "title": "ចំនួនកុមារធ្វើការ",
+        "label": "គ្រងកុមារធ្វើការ",
+        "subtext": "{active} ស្រឡាញ់"
+      },
+      "inventory": {
+        "title": "ចំនួនឧបករណ៍",
+        "label": "មើលឧបករណ៍",
+        "subtext": "{lowStock} ធំលោកស្ងប់"
+      },
+      "boq": {
+        "title": "ឯកសារ BOQ",
+        "label": "មើលឯកសារ BOQ",
+        "subtext": "ប៊ីលວស ត្រូវបានគាត់លុយ"
+      }
+    },
+    "quickActions": {
+      "addProject": "បង់ប្រភេទ",
+      "addWorker": "បង់កុមារធ្វើការ",
+      "addInventory": "បង់ឧបករណ៍",
+      "createBOQ": "បង់ឯកសារ BOQ"
+    },
+    "financial": {
+      "totalBudget": "សម្ភារៈសរុបគ្រប់គ្រង",
+      "monthlyLabor": "តំណាងពេញពិន្ទុនៅខែ",
+      "inventoryValue": "តំណាងឧបករណ៍",
+      "projects": "គ្រប់គ្រង",
+      "activeWorkers": "កុមារធ្វើការស្រឡាញ់"
+    }
+  }
+}
+}

@@ -1,0 +1,68 @@
+{
+  "app": {
+    "title": "CONSTRUCTION PRO",
+    "subtitle": "AI Agent for MEP Companies"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "errorRequired": "Please enter email and password",
+    "demo": "Try Demo (Free)"
+  },
+  "navigation": {
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign Up",
+    "isWorker": "Are you a worker?",
+    "workerSignUp": "Worker Sign Up"
+  },
+  "footer": {
+    "copyright": "© 2026 BEE-TRUST ENGINEERING",
+    "rights": "All rights reserved."
+  },
+  "language": {
+    "select": "Select Language"
+  },
+  "dashboard": {
+    "welcome": {
+      "title": "Dashboard",
+      "subtitle": "Welcome to Construction Pro AI Smart Agent"
+    },
+    "stats": {
+      "projects": {
+        "title": "Total Projects",
+        "label": "View Projects",
+        "subtext": "{active} active, {completed} completed"
+      },
+      "workers": {
+        "title": "Total Workers",
+        "label": "Manage Workers",
+        "subtext": "{active} active"
+      },
+      "inventory": {
+        "title": "Inventory Items",
+        "label": "View Inventory",
+        "subtext": "{lowStock} low stock"
+      },
+      "boq": {
+        "title": "BOQ Documents",
+        "label": "View BOQs",
+        "subtext": "Bill of Quantities"
+      }
+    },
+    "quickActions": {
+      "addProject": "Add Project",
+      "addWorker": "Add Worker",
+      "addInventory": "Add Inventory",
+      "createBOQ": "Create BOQ"
+    },
+    "financial": {
+      "totalBudget": "Total Project Budget",
+      "monthlyLabor": "Monthly Labor Cost",
+      "inventoryValue": "Inventory Value",
+      "projects": "projects",
+      "activeWorkers": "active workers",
+      "itemsInStock": "items in stock"
+    }
+  }
+}

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { InventoryItem, InventoryCategory, PurchaseOrder } from '../../types'
-import { inventoryDb, seedDataDb } from '../../lib/db'
+import { InventoryItem, InventoryCategory, PurchaseOrder } from '../../../types'
+import { inventoryDb, seedDataDb } from '../../../lib/db'
 import * as XLSX from 'xlsx'
 
 const categoryOptions: InventoryCategory[] = [

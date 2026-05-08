@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { getDashboardStats, projectsDb, workersDb, inventoryDb, boqDb } from '../lib/db'
 import { Project, Worker, InventoryItem, BOQ, DashboardStats } from '../types'
 
 export default function Dashboard() {
+  const t = useTranslations('dashboard')
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0,
     activeProjects: 0,
@@ -47,59 +49,59 @@ export default function Dashboard() {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount)
   }
 
-  const statCards = [
-    {
-      title: 'Total Projects',
-      value: stats.totalProjects,
-      icon: '📋',
-      color: 'bg-blue-500',
-      link: '/dashboard/projects',
-      label: 'View Projects',
-      subtext: `${stats.activeProjects} active, ${stats.completedProjects} completed`
-    },
-    {
-      title: 'Total Workers',
-      value: stats.totalWorkers,
-      icon: '👷',
-      color: 'bg-green-500',
-      link: '/dashboard/workers',
-      label: 'Manage Workers',
-      subtext: `${stats.activeWorkers} active`
-    },
-    {
-      title: 'Inventory Items',
-      value: stats.totalInventory,
-      icon: '📦',
-      color: 'bg-orange-500',
-      link: '/dashboard/inventory',
-      label: 'View Inventory',
-      subtext: `${stats.lowStockItems} low stock`
-    },
-    {
-      title: 'BOQ Documents',
-      value: boqs.length,
-      icon: '📄',
-      color: 'bg-purple-500',
-      link: '/dashboard/boq',
-      label: 'View BOQs',
-      subtext: 'Bill of Quantities'
-    }
-  ]
+   const statCards = [
+     {
+       title: t('stats.projects.title'),
+       value: stats.totalProjects,
+       icon: '📋',
+       color: 'bg-blue-500',
+       link: '/dashboard/projects',
+       label: t('stats.projects.label'),
+       subtext: t('stats.projects.subtext', { active: stats.activeProjects, completed: stats.completedProjects })
+     },
+     {
+       title: t('stats.workers.title'),
+       value: stats.totalWorkers,
+       icon: '👷',
+       color: 'bg-green-500',
+       link: '/dashboard/workers',
+       label: t('stats.workers.label'),
+       subtext: t('stats.workers.subtext', { active: stats.activeWorkers })
+     },
+     {
+       title: t('stats.inventory.title'),
+       value: stats.totalInventory,
+       icon: '📦',
+       color: 'bg-orange-500',
+       link: '/dashboard/inventory',
+       label: t('stats.inventory.label'),
+       subtext: t('stats.inventory.subtext', { lowStock: stats.lowStockItems })
+     },
+     {
+       title: t('stats.boq.title'),
+       value: boqs.length,
+       icon: '📄',
+       color: 'bg-purple-500',
+       link: '/dashboard/boq',
+       label: t('stats.boq.label'),
+       subtext: t('stats.boq.subtext')
+     }
+   ]
 
-  const quickActions = [
-    { label: 'Add Project', href: '/dashboard/projects', icon: '➕', color: 'bg-blue-50 text-blue-600' },
-    { label: 'Add Worker', href: '/dashboard/workers', icon: '👤', color: 'bg-green-50 text-green-600' },
-    { label: 'Add Inventory', href: '/dashboard/inventory', icon: '📥', color: 'bg-orange-50 text-orange-600' },
-    { label: 'Create BOQ', href: '/dashboard/boq', icon: '🧮', color: 'bg-purple-50 text-purple-600' }
-  ]
+   const quickActions = [
+     { label: t('quickActions.addProject'), href: '/dashboard/projects', icon: '➕', color: 'bg-blue-50 text-blue-600' },
+     { label: t('quickActions.addWorker'), href: '/dashboard/workers', icon: '👤', color: 'bg-green-50 text-green-600' },
+     { label: t('quickActions.addInventory'), href: '/dashboard/inventory', icon: '📥', color: 'bg-orange-50 text-orange-600' },
+     { label: t('quickActions.createBOQ'), href: '/dashboard/boq', icon: '🧮', color: 'bg-purple-50 text-purple-600' }
+   ]
 
   return (
     <div className="pb-20 md:pb-6 px-2 md:px-0">
-      {/* Welcome Header */}
-      <div className="mb-4 md:mb-6 text-center">
-        <h1 className="text-lg md:text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-500 text-xs md:text-sm">Welcome to Construction Pro AI Smart Agent</p>
-      </div>
+       {/* Welcome Header */}
+       <div className="mb-4 md:mb-6 text-center">
+         <h1 className="text-lg md:text-2xl font-bold text-gray-800">{t('welcome.title')}</h1>
+         <p className="text-gray-500 text-xs md:text-sm">{t('welcome.subtitle')}</p>
+       </div>
 
       {/* Stats Cards - Stacked on mobile, 2x2 grid on tablet, 4 cols on desktop */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
@@ -124,21 +126,21 @@ export default function Dashboard() {
 
       {/* Financial Summary - Stacked on mobile, 3 cols on desktop */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-sm">
-          <p className="text-blue-100 text-xs uppercase tracking-wider font-medium">Total Project Budget</p>
-          <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(stats.totalRevenue)}</p>
-          <p className="text-blue-200 text-xs mt-1">{stats.totalProjects} projects</p>
-        </div>
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-sm">
-          <p className="text-green-100 text-xs uppercase tracking-wider font-medium">Monthly Labor Cost</p>
-          <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(stats.monthlyExpenses)}</p>
-          <p className="text-green-200 text-xs mt-1">{stats.activeWorkers} active workers</p>
-        </div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-sm">
-          <p className="text-purple-100 text-xs uppercase tracking-wider font-medium">Inventory Value</p>
-          <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(0)}</p>
-          <p className="text-purple-200 text-xs mt-1">{stats.totalInventory} items in stock</p>
-        </div>
+         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white shadow-sm">
+           <p className="text-blue-100 text-xs uppercase tracking-wider font-medium">{t('financial.totalBudget')}</p>
+           <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(stats.totalRevenue)}</p>
+           <p className="text-blue-200 text-xs mt-1">{stats.totalProjects} {t('financial.projects')}</p>
+         </div>
+         <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white shadow-sm">
+           <p className="text-green-100 text-xs uppercase tracking-wider font-medium">{t('financial.monthlyLabor')}</p>
+           <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(stats.monthlyExpenses)}</p>
+           <p className="text-green-200 text-xs mt-1">{stats.activeWorkers} {t('financial.activeWorkers')}</p>
+         </div>
+         <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white shadow-sm">
+           <p className="text-purple-100 text-xs uppercase tracking-wider font-medium">{t('financial.inventoryValue')}</p>
+           <p className="text-xl md:text-2xl font-bold mt-2">{formatCurrency(0)}</p>
+           <p className="text-purple-200 text-xs mt-1">{stats.totalInventory} {t('financial.itemsInStock')}</p>
+         </div>
       </div>
 
       {/* Quick Actions - Full width on mobile, side section on desktop */}

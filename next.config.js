@@ -6,6 +6,7 @@ const nextConfig = {
     unoptimized: true,
   },
   distDir: 'out',
+  // We'll handle i18n manually through locale routing
 }
 
 module.exports = nextConfig

@@ -1,12 +1,16 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { authDb, subscriptionDb, demoDb } from './lib/db'
+import LanguageSwitcher from '../components/LanguageSwitcher'
+import { authDb, subscriptionDb, demoDb } from '../lib/db'
 
 export default function Home() {
   const router = useRouter()
+  const pathname = usePathname()
+  const t = useTranslations('page')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -17,7 +21,7 @@ export default function Home() {
       router.push('/dashboard')
       return
     }
-    
+
     const user = authDb.getCurrentUser()
     if (user) {
       const sub = subscriptionDb.getByUserId(user.id)
@@ -30,12 +34,12 @@ export default function Home() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    
+
     if (!email || !password) {
-      setError('Please enter email and password')
+      setError(t('errorRequired'))
       return
     }
-    
+
     localStorage.setItem('loggedIn', 'true')
     router.push('/dashboard')
   }
@@ -52,14 +56,19 @@ export default function Home() {
       <div style={{ background: 'white', padding: 'clamp(16px, 5vw, 32px)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px' }}>
           <img src="/logo.png?v=2" alt="Construction Pro" style={{ width: 'clamp(56px, 18vw, 80px)', height: 'clamp(56px, 18vw, 80px)', borderRadius: '50%', marginBottom: '12px' }} />
-          <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
-          <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}>AI Agent for MEP Companies</p>
+          <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}>{t('app.title')}</h1>
+          <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}>{t('app.subtitle')}</p>
         </div>
-        <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>Sign In</h2>
+
+        <div style={{ width: '100%', marginBottom: '16px' }}>
+          <LanguageSwitcher />
+        </div>
+
+        <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{t('auth.signIn')}</h2>
         {error && <p style={{ color: '#dc2626', fontSize: 'clamp(12px, 3.5vw, 14px)', textAlign: 'center', marginBottom: '12px' }}>{error}</p>}
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Email</label>
+            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>{t('auth.email')}</label>
             <input
               type="email"
               value={email}
@@ -71,7 +80,7 @@ export default function Home() {
             />
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Password</label>
+            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>{t('auth.password')}</label>
             <input
               type="password"
               value={password}
@@ -82,25 +91,25 @@ export default function Home() {
             />
           </div>
           <button type="submit" style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', touchAction: 'manipulation', minHeight: '48px' }}>
-            Sign In
+            {t('auth.signIn')}
           </button>
         </form>
-        <button 
+        <button
           type="button"
           onClick={handleDemoLogin}
           style={{ width: '100%', background: '#10b981', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', marginTop: '10px', touchAction: 'manipulation', minHeight: '48px' }}
         >
-          Try Demo (Free)
+          {t('auth.demo')}
         </button>
         <p style={{ marginTop: '14px', textAlign: 'center', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
-          Don&apos;t have an account? <Link href="/signup" style={{ color: '#3b82f6', fontWeight: 600 }}>Sign Up</Link>
+          {t('navigation.noAccount')} <Link href={`/${locale}/signup`} style={{ color: '#3b82f6', fontWeight: 600 }}>{t('navigation.signUp')}</Link>
         </p>
         <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'clamp(11px, 3vw, 12px)' }}>
-          Are you a worker? <Link href="/signup/worker" style={{ color: '#10b981', fontWeight: 600 }}>Worker Sign Up</Link>
+          {t('navigation.isWorker')} <Link href="/signup/worker" style={{ color: '#10b981', fontWeight: 600 }}>{t('navigation.workerSignUp')}</Link>
         </p>
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
-          <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>
-          <p style={{ margin: 0 }}>All rights reserved.</p>
+          <p style={{ margin: 0 }}>{t('footer.copyright')}</p>
+          <p style={{ margin: 0 }}>{t('footer.rights')}</p>
         </div>
       </div>
     </div>

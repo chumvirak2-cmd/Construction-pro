@@ -3,8 +3,10 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { authDb, subscriptionDb, demoDb } from '../lib/db'
-import NotificationBell from '../components/NotificationBell'
+import { useLocale } from 'next-intl'
+import { authDb, subscriptionDb, demoDb } from '../../lib/db'
+import NotificationBell from '../../components/NotificationBell'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
 
 export default function DashboardLayout({
   children,
@@ -16,7 +18,7 @@ export default function DashboardLayout({
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [isReady, setIsReady] = useState(false)
-  const [isDemo, setIsDemo] = useState(false)
+  const locale = useLocale()
   const [subscription, setSubscription] = useState<any>(null)
   const [activeDepartment, setActiveDepartment] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLLIElement | null>(null)
@@ -33,7 +35,7 @@ export default function DashboardLayout({
     demoDb.disableDemoMode()
     localStorage.clear()
     sessionStorage.clear()
-    router.push('/')
+    router.push(`/${locale}`)
   }
 
   useEffect(() => {
@@ -174,10 +176,11 @@ export default function DashboardLayout({
             <img src="/logo.png?v=2" alt="Logo" className="w-7 h-7 rounded-full" />
             <span className="font-bold text-sm truncate">Construction Pro</span>
           </Link>
-          <div className="flex items-center gap-2">
-            {isDemo && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO</span>}
-            <NotificationBell />
-            <button
+           <div className="flex items-center gap-2">
+             {isDemo && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO</span>}
+             <NotificationBell />
+             <LanguageSwitcher />
+             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="text-white text-2xl leading-none p-1"
             >

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { getDashboardStats, projectsDb, workersDb, inventoryDb, boqDb } from '../lib/db'
-import { Project, Worker, InventoryItem, BOQ, DashboardStats } from '../types'
+import { getDashboardStats, projectsDb, workersDb, inventoryDb, boqDb } from '../../lib/db'
+import { Project, Worker, InventoryItem, BOQ, DashboardStats } from '../../types'
 
 export default function Dashboard() {
   const t = useTranslations('dashboard')

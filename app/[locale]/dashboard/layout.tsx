@@ -17,6 +17,7 @@ export default function DashboardLayout({
   const router = useRouter()
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isDemo, setIsDemo] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const locale = useLocale()
   const [subscription, setSubscription] = useState<any>(null)

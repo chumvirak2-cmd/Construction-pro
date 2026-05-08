@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { InventoryItem } from '../../../types'
-import { inventoryDb } from '../../../lib/db'
+import { InventoryItem } from '../../../../types'
+import { inventoryDb } from '../../../../lib/db'
 
 export default function MEPLiftEscalator() {
   const [items, setItems] = useState<InventoryItem[]>([])

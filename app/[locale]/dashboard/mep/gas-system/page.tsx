@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { InventoryItem } from '../../../types'
-import { inventoryDb } from '../../../lib/db'
+import { InventoryItem } from '../../../../types'
+import { inventoryDb } from '../../../../lib/db'
 
 export default function MEPGasSystem() {
   const [items, setItems] = useState<InventoryItem[]>([])

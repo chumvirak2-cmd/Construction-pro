@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TeamMember, User, ManagementLevel, MANAGEMENT_LEVEL_PERMISSIONS } from '../../types'
-import { teamDb, authDb, subscriptionDb } from '../../lib/db'
-import { hasPermission, canAccessDepartment, FeaturePermissions } from '../../lib/permissions'
+import { TeamMember, User, ManagementLevel, MANAGEMENT_LEVEL_PERMISSIONS } from '../../../types'
+import { teamDb, authDb, subscriptionDb } from '../../../lib/db'
+import { hasPermission, canAccessDepartment, FeaturePermissions } from '../../../lib/permissions'
 
 const MANAGEMENT_LEVEL_OPTIONS: { value: ManagementLevel; label: string; description: string }[] = [
   { value: 'company_admin', label: 'Company Admin', description: 'Full access to all company data and settings' },

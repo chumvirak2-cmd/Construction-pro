@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Project, ProjectStatus, MEPSystem, BuildingType } from '../../types'
-import { projectsDb } from '../../lib/db'
+import { Project, ProjectStatus, MEPSystem, BuildingType } from '../../../types'
+import { projectsDb } from '../../../lib/db'
 
 const statusColors: Record<ProjectStatus, string> = {
   planning: 'bg-yellow-100 text-yellow-800',

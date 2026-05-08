@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { authDb, attendanceDb } from '../../lib/db'
+import { authDb, attendanceDb } from '../../../lib/db'
 import Link from 'next/link'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'

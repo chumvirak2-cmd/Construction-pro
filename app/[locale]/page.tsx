@@ -10,6 +10,7 @@ import { authDb, subscriptionDb, demoDb } from '../lib/db'
 export default function Home() {
   const router = useRouter()
   const pathname = usePathname()
+  const locale = useLocale()
   const t = useTranslations('page')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

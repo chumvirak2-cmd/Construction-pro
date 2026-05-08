@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { SUBSCRIPTION_PLANS, subscriptionDb, authDb } from '../lib/db'
-import { User, Subscription } from '../types'
+import { SUBSCRIPTION_PLANS, subscriptionDb, authDb } from '../../lib/db'
+import { User, Subscription } from '../../types'
 import Link from 'next/link'
 
 export default function SubscriptionPage() {

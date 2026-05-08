@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { InventoryItem, InventoryCategory } from '../../../types'
-import { inventoryDb } from '../../../lib/db'
+import { InventoryItem, InventoryCategory } from '../../../../types'
+import { inventoryDb } from '../../../../lib/db'
 
 export default function MEPHVAC() {
   const [items, setItems] = useState<InventoryItem[]>([])

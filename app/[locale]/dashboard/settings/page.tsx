@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { authDb, subscriptionDb, SUBSCRIPTION_PLANS, getPlan } from '../../lib/db'
+import { authDb, subscriptionDb, SUBSCRIPTION_PLANS, getPlan } from '../../../lib/db'
 
 interface AppSettings {
   currency: string

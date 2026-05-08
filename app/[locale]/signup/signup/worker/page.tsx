@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
-import { authDb, companyDb } from '../../lib/db'
+import { authDb, companyDb } from '../../../../lib/db'
 
 export default function WorkerSignup() {
   const router = useRouter()

@@ -1,3 +1,7 @@
+const createNextIntlPlugin = require('next-intl/plugin');
+
+const withNextIntl = createNextIntlPlugin();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
@@ -6,7 +10,6 @@ const nextConfig = {
     unoptimized: true,
   },
   distDir: 'out',
-  // We'll handle i18n manually through locale routing
 }
 
-module.exports = nextConfig
+module.exports = withNextIntl(nextConfig)

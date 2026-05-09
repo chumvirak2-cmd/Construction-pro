@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { TeamMember, User, ManagementLevel, MANAGEMENT_LEVEL_PERMISSIONS } from '../../../types'
 import { teamDb, authDb, subscriptionDb } from '../../../lib/db'
 import { hasPermission, canAccessDepartment, FeaturePermissions } from '../../../lib/permissions'
@@ -59,19 +59,19 @@ export default function UsersPage() {
     permissions: ['projects', 'workers', 'inventory', 'boq', 'reports'],
     isTrackingEnabled: false
   })
-  const [trackingView, setTrackingView] = useState<'list' | 'map'>('list')
+const [trackingView, setTrackingView] = useState<'list' | 'map'>('list')
   const [siteCenter, setSiteCenter] = useState({ lat: 40.7128, lng: -74.0060 })
   const [siteRadiusMeters, setSiteRadiusMeters] = useState(500)
 
-  useEffect(() => {
-    loadData()
-  }, [])
-
-  const loadData = () => {
+  const loadData = useCallback(() => {
     if (currentUser) {
       setMembers(teamDb.getByUserId(currentUser.id))
     }
-  }
+  }, [currentUser])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

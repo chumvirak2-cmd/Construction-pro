@@ -1,14 +1,12 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useLocale } from 'next-intl'
 import { useState } from 'react'
 import Link from 'next/link'
-import { authDb, companyDb } from '../../../lib/db'
+import { authDb, companyDb } from '../../lib/db'
 
 export default function Signup() {
   const router = useRouter()
-  const locale = useLocale()
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [email, setEmail] = useState('')
@@ -43,7 +41,7 @@ export default function Signup() {
       permissions: []
     })
     
-    router.push(`/${locale}/subscription`)
+    router.push('/subscription')
   }
 
   return (

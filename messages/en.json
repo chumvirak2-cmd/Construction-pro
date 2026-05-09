@@ -64,5 +64,28 @@
       "activeWorkers": "active workers",
       "itemsInStock": "items in stock"
     }
+  },
+  "page": {
+    "app": {
+      "title": "CONSTRUCTION PRO",
+      "subtitle": "AI Agent for MEP Companies"
+    },
+    "auth": {
+      "signIn": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "errorRequired": "Please enter email and password",
+      "demo": "Try Demo (Free)"
+    },
+    "navigation": {
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up",
+      "isWorker": "Are you a worker?",
+      "workerSignUp": "Worker Sign Up"
+    },
+    "footer": {
+      "copyright": "© 2026 BEE-TRUST ENGINEERING",
+      "rights": "All rights reserved."
+    }
   }
 }

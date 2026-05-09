@@ -6,6 +6,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { authDb, subscriptionDb, demoDb } from '../lib/db'
+import { getLocales } from '../lib/get-locales'
+
+
 
 export default function Home() {
   const router = useRouter()
@@ -19,7 +22,7 @@ export default function Home() {
   useEffect(() => {
     const isDemo = demoDb.isDemoMode()
     if (isDemo) {
-      router.push('/dashboard')
+      router.push(`/${locale}/dashboard`)
       return
     }
 
@@ -27,7 +30,7 @@ export default function Home() {
     if (user) {
       const sub = subscriptionDb.getByUserId(user.id)
       if (sub && (sub.status === 'active' || sub.status === 'trialing')) {
-        router.push('/dashboard')
+        router.push(`/${locale}/dashboard`)
       }
     }
   }, [router])
@@ -41,15 +44,39 @@ export default function Home() {
       return
     }
 
+    // Create demo user for testing if not exists
+    const existingUser = authDb.getByEmail(email)
+    if (!existingUser) {
+      const user = authDb.register({
+        email,
+        fullName: 'Test User',
+        companyName: 'Test Company',
+        role: 'admin',
+        userType: 'company_admin',
+        managementLevel: 'company_admin',
+        permissions: []
+      })
+      
+      // Create a starter subscription for the user
+      subscriptionDb.create({
+        userId: user.id,
+        tier: 'starter',
+        status: 'active',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false
+      })
+    }
+
     localStorage.setItem('loggedIn', 'true')
-    router.push('/dashboard')
+    router.push(`/${locale}/dashboard`)
   }
 
   const handleDemoLogin = (e: React.FormEvent) => {
     e.preventDefault()
     demoDb.enableDemoMode()
     localStorage.setItem('loggedIn', 'true')
-    router.push('/dashboard')
+    router.push(`/${locale}/dashboard`)
   }
 
   return (
@@ -106,7 +133,7 @@ export default function Home() {
           {t('navigation.noAccount')} <Link href={`/${locale}/signup`} style={{ color: '#3b82f6', fontWeight: 600 }}>{t('navigation.signUp')}</Link>
         </p>
         <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'clamp(11px, 3vw, 12px)' }}>
-          {t('navigation.isWorker')} <Link href="/signup/worker" style={{ color: '#10b981', fontWeight: 600 }}>{t('navigation.workerSignUp')}</Link>
+          {t('navigation.isWorker')} <Link href={`/${locale}/signup/worker`} style={{ color: '#10b981', fontWeight: 600 }}>{t('navigation.workerSignUp')}</Link>
         </p>
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
           <p style={{ margin: 0 }}>{t('footer.copyright')}</p>

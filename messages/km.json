@@ -63,5 +63,28 @@
       "projects": "គ្រប់គ្រង",
       "activeWorkers": "កុមារធ្វើការស្រឡាញ់"
     }
+  },
+  "page": {
+    "app": {
+      "title": "កំពុងដំឡើងសាងសង់",
+      "subtitle": "AI Agent សម្រាប់ក្រុមហ៊ុន MEP"
+    },
+    "auth": {
+      "signIn": "ចូល",
+      "email": "អ៊ីមែល",
+      "password": "លេខសំងាត់",
+      "errorRequired": "សូមបញ្ចូលអ៊ីមែល និងលេខសំងាត់",
+      "demo": "សាកល្បងពាក្យទេស(ឥតគិតថ្លៃ)"
+    },
+    "navigation": {
+      "noAccount": "មិនទាន់មានគណនី?",
+      "signUp": "កត់ឈ្មោះ",
+      "isWorker": "តើអ្នកជារកម៉្ស៍?",
+      "workerSignUp": "កត់ឈ្មោះរកម៉្ស៍"
+    },
+    "footer": {
+      "copyright": "© 2026 BEE-TRUST ENGINEERING",
+      "rights": "All rights reserved."
+    }
   }
 }

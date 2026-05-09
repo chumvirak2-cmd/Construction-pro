@@ -33,7 +33,7 @@ export default function Home() {
         router.push(`/${locale}/dashboard`)
       }
     }
-  }, [router])
+  }, [router, locale])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()

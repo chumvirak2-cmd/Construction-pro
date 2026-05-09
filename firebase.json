@@ -6,11 +6,24 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [
+    "redirects": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/",
+        "destination": "/en/",
+        "type": 301
+      },
+      {
+        "source": "/en",
+        "destination": "/en/",
+        "type": 301
+      },
+      {
+        "source": "/km",
+        "destination": "/km/",
+        "type": 301
       }
-    ]
+    ],
+    "cleanUrls": true,
+    "trailingSlash": true
   }
 }

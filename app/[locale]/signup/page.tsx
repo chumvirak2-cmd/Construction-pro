@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { authDb, companyDb } from '../../lib/db'
 

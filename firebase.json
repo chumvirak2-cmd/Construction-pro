@@ -16,11 +16,6 @@
         "source": "/en",
         "destination": "/en/",
         "type": 301
-      },
-      {
-        "source": "/km",
-        "destination": "/km/",
-        "type": 301
       }
     ],
     "cleanUrls": true,

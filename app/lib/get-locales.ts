@@ -1,7 +1,6 @@
 export function getLocales() {
   return [
-    { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'km', name: 'ភាសាខ្មែរ', flag: '🇰🇭' }
+    { code: 'en', name: 'English', flag: '🇺🇸' }
   ]
 }
 

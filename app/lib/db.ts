@@ -77,7 +77,8 @@ const STORAGE_KEYS = {
   TRACKING_ALERTS: 'cp_tracking_alerts',
   SITE_CONFIG: 'cp_site_config',
   TEAM_MEMBERS: 'cp_team_members',
-  MANAGER_NOTIFICATIONS: 'cp_manager_notifications'
+  MANAGER_NOTIFICATIONS: 'cp_manager_notifications',
+  CLIENTS: 'cp_clients'
 }
 
 // Generic CRUD operations
@@ -986,4 +987,50 @@ export const subscriptionDb = {
     }
     return { allowed: true, current: projects, limit: plan.limits.maxProjects }
   }
+}
+
+// Clients Database
+export const clientsDb = {
+  getAll: () => getCollection<Client>(STORAGE_KEYS.CLIENTS),
+  getById: (id: string) => clientsDb.getAll().find(c => c.id === id),
+  create: (client: Omit<Client, 'id' | 'createdAt'>) => {
+    const clients = clientsDb.getAll()
+    const newClient: Client = {
+      ...client,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    }
+    clients.push(newClient)
+    setCollection(STORAGE_KEYS.CLIENTS, clients)
+    return newClient
+  },
+  update: (id: string, data: Partial<Client>) => {
+    const clients = clientsDb.getAll()
+    const index = clients.findIndex(c => c.id === id)
+    if (index !== -1) {
+      clients[index] = { ...clients[index], ...data, updatedAt: new Date().toISOString() }
+      setCollection(STORAGE_KEYS.CLIENTS, clients)
+      return clients[index]
+    }
+    return null
+  },
+  delete: (id: string) => {
+    const clients = clientsDb.getAll().filter(c => c.id !== id)
+    setCollection(STORAGE_KEYS.CLIENTS, clients)
+  }
+}
+
+// Types
+interface Client {
+  id: string
+  name: string
+  email?: string
+  phone?: string
+  address?: string
+  company?: string
+  contactPerson?: string
+  status?: 'active' | 'inactive' | 'lead'
+  notes?: string
+  createdAt: string
+  updatedAt?: string
 }

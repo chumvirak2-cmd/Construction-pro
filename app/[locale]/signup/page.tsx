@@ -50,60 +50,59 @@ export default function Signup() {
       <div style={{ background: 'white', padding: 'clamp(16px, 5vw, 32px)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px' }}>
           <img src="/logo.png?v=2" alt="Construction Pro" style={{ width: 'clamp(56px, 18vw, 80px)', height: 'clamp(56px, 18vw, 80px)', borderRadius: '50%', marginBottom: '12px' }} />
-          <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
-          <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}>AI Agent for MEP Companies</p>
+          <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}></h1>
+          <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}></p>
         </div>
-        <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>Company Registration</h2>
+        <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}></h2>
         {error && <p style={{ color: '#dc2626', fontSize: 'clamp(12px, 3.5vw, 14px)', textAlign: 'center', marginBottom: '12px' }}>{error}</p>}
         <form onSubmit={handleSignup}>
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Full Name</label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
-              required
-              autoComplete="name"
-            />
-          </div>
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Company Name</label>
-            <input
-              type="text"
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
-              required
-              autoComplete="organization"
-            />
-          </div>
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
-              required
-              autoComplete="email"
-              inputMode="email"
-            />
-          </div>
-          <div style={{ marginBottom: '12px' }}>
-            <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
-              required
-              autoComplete="new-password"
-            />
-          </div>
-          <button type="submit" style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', touchAction: 'manipulation', minHeight: '48px' }}>
-            Sign Up
-          </button>
+           <div style={{ marginBottom: '12px' }}>
+             <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}></label>
+             <input
+               type="text"
+               value={fullName}
+               onChange={(e) => setFullName(e.target.value)}
+               style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
+               required
+               autoComplete="name"
+             />
+           </div>
+           <div style={{ marginBottom: '12px' }}>
+             <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}></label>
+             <input
+               type="text"
+               value={companyName}
+               onChange={(e) => setCompanyName(e.target.value)}
+               style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
+               required
+               autoComplete="organization"
+             />
+           </div>
+           <div style={{ marginBottom: '12px' }}>
+             <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}></label>
+             <input
+               type="email"
+               value={email}
+               onChange={(e) => setEmail(e.target.value)}
+               style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
+               required
+               autoComplete="email"
+               inputMode="email"
+             />
+           </div>
+           <div style={{ marginBottom: '12px' }}>
+             <label style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}></label>
+             <input
+               type="password"
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
+               required
+               autoComplete="new-password"
+             />
+           </div>
+           <button type="submit" style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', touchAction: 'manipulation', minHeight: '48px' }}>
+           </button>
         </form>
         <p style={{ marginTop: '14px', textAlign: 'center', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
           Already have an account? <Link href="/" style={{ color: '#3b82f6', fontWeight: 600 }}>Sign In</Link>

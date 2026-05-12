@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { User, Subscription } from '../../types'
 import { authDb, subscriptionDb, SUBSCRIPTION_PLANS } from '../../lib/db'
+import ABAPaywayQR from '../../components/ABAPaywayQR'
+import { getABAConfig } from '../../lib/aba-payway'
 
 export default function SubscriptionPage() {
   const router = useRouter()
@@ -13,6 +15,9 @@ export default function SubscriptionPage() {
   const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null)
   const [isClient, setIsClient] = useState(false)
   const [billingCycle, setBillingCycle] = useState<'month' | 'year'>('month')
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'aba'>('stripe')
+  const abaConfig = getABAConfig()
 
   useEffect(() => {
     setIsClient(true)
@@ -197,30 +202,84 @@ export default function SubscriptionPage() {
                   ))}
                 </ul>
 
-                {isCurrentPlan && effectiveStatus === 'active' ? (
-                  <button
-                    disabled
-                    style={{ width: '100%', padding: '12px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, border: 'none', background: '#e5e7eb', color: '#6b7280', cursor: 'not-allowed' }}
-                  >
-                    Current Plan
-                  </button>
-                ) : effectiveStatus !== 'none' && !isCurrentPlan ? (
-                  <button
-                    onClick={() => handleSubscribe(plan.id)}
-                    disabled={!!loading}
-                    style={{ width: '100%', padding: '12px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, border: 'none', background: '#3b82f6', color: 'white', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
-                  >
-                    {loading === plan.id ? 'Processing...' : `Upgrade to ${plan.name}`}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleSubscribe(plan.id)}
-                    disabled={!!loading}
-                    style={{ width: '100%', padding: '12px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, border: 'none', background: isPopular ? '#3b82f6' : '#111827', color: 'white', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
-                  >
-                    {loading === plan.id ? 'Processing...' : `Subscribe to ${plan.name}`}
-                  </button>
-                )}
+                 {isCurrentPlan && effectiveStatus === 'active' ? (
+                   <button
+                     disabled
+                     style={{ width: '100%', padding: '12px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, border: 'none', background: '#e5e7eb', color: '#6b7280', cursor: 'not-allowed' }}
+                   >
+                     Current Plan
+                   </button>
+                 ) : effectiveStatus !== 'none' && !isCurrentPlan ? (
+                   <>
+                     <button
+                       onClick={() => setSelectedPlan(plan.id)}
+                       disabled={!!loading}
+                       style={{ width: '100%', padding: '12px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, border: 'none', background: '#3b82f6', color: 'white', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginBottom: '8px' }}
+                     >
+                       {loading === plan.id ? 'Processing...' : `Upgrade to ${plan.name}`}
+                     </button>
+                     {abaConfig.enabled && (
+                       <div style={{ marginTop: '8px' }}>
+                         <button
+                           onClick={() => {
+                             setSelectedPlan(plan.id);
+                             setPaymentMethod('aba');
+                           }}
+                           disabled={!!loading}
+                           style={{
+                             width: '100%',
+                             padding: '10px',
+                             borderRadius: '4px',
+                             fontSize: '13px',
+                             fontWeight: 500,
+                             border: '1px dashed #3b82f6',
+                             background: 'white',
+                             color: '#3b82f6',
+                             cursor: loading ? 'not-allowed' : 'pointer',
+                             opacity: loading ? 0.7 : 1
+                           }}
+                         >
+                           {loading === plan.id ? 'Processing...' : 'Pay with ABA Payway'}
+                         </button>
+                       </div>
+                     )}
+                   </>
+                 ) : (
+                   <>
+                     <button
+                       onClick={() => setSelectedPlan(plan.id)}
+                       disabled={!!loading}
+                       style={{ width: '100%', padding: '12px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, border: 'none', background: isPopular ? '#3b82f6' : '#111827', color: 'white', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginBottom: '8px' }}
+                     >
+                       {loading === plan.id ? 'Processing...' : `Subscribe to ${plan.name}`}
+                     </button>
+                     {abaConfig.enabled && (
+                       <div style={{ marginTop: '8px' }}>
+                         <button
+                           onClick={() => {
+                             setSelectedPlan(plan.id);
+                             setPaymentMethod('aba');
+                           }}
+                           disabled={!!loading}
+                           style={{
+                             width: '100%',
+                             padding: '10px',
+                             borderRadius: '4px',
+                             fontSize: '13px',
+                             fontWeight: 500,
+                             border: '1px dashed #3b82f6',
+                             background: 'white',
+                             color: '#3b82f6',
+                             cursor: loading ? 'not-allowed' : 'pointer',
+                             opacity: loading ? 0.7 : 1
+                           }}
+                         >
+                           {loading === plan.id ? 'Processing...' : 'Pay with ABA Payway'}
+                         </button>
+                       </div>
+                     )}
+                   </>
+                 )}
               </div>
             )
           })}
@@ -240,6 +299,130 @@ export default function SubscriptionPage() {
                 <span>Your subscription will end on {new Date(currentSubscription.currentPeriodEnd).toLocaleDateString()}</span>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Payment Method Selection */}
+        {selectedPlan && (
+          <div style={{
+            maxWidth: '600px',
+            margin: '32px auto',
+            padding: '24px',
+            background: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Choose Payment Method</h2>
+              <button
+                onClick={() => setSelectedPlan(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  color: '#6b7280'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Payment Method Tabs */}
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              marginBottom: '24px',
+              borderBottom: '1px solid #e5e7eb'
+            }}>
+              <button
+                onClick={() => setPaymentMethod('stripe')}
+                style={{
+                  padding: '12px 16px',
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: paymentMethod === 'stripe' ? '600' : '500',
+                  color: paymentMethod === 'stripe' ? '#3b82f6' : '#6b7280',
+                  borderBottom: paymentMethod === 'stripe' ? '2px solid #3b82f6' : 'none',
+                  marginBottom: '-1px'
+                }}
+              >
+                💳 Stripe Card
+              </button>
+              {abaConfig.enabled && (
+                <button
+                  onClick={() => setPaymentMethod('aba')}
+                  style={{
+                    padding: '12px 16px',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: paymentMethod === 'aba' ? '600' : '500',
+                    color: paymentMethod === 'aba' ? '#3b82f6' : '#6b7280',
+                    borderBottom: paymentMethod === 'aba' ? '2px solid #3b82f6' : 'none',
+                    marginBottom: '-1px'
+                  }}
+                >
+                  🏦 ABA Payway
+                </button>
+              )}
+            </div>
+
+            {/* Stripe Payment */}
+            {paymentMethod === 'stripe' && (
+              <div>
+                <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px' }}>
+                  Pay securely with your credit or debit card
+                </p>
+                <button
+                  onClick={() => handleSubscribe(selectedPlan)}
+                  disabled={!!loading}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    border: 'none',
+                    background: '#3b82f6',
+                    color: 'white',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1
+                  }}
+                >
+                  {loading === selectedPlan ? 'Processing...' : 'Continue to Stripe'}
+                </button>
+              </div>
+            )}
+
+            {/* ABA Payway Payment */}
+            {paymentMethod === 'aba' && abaConfig.enabled && (
+              <div>
+                {selectedPlan && (
+                  <ABAPaywayQR
+                    orderId={`ORDER-${currentUser?.id}-${Date.now()}`}
+                    amount={SUBSCRIPTION_PLANS.find(p => p.id === selectedPlan)?.[billingCycle === 'year' ? 'yearlyPrice' : 'price'] || 0}
+                    planName={SUBSCRIPTION_PLANS.find(p => p.id === selectedPlan)?.name || 'Plan'}
+                    currency="USD"
+                    description={`${SUBSCRIPTION_PLANS.find(p => p.id === selectedPlan)?.name} subscription - ${billingCycle}`}
+                  />
+                )}
+                <div style={{
+                  marginTop: '16px',
+                  padding: '12px',
+                  backgroundColor: '#fef3c7',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  color: '#92400e',
+                  border: '1px solid #fcd34d'
+                }}>
+                  ℹ️ After completing payment, your subscription will be verified within 24 hours.
+                </div>
+              </div>
+            )}
           </div>
         )}
 

@@ -23,21 +23,23 @@ export default function LanguageSwitcher() {
         <button
           key={locale.code}
           onClick={() => handleLocaleChange(locale.code)}
+          aria-label={locale.name}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
-            padding: '8px 12px',
+            justifyContent: 'center',
+            width: '42px',
+            height: '42px',
+            padding: '0',
             border: '1px solid #d1d5db',
-            borderRadius: '6px',
+            borderRadius: '50%',
             background: 'white',
             cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 500
+            fontSize: '18px',
+            lineHeight: 1
           }}
         >
           <span>{locale.flag}</span>
-          <span>{locale.name}</span>
         </button>
       ))}
     </div>

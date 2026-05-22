@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { User, Subscription } from '../../types'
@@ -10,6 +11,7 @@ import { getABAConfig } from '../../lib/aba-payway'
 
 export default function SubscriptionPage() {
   const router = useRouter()
+  const locale = useLocale()
   const [loading, setLoading] = useState<string | null>(null)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null)
@@ -66,7 +68,7 @@ export default function SubscriptionPage() {
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         cancelAtPeriodEnd: false
       })
-      router.push('/dashboard')
+      router.push(`/${locale}/dashboard`)
     }
   }
 
@@ -115,7 +117,7 @@ export default function SubscriptionPage() {
     <div style={{ minHeight: '100vh', background: '#f3f4f6', padding: '24px 12px' }}>
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
+          <Link href={`/${locale}`} style={{ textDecoration: 'none' }}>
             <img src="/logo.png?v=2" alt="ConstructionPro" style={{ width: '60px', height: '60px', borderRadius: '50%', marginBottom: '12px' }} />
           </Link>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px', color: '#111827' }}>Choose Your Plan</h1>

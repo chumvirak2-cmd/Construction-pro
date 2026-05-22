@@ -82,13 +82,25 @@ const STORAGE_KEYS = {
 }
 
 // Generic CRUD operations
+const collectionCache: Record<string, any[] | null> = {}
+
 function getCollection<T>(key: string): T[] {
   if (typeof window === 'undefined') return []
+  if (collectionCache[key]) {
+    return collectionCache[key] as T[]
+  }
+
   const data = localStorage.getItem(key)
-  if (!data) return []
+  if (!data) {
+    collectionCache[key] = []
+    return []
+  }
   try {
-    return JSON.parse(data)
+    const parsed = JSON.parse(data)
+    collectionCache[key] = parsed
+    return parsed
   } catch {
+    collectionCache[key] = []
     return []
   }
 }
@@ -96,6 +108,11 @@ function getCollection<T>(key: string): T[] {
 function setCollection<T>(key: string, data: T[]): void {
   if (typeof window === 'undefined') return
   localStorage.setItem(key, JSON.stringify(data))
+  collectionCache[key] = data
+}
+
+function clearCollectionCache(key: string) {
+  delete collectionCache[key]
 }
 
 function generateId(): string {
@@ -272,6 +289,33 @@ export const getDashboardStats = (): DashboardStats => {
     lowStockItems: inventory.filter(i => i.minQuantity > 0 && i.quantity < i.minQuantity).length,
     totalRevenue: projects.reduce((sum, p) => sum + p.budget, 0),
     monthlyExpenses: workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0)
+  }
+}
+
+export const getDashboardData = () => {
+  const projects = projectsDb.getAll()
+  const workers = workersDb.getAll()
+  const inventory = inventoryDb.getAll()
+  const boqs = boqDb.getAll()
+
+  const stats: DashboardStats = {
+    totalProjects: projects.length,
+    activeProjects: projects.filter(p => p.status === 'in_progress').length,
+    completedProjects: projects.filter(p => p.status === 'completed').length,
+    totalWorkers: workers.length,
+    activeWorkers: workers.filter(w => w.status === 'active').length,
+    totalInventory: inventory.length,
+    lowStockItems: inventory.filter(i => i.minQuantity > 0 && i.quantity < i.minQuantity).length,
+    totalRevenue: projects.reduce((sum, p) => sum + p.budget, 0),
+    monthlyExpenses: workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0)
+  }
+
+  return {
+    stats,
+    recentProjects: projects.slice(-5).reverse(),
+    recentWorkers: workers.slice(-5).reverse(),
+    lowStockItems: inventory.filter(i => i.minQuantity > 0 && i.quantity < i.minQuantity).slice(0, 5),
+    boqs: boqs.slice(-5).reverse()
   }
 }
 
@@ -508,33 +552,39 @@ export const authDb = {
   login: (email: string, password: string): User | null => {
     const users = getCollection<User>(STORAGE_KEYS.USERS)
     const user = users.find(u => u.email === email)
-    if (user) {
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user))
-      return user
+    if (user && user.password === password) {
+      // Don't store password in current user
+      const { password, ...userWithoutPassword } = user
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(userWithoutPassword))
+      return userWithoutPassword as User
     }
     return null
   },
   logout: () => {
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER)
   },
-  register: (userData: Omit<User, 'id' | 'createdAt'>): User => {
+  register: (userData: Omit<User, 'id' | 'createdAt'> & { password?: string }): User => {
     const users = getCollection<User>(STORAGE_KEYS.USERS)
     
     // Set default management level and permissions based on userType
     const managementLevel = userData.managementLevel || (userData.userType === 'company_admin' ? 'company_admin' : 'worker')
     const permissions = userData.permissions || []
+    const { password, ...rest } = userData
     
     const newUser: User = {
-      ...userData,
+      ...rest,
       id: generateId(),
       createdAt: new Date().toISOString(),
       managementLevel,
-      permissions
+      permissions,
+      password: password || ''
     }
     users.push(newUser)
     setCollection(STORAGE_KEYS.USERS, users)
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(newUser))
-    return newUser
+    // Don't store password in current user session
+    const { password: _, ...userForSession } = newUser
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(userForSession))
+    return userForSession as User
   },
   getByEmail: (email: string): User | null => {
     const users = getCollection<User>(STORAGE_KEYS.USERS)
@@ -1021,7 +1071,7 @@ export const clientsDb = {
 }
 
 // Types
-interface Client {
+export interface Client {
   id: string
   name: string
   email?: string

@@ -20,6 +20,7 @@ export default function DashboardLayout({
   const [isDemo, setIsDemo] = useState(false)
   const [isReady, setIsReady] = useState(false)
   const locale = useLocale()
+  const localizePath = (href: string) => `/${locale}${href}`
   const [subscription, setSubscription] = useState<any>(null)
   const [activeDepartment, setActiveDepartment] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLLIElement | null>(null)
@@ -60,19 +61,19 @@ export default function DashboardLayout({
     if (user) {
       // Redirect workers to their dedicated page
       if (user.managementLevel === 'worker') {
-        router.push('/dashboard/worker')
+        router.push(localizePath('/dashboard/worker'))
         return
       }
 
       const sub = subscriptionDb.getByUserId(user.id)
       setSubscription(sub)
       if (!sub || (sub.status !== 'active' && sub.status !== 'trialing')) {
-        router.push('/subscription')
+        router.push(localizePath('/subscription'))
       } else {
         setIsReady(true)
       }
     } else {
-      router.push('/')
+      router.push(`/${locale}`)
     }
   }, [router])
 
@@ -164,7 +165,7 @@ export default function DashboardLayout({
   ]
 
   const isActiveDepartment = (deptItems: { href: string }[]) => {
-    return deptItems.some(item => pathname === item.href || pathname.startsWith(item.href + '/'))
+    return deptItems.some(item => pathname === localizePath(item.href) || pathname.startsWith(localizePath(item.href) + '/'))
   }
 
   // Mobile Bottom Navigation
@@ -173,7 +174,7 @@ export default function DashboardLayout({
       <div className="flex flex-col h-screen bg-gray-50">
         {/* Mobile Header */}
         <header className="bg-gray-800 text-white px-3 py-3 flex items-center justify-between sticky top-0 z-50">
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href={localizePath('/dashboard')} className="flex items-center gap-2">
             <img src="/logo.png?v=2" alt="Logo" className="w-7 h-7 rounded-full" />
             <span className="font-bold text-sm truncate">Construction Pro</span>
           </Link>
@@ -200,11 +201,11 @@ export default function DashboardLayout({
                 </div>
                 <div className="bg-gray-50 px-4 pb-2">
                   {dept.items.map((item, idx) => {
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                    const isActive = pathname === localizePath(item.href) || pathname.startsWith(localizePath(item.href) + '/')
                     return (
                       <Link
                         key={idx}
-                        href={item.href}
+                        href={localizePath(item.href)}
                         className={`flex items-center gap-2 px-3 py-2 rounded text-sm ${
                           isActive ? 'bg-blue-100 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'
                         }`}
@@ -218,11 +219,11 @@ export default function DashboardLayout({
               </div>
             ))}
             {utilityItems.map(item => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+              const isActive = pathname === localizePath(item.href) || pathname.startsWith(localizePath(item.href) + '/')
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={localizePath(item.href)}
                   className={`flex items-center gap-2 px-4 py-3 hover:bg-gray-50 text-gray-700 border-b border-gray-100 ${isActive ? 'bg-blue-50 text-blue-600' : ''}`}
                   onClick={() => setMenuOpen(false)}
                 >
@@ -252,7 +253,7 @@ export default function DashboardLayout({
               return (
                 <Link
                   key={dept.id}
-                  href={dept.items[0]?.href || '#'}
+                  href={dept.items[0]?.href ? localizePath(dept.items[0].href) : '#'}
                   className={`flex flex-col items-center justify-center flex-1 h-full py-2 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}
                 >
                   <span className="text-xl">{dept.icon}</span>
@@ -272,7 +273,7 @@ export default function DashboardLayout({
       {/* Sidebar */}
       <div className="w-64 bg-gray-800 text-white relative flex flex-col flex-shrink-0">
         <div className="p-5 flex flex-col items-center text-center border-b border-gray-700">
-          <Link href="/dashboard" className="flex flex-col items-center">
+          <Link href={localizePath('/dashboard')} className="flex flex-col items-center">
             <img src="/logo.png?v=2" alt="Construction Pro" className="w-24 h-24 rounded-full mb-2" />
             <div className="font-bold text-lg">Construction Pro</div>
             <div className="text-xs text-gray-400">AI Agent</div>
@@ -290,9 +291,9 @@ export default function DashboardLayout({
             {/* Dashboard Home */}
             <li>
               <Link
-                href="/dashboard"
+                href={localizePath('/dashboard')}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                  pathname === '/dashboard'
+                  pathname === `/${locale}/dashboard`
                     ? 'bg-gray-700 text-white font-medium'
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                 }`}
@@ -330,11 +331,11 @@ export default function DashboardLayout({
                   {isDropdownOpen && (
                     <ul className="mt-1 ml-4 pl-4 border-l-2 border-gray-600 space-y-1">
                       {dept.items.map((item, idx) => {
-                        const itemActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                        const itemActive = pathname === localizePath(item.href) || pathname.startsWith(localizePath(item.href) + '/')
                         return (
                           <li key={idx}>
                             <Link
-                              href={item.href}
+                              href={localizePath(item.href)}
                               onClick={() => setActiveDepartment(null)}
                               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
                                 itemActive
@@ -359,7 +360,7 @@ export default function DashboardLayout({
               return (
                 <li key={item.href}>
                   <Link
-                    href={item.href}
+                    href={localizePath(item.href)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                       isActive
                         ? 'bg-gray-700 text-white font-medium'

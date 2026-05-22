@@ -2,53 +2,83 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import Link from 'next/link'
-import { authDb, companyDb } from '../../../lib/db'
+import { authDb, companyDb, subscriptionDb } from '../../../lib/db'
 
 export default function WorkerSignup() {
   const router = useRouter()
+  const locale = useLocale()
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [companyEmail, setCompanyEmail] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleWorkerSignup = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     
     if (!email || !password || !fullName || !companyEmail) {
       setError('Please fill in all fields')
+      setLoading(false)
       return
     }
     
-    // Find company by email domain or exact match
-    const company = companyDb.findByEmail(companyEmail)
-    if (!company) {
-      setError('Company not found. Please check with your employer.')
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters')
+      setLoading(false)
       return
     }
     
-    // Check if user already exists
-    const existingUser = authDb.getByEmail(email)
-    if (existingUser) {
-      setError('Email already registered. Please login instead.')
-      return
+    try {
+      // Find company by email domain or exact match
+      const company = companyDb.findByEmail(companyEmail)
+      if (!company) {
+        setError('Company not found. Please check with your employer.')
+        setLoading(false)
+        return
+      }
+      
+      // Check if user already exists
+      const existingUser = authDb.getByEmail(email)
+      if (existingUser) {
+        setError('Email already registered. Please login instead.')
+        setLoading(false)
+        return
+      }
+      
+      // Register worker associated with company
+      const worker = authDb.register({
+        email,
+        fullName,
+        companyName: company.name,
+        role: 'user',
+        userType: 'worker',
+        companyId: company.id,
+        managementLevel: 'worker',
+        permissions: [],
+        password
+      })
+      
+      // Create a trial subscription for the new worker
+      subscriptionDb.create({
+        userId: worker.id,
+        tier: 'starter',
+        status: 'active',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false
+      })
+      
+      setLoading(false)
+      router.push(`/${locale}/dashboard`)
+    } catch (err) {
+      setError('Error creating account. Please try again.')
+      setLoading(false)
     }
-    
-    // Register worker associated with company
-    const worker = authDb.register({
-      email,
-      fullName,
-      companyName: company.name,
-      role: 'user',
-      userType: 'worker',
-      companyId: company.id,
-      managementLevel: 'worker',
-      permissions: []
-    })
-    
-    router.push('/dashboard')
   }
 
   return (
@@ -112,15 +142,15 @@ export default function WorkerSignup() {
               Your company must have an active subscription
             </p>
           </div>
-          <button type="submit" style={{ width: '100%', background: '#10b981', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', touchAction: 'manipulation', minHeight: '48px' }}>
-            Sign Up as Worker
+          <button type="submit" disabled={loading} style={{ width: '100%', background: '#10b981', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer', touchAction: 'manipulation', minHeight: '48px', opacity: loading ? 0.6 : 1 }}>
+            {loading ? 'Creating Account...' : 'Sign Up as Worker'}
           </button>
         </form>
         <p style={{ marginTop: '14px', textAlign: 'center', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
-          Already have an account? <Link href="/" style={{ color: '#3b82f6', fontWeight: 600 }}>Sign In</Link>
+          Already have an account? <Link href={`/${locale}`} style={{ color: '#3b82f6', fontWeight: 600 }}>Sign In</Link>
         </p>
         <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'clamp(11px, 3vw, 12px)' }}>
-          Are you a company owner? <Link href="/signup" style={{ color: '#3b82f6', fontWeight: 600 }}>Register Company</Link>
+          Are you a company owner? <Link href={`/${locale}/signup`} style={{ color: '#3b82f6', fontWeight: 600 }}>Register Company</Link>
         </p>
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
           <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>

@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { clientsDb } from '../../../lib/db'
+import { useState, useEffect } from 'react'
+import { clientsDb } from '../../../../lib/db'
+
+type ClientFormData = Omit<Parameters<typeof clientsDb.create>[0], 'id' | 'createdAt'>
 
 export default function SalesClients() {
   const [clients, setClients] = useState<any[]>([])
   const [showAddClientForm, setShowAddClientForm] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ClientFormData>({
     name: '',
     email: '',
     phone: '',
@@ -17,21 +19,21 @@ export default function SalesClients() {
     notes: ''
   })
 
-  // Fetch clients on initial load
-  React.useEffect(() => {
-    const loadClients = () => {
-      setClients(clientsDb.getAll())
-    }
-    loadClients()
-  }, [])
+   // Fetch clients on initial load
+   useEffect(() => {
+     const loadClients = () => {
+       setClients(clientsDb.getAll())
+     }
+     loadClients()
+   }, [])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+     const { name, value } = e.target
+     setFormData(prev => ({
+       ...prev,
+       [name]: value
+     }))
+   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

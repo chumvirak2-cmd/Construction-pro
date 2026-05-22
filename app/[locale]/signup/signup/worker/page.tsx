@@ -2,11 +2,14 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { authDb, companyDb } from '../../../../lib/db'
 
 export default function WorkerSignup() {
   const router = useRouter()
+  const locale = useLocale()
+  const localizePath = (href: string) => `/${locale}${href}`
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -48,7 +51,7 @@ export default function WorkerSignup() {
       permissions: []
     })
     
-    router.push('/dashboard')
+    router.push(localizePath('/dashboard'))
   }
 
   return (
@@ -117,10 +120,10 @@ export default function WorkerSignup() {
           </button>
         </form>
         <p style={{ marginTop: '14px', textAlign: 'center', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
-          Already have an account? <Link href="/" style={{ color: '#3b82f6', fontWeight: 600 }}>Sign In</Link>
+          Already have an account? <Link href={`/${locale}`} style={{ color: '#3b82f6', fontWeight: 600 }}>Sign In</Link>
         </p>
         <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'clamp(11px, 3vw, 12px)' }}>
-          Are you a company owner? <Link href="/signup" style={{ color: '#3b82f6', fontWeight: 600 }}>Register Company</Link>
+          Are you a company owner? <Link href={`/${locale}/signup`} style={{ color: '#3b82f6', fontWeight: 600 }}>Register Company</Link>
         </p>
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
           <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>

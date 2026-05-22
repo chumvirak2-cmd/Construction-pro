@@ -1,13 +1,44 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
-import { getDashboardStats, projectsDb, workersDb, inventoryDb, boqDb } from '../../lib/db'
+import { useLocale, useTranslations } from 'next-intl'
+import { getDashboardData } from '../../lib/db'
 import { Project, Worker, InventoryItem, BOQ, DashboardStats } from '../../types'
+
+function DashboardSkeleton() {
+  return (
+    <div className="pb-20 md:pb-6 px-2 md:px-0">
+      <div className="mb-4 md:mb-6 text-center">
+        <div className="h-8 w-48 mx-auto mb-3 rounded-full bg-gray-200 animate-pulse"></div>
+        <div className="h-4 w-64 mx-auto rounded-full bg-gray-200 animate-pulse"></div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="h-28 rounded-xl bg-white shadow-sm p-4 animate-pulse" />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div key={index} className="h-24 rounded-xl bg-white shadow-sm p-4 animate-pulse" />
+        ))}
+      </div>
+      <div className="bg-white rounded-xl shadow-sm p-3 md:p-4 mb-4 md:mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="h-20 rounded-lg bg-gray-200 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function Dashboard() {
   const t = useTranslations('dashboard')
+  const locale = useLocale()
+  const localizePath = (href: string) => `/${locale}${href}`
+  const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0,
     activeProjects: 0,
@@ -25,37 +56,56 @@ export default function Dashboard() {
   const [boqs, setBoqs] = useState<BOQ[]>([])
 
   useEffect(() => {
-    loadData()
+    const scheduleLoad = () => {
+      const dashboardData = getDashboardData()
+      setStats(dashboardData.stats)
+      setRecentProjects(dashboardData.recentProjects)
+      setRecentWorkers(dashboardData.recentWorkers)
+      setLowStockItems(dashboardData.lowStockItems)
+      setBoqs(dashboardData.boqs)
+      setIsLoading(false)
+    }
+
+    let handle: any
+
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        handle = window.requestIdleCallback(scheduleLoad)
+      } else {
+        handle = setTimeout(scheduleLoad, 50)
+      }
+    } else {
+      handle = setTimeout(scheduleLoad, 50)
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        if (handle !== undefined) {
+          if ('cancelIdleCallback' in window) {
+            ;(window as any).cancelIdleCallback(handle)
+          } else {
+            clearTimeout(handle)
+          }
+        }
+      } else {
+        if (handle !== undefined) {
+          clearTimeout(handle)
+        }
+      }
+    }
   }, [])
-
-  const loadData = () => {
-    const statsData = getDashboardStats()
-    setStats(statsData)
-
-    const projects = projectsDb.getAll()
-    setRecentProjects(projects.slice(-5).reverse())
-
-    const workers = workersDb.getAll()
-    setRecentWorkers(workers.slice(-5).reverse())
-
-    const inventory = inventoryDb.getAll()
-    setLowStockItems(inventory.filter(i => i.minQuantity > 0 && i.quantity < i.minQuantity).slice(0, 5))
-
-    const boqData = boqDb.getAll()
-    setBoqs(boqData.slice(-5).reverse())
-  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount)
   }
 
-   const statCards = [
-     {
+  const statCards = useMemo(() => [
+    {
        title: t('stats.projects.title'),
        value: stats.totalProjects,
        icon: '📋',
        color: 'bg-blue-500',
-       link: '/dashboard/projects',
+       link: localizePath('/dashboard/projects'),
        label: t('stats.projects.label'),
        subtext: t('stats.projects.subtext', { active: stats.activeProjects, completed: stats.completedProjects })
      },
@@ -64,7 +114,7 @@ export default function Dashboard() {
        value: stats.totalWorkers,
        icon: '👷',
        color: 'bg-green-500',
-       link: '/dashboard/workers',
+       link: localizePath('/dashboard/workers'),
        label: t('stats.workers.label'),
        subtext: t('stats.workers.subtext', { active: stats.activeWorkers })
      },
@@ -73,7 +123,7 @@ export default function Dashboard() {
        value: stats.totalInventory,
        icon: '📦',
        color: 'bg-orange-500',
-       link: '/dashboard/inventory',
+       link: localizePath('/dashboard/inventory'),
        label: t('stats.inventory.label'),
        subtext: t('stats.inventory.subtext', { lowStock: stats.lowStockItems })
      },
@@ -82,18 +132,22 @@ export default function Dashboard() {
        value: boqs.length,
        icon: '📄',
        color: 'bg-purple-500',
-       link: '/dashboard/boq',
+       link: localizePath('/dashboard/boq'),
        label: t('stats.boq.label'),
        subtext: t('stats.boq.subtext')
      }
-   ]
+   ], [stats, boqs, t])
 
-   const quickActions = [
-     { label: t('quickActions.addProject'), href: '/dashboard/projects', icon: '➕', color: 'bg-blue-50 text-blue-600' },
-     { label: t('quickActions.addWorker'), href: '/dashboard/workers', icon: '👤', color: 'bg-green-50 text-green-600' },
-     { label: t('quickActions.addInventory'), href: '/dashboard/inventory', icon: '📥', color: 'bg-orange-50 text-orange-600' },
-     { label: t('quickActions.createBOQ'), href: '/dashboard/boq', icon: '🧮', color: 'bg-purple-50 text-purple-600' }
-   ]
+   const quickActions = useMemo(() => [
+     { label: t('quickActions.addProject'), href: localizePath('/dashboard/projects'), icon: '➕', color: 'bg-blue-50 text-blue-600' },
+     { label: t('quickActions.addWorker'), href: localizePath('/dashboard/workers'), icon: '👤', color: 'bg-green-50 text-green-600' },
+     { label: t('quickActions.addInventory'), href: localizePath('/dashboard/inventory'), icon: '📥', color: 'bg-orange-50 text-orange-600' },
+     { label: t('quickActions.createBOQ'), href: localizePath('/dashboard/boq'), icon: '🧮', color: 'bg-purple-50 text-purple-600' }
+   ], [t])
+
+  if (isLoading) {
+    return <DashboardSkeleton />
+  }
 
   return (
     <div className="pb-20 md:pb-6 px-2 md:px-0">
@@ -166,14 +220,14 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold text-gray-800">Recent Projects</h2>
-            <Link href="/dashboard/projects" className="text-xs text-blue-600 hover:underline font-medium">
+            <Link href={localizePath('/dashboard/projects')} className="text-xs text-blue-600 hover:underline font-medium">
               View All →
             </Link>
           </div>
           {recentProjects.length > 0 ? (
             <div className="space-y-2">
               {recentProjects.map((project, index) => (
-                <Link key={index} href="/dashboard/projects" className="block">
+                <Link key={index} href={localizePath('/dashboard/projects')} className="block">
                   <div className="p-3 border rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors">
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex-1 min-w-0">
@@ -199,7 +253,7 @@ export default function Dashboard() {
             <div className="text-center py-6 text-gray-500">
               <p className="text-3xl mb-2">📋</p>
               <p className="text-sm">No projects yet</p>
-              <Link href="/dashboard/projects" className="text-blue-600 hover:underline text-xs font-medium">
+              <Link href={localizePath('/dashboard/projects')} className="text-blue-600 hover:underline text-xs font-medium">
                 Create your first project
               </Link>
             </div>
@@ -210,14 +264,14 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl shadow-sm p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold text-gray-800">Recent Workers</h2>
-            <Link href="/dashboard/workers" className="text-xs text-blue-600 hover:underline font-medium">
+            <Link href={localizePath('/dashboard/workers')} className="text-xs text-blue-600 hover:underline font-medium">
               View All →
             </Link>
           </div>
           {recentWorkers.length > 0 ? (
             <div className="space-y-2">
               {recentWorkers.map((worker, index) => (
-                <Link key={index} href="/dashboard/workers" className="block">
+                <Link key={index} href={localizePath('/dashboard/workers')} className="block">
                   <div className="p-3 border rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-colors">
                     <div className="flex justify-between items-center gap-2">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -252,7 +306,7 @@ export default function Dashboard() {
             <div className="text-center py-6 text-gray-500">
               <p className="text-3xl mb-2">👷</p>
               <p className="text-sm">No workers yet</p>
-              <Link href="/dashboard/workers" className="text-blue-600 hover:underline text-xs font-medium">
+              <Link href={localizePath('/dashboard/workers')} className="text-blue-600 hover:underline text-xs font-medium">
                 Add your first worker
               </Link>
             </div>
@@ -264,14 +318,14 @@ export default function Dashboard() {
       <div className="bg-white rounded-xl shadow-sm p-4 mb-4 md:mb-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-base font-bold text-gray-800">⚠️ Low Stock Alerts</h2>
-          <Link href="/dashboard/inventory" className="text-xs text-blue-600 hover:underline font-medium">
+          <Link href={localizePath('/dashboard/inventory')} className="text-xs text-blue-600 hover:underline font-medium">
             View Inventory →
           </Link>
         </div>
         {lowStockItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
             {lowStockItems.map((item, index) => (
-              <Link key={index} href="/dashboard/inventory" className="block">
+              <Link key={index} href={localizePath('/dashboard/inventory')} className="block">
                 <div className="p-3 border border-red-200 rounded-lg bg-red-50 hover:bg-red-100 transition-colors">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">

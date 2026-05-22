@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { authDb, subscriptionDb, SUBSCRIPTION_PLANS, getPlan } from '../../../lib/db'
 
@@ -34,6 +35,8 @@ const defaultSettings: AppSettings = {
 }
 
 export default function Settings() {
+  const locale = useLocale()
+  const localizePath = (href: string) => `/${locale}${href}`
   const [settings, setSettings] = useState<AppSettings>(defaultSettings)
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
@@ -167,7 +170,7 @@ export default function Settings() {
                     </div>
                   </div>
                   <Link
-                    href="/subscription"
+                    href={localizePath('/subscription')}
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                   >
                     {subscription.status === 'active' ? 'Change Plan' : 'Subscribe'}
@@ -199,7 +202,7 @@ export default function Settings() {
               <div className="text-center py-8">
                 <div className="text-gray-500 mb-4">No active subscription</div>
                 <Link
-                  href="/subscription"
+                  href={localizePath('/subscription')}
                   className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 inline-block"
                 >
                   Subscribe Now

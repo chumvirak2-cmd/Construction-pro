@@ -4,7 +4,6 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useTranslations, useLocale } from 'next-intl'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import LanguageSwitcher from '../components/LanguageSwitcher'
 import { authDb, subscriptionDb, demoDb } from '../lib/db'
 import { getLocales } from '../lib/get-locales'
 
@@ -20,18 +19,23 @@ export default function Home() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const isDemo = demoDb.isDemoMode()
-    if (isDemo) {
-      router.push(`/${locale}/dashboard`)
-      return
-    }
-
+    // Check for real logged-in user with active subscription FIRST
     const user = authDb.getCurrentUser()
     if (user) {
       const sub = subscriptionDb.getByUserId(user.id)
       if (sub && (sub.status === 'active' || sub.status === 'trialing')) {
+        // Clear demo mode if real user is logged in
+        demoDb.disableDemoMode()
         router.push(`/${locale}/dashboard`)
+        return
       }
+    }
+
+    // Only check demo mode if no real user is logged in
+    const isDemo = demoDb.isDemoMode()
+    if (isDemo) {
+      router.push(`/${locale}/dashboard`)
+      return
     }
   }, [router, locale])
 
@@ -44,32 +48,28 @@ export default function Home() {
       return
     }
 
-    // Create demo user for testing if not exists
-    const existingUser = authDb.getByEmail(email)
-    if (!existingUser) {
-      const user = authDb.register({
-        email,
-        fullName: 'Test User',
-        companyName: 'Test Company',
-        role: 'admin',
-        userType: 'company_admin',
-        managementLevel: 'company_admin',
-        permissions: []
-      })
-      
-      // Create a starter subscription for the user
-      subscriptionDb.create({
-        userId: user.id,
-        tier: 'starter',
-        status: 'active',
-        currentPeriodStart: new Date().toISOString(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        cancelAtPeriodEnd: false
-      })
-    }
+    try {
+      // Try to login with existing credentials
+      const user = authDb.login(email, password)
+      if (!user) {
+        setError('Invalid email or password')
+        return
+      }
 
-    localStorage.setItem('loggedIn', 'true')
-    router.push(`/${locale}/dashboard`)
+      // Check if user has an active subscription
+      const subscription = subscriptionDb.getByUserId(user.id)
+      if (!subscription || (subscription.status !== 'active' && subscription.status !== 'trialing')) {
+        setError('Your subscription is inactive. Please check your subscription status.')
+        return
+      }
+
+      // Disable demo mode when logging in with real account
+      demoDb.disableDemoMode()
+      localStorage.setItem('loggedIn', 'true')
+      router.push(`/${locale}/dashboard`)
+    } catch (err) {
+      setError('Login failed. Please try again.')
+    }
   }
 
   const handleDemoLogin = (e: React.FormEvent) => {
@@ -84,12 +84,8 @@ export default function Home() {
       <div style={{ background: 'white', padding: 'clamp(16px, 5vw, 32px)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px' }}>
           <img src="/logo.png?v=2" alt="Construction Pro" style={{ width: 'clamp(56px, 18vw, 80px)', height: 'clamp(56px, 18vw, 80px)', borderRadius: '50%', marginBottom: '12px' }} />
-           <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}></h1>
-           <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}></p>
-        </div>
-
-        <div style={{ width: '100%', marginBottom: '16px' }}>
-          <LanguageSwitcher />
+          <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
+          <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}>Sign in to manage your team, workers, and projects.</p>
         </div>
 
         <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{t('auth.signIn')}</h2>
@@ -118,14 +114,15 @@ export default function Home() {
               autoComplete="current-password"
             />
           </div>
-          <button type="submit" style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', touchAction: 'manipulation', minHeight: '48px' }}>
+          <button type="submit" disabled={false} style={{ width: '100%', background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', touchAction: 'manipulation', minHeight: '48px', opacity: false ? 0.6 : 1 }}>
             {t('auth.signIn')}
           </button>
         </form>
         <button
           type="button"
           onClick={handleDemoLogin}
-          style={{ width: '100%', background: '#10b981', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', marginTop: '10px', touchAction: 'manipulation', minHeight: '48px' }}
+          disabled={false}
+          style={{ width: '100%', background: '#10b981', color: 'white', padding: '14px', borderRadius: '8px', fontWeight: 600, fontSize: '16px', border: 'none', cursor: 'pointer', marginTop: '10px', touchAction: 'manipulation', minHeight: '48px', opacity: false ? 0.6 : 1 }}
         >
           {t('auth.demo')}
         </button>

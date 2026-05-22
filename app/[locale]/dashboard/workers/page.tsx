@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import { Worker, WorkerRole, AttendanceRecord, WorkerLocation, TrackingAlert, User } from '../../../types'
 import { workersDb, attendanceDb, workerLocationDb, trackingAlertDb, authDb } from '../../../lib/db'
 import { hasPermission, FeaturePermissions } from '../../../lib/permissions'
@@ -48,6 +50,9 @@ const statusColors = {
 }
 
 export default function Workers() {
+  const router = useRouter()
+  const locale = useLocale()
+  const localizePath = (href: string) => `/${locale}${href}`
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [workers, setWorkers] = useState<Worker[]>([])
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([])
@@ -83,7 +88,15 @@ export default function Workers() {
   })
 
   useEffect(() => {
-    setCurrentUser(authDb.getCurrentUser())
+    const user = authDb.getCurrentUser()
+    setCurrentUser(user)
+    
+    // Prevent workers from accessing this page
+    if (user?.managementLevel === 'worker') {
+      router.push(localizePath('/dashboard'))
+      return
+    }
+    
     loadData()
   }, [])
 
@@ -298,6 +311,11 @@ export default function Workers() {
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+  }
+
+  // Prevent workers from viewing this page
+  if (currentUser?.managementLevel === 'worker') {
+    return null
   }
 
   return (

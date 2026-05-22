@@ -16,6 +16,7 @@ export interface User {
   createdAt: string
   logoUrl?: string
   subscriptionId?: string
+  password?: string
 }
 
 export interface Company {
@@ -473,6 +474,7 @@ export interface Subscription {
   cancelAtPeriodEnd: boolean
   stripeCustomerId?: string
   stripeSubscriptionId?: string
+  abaTransactionId?: string
 }
 
 // Permission and Access Control Types

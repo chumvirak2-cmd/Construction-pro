@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import { authDb, attendanceDb } from '../../../lib/db'
 import Link from 'next/link'
 import * as XLSX from 'xlsx'
@@ -19,6 +20,8 @@ interface AttendanceRecord {
 
 export default function WorkerDashboard() {
   const router = useRouter()
+  const locale = useLocale()
+  const localizePath = (href: string) => `/${locale}${href}`
   const [user, setUser] = useState(authDb.getCurrentUser())
   const [currentTime, setCurrentTime] = useState(new Date())
   const [isCheckedIn, setIsCheckedIn] = useState(false)
@@ -28,12 +31,12 @@ export default function WorkerDashboard() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/')
+      router.push(`/${locale}`)
       return
     }
 
     if (user.managementLevel !== 'worker') {
-      router.push('/dashboard')
+      router.push(localizePath('/dashboard'))
       return
     }
 

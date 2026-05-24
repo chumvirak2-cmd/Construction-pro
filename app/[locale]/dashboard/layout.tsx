@@ -52,14 +52,13 @@ export default function DashboardLayout({
   useEffect(() => {
     const isDemo = demoDb.isDemoMode()
     const user = authDb.getCurrentUser()
-    
+
     if (isDemo) {
       setIsReady(true)
       return
     }
-    
+
     if (user) {
-      // Redirect workers to their dedicated page
       if (user.managementLevel === 'worker') {
         router.push(localizePath('/dashboard/worker'))
         return
@@ -100,7 +99,6 @@ export default function DashboardLayout({
 
   const canAddUsers = subscription?.tier === 'professional' || subscription?.tier === 'enterprise'
 
-  // All MEP systems from types
   const mepSystems = [
     'HVAC',
     'Electrical',
@@ -113,7 +111,6 @@ export default function DashboardLayout({
     'Lift & Escalator'
   ]
 
-  // Department navigation structure
   const departments = [
     {
       id: 'marketing',
@@ -168,21 +165,19 @@ export default function DashboardLayout({
     return deptItems.some(item => pathname === localizePath(item.href) || pathname.startsWith(localizePath(item.href) + '/'))
   }
 
-  // Mobile Bottom Navigation
   if (isMobile) {
     return (
       <div className="flex flex-col h-screen bg-gray-50">
-        {/* Mobile Header */}
         <header className="bg-gray-800 text-white px-3 py-3 flex items-center justify-between sticky top-0 z-50">
           <Link href={localizePath('/dashboard')} className="flex items-center gap-2">
             <img src="/logo.png?v=2" alt="Logo" className="w-7 h-7 rounded-full" />
             <span className="font-bold text-sm truncate">Construction Pro</span>
           </Link>
-           <div className="flex items-center gap-2">
-             {isDemo && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO</span>}
-             <NotificationBell />
-             <LanguageSwitcher />
-             <button
+          <div className="flex items-center gap-2">
+            {isDemo && <span className="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO</span>}
+            <NotificationBell />
+            <LanguageSwitcher />
+            <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="text-white text-2xl leading-none p-1"
             >
@@ -191,7 +186,6 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Mobile Menu Dropdown */}
         {menuOpen && (
           <div className="absolute top-14 left-0 right-0 bg-white shadow-lg border-b border-gray-200 z-50 max-h-[70vh] overflow-y-auto">
             {departments.map(dept => (
@@ -240,12 +234,10 @@ export default function DashboardLayout({
           </div>
         )}
 
-        {/* Main Content */}
         <div className="flex-1 overflow-auto pb-16">
           {children}
         </div>
 
-        {/* Mobile Bottom Navigation - Department shortcuts */}
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-pb">
           <div className="flex justify-around items-center h-16">
             {departments.map((dept) => {
@@ -267,10 +259,8 @@ export default function DashboardLayout({
     )
   }
 
-  // Desktop Sidebar Layout
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
       <div className="w-64 bg-gray-800 text-white relative flex flex-col flex-shrink-0">
         <div className="p-5 flex flex-col items-center text-center border-b border-gray-700">
           <Link href={localizePath('/dashboard')} className="flex flex-col items-center">
@@ -280,15 +270,13 @@ export default function DashboardLayout({
             {isDemo && <span className="mt-1 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full">DEMO MODE</span>}
           </Link>
         </div>
-        
-        {/* Notification Bell - Desktop */}
+
         <div className="px-4 py-3 border-b border-gray-700 flex justify-end">
           <NotificationBell />
         </div>
-        
+
         <nav className="flex-1 mt-4 px-2">
           <ul className="space-y-1">
-            {/* Dashboard Home */}
             <li>
               <Link
                 href={localizePath('/dashboard')}
@@ -303,11 +291,10 @@ export default function DashboardLayout({
               </Link>
             </li>
 
-            {/* Department Navigation with Dropdowns */}
             {departments.map(dept => {
               const isActive = isActiveDepartment(dept.items)
               const isDropdownOpen = activeDepartment === dept.id
-              
+
               return (
                 <li key={dept.id} className="relative" ref={isDropdownOpen ? setDropdownRef : undefined}>
                   <button
@@ -327,9 +314,8 @@ export default function DashboardLayout({
                     </span>
                   </button>
 
-                  {/* Department Submenu */}
                   {isDropdownOpen && (
-                    <ul className="mt-1 ml-4 pl-4 border-l-2 border-gray-600 space-y-1">
+                    <ul className={`mt-1 ml-4 pl-4 border-l-2 border-gray-600 space-y-1 ${dept.id === 'mep' ? 'max-h-48 overflow-y-auto' : ''}`}>
                       {dept.items.map((item, idx) => {
                         const itemActive = pathname === localizePath(item.href) || pathname.startsWith(localizePath(item.href) + '/')
                         return (
@@ -354,9 +340,8 @@ export default function DashboardLayout({
               )
             })}
 
-            {/* Utility Items */}
             {utilityItems.map(item => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+              const isActive = pathname === localizePath(item.href) || pathname.startsWith(localizePath(item.href) + '/')
               return (
                 <li key={item.href}>
                   <Link
@@ -374,7 +359,6 @@ export default function DashboardLayout({
               )
             })}
 
-            {/* Logout */}
             <li className="border-t border-gray-700 mt-4 pt-3">
               <button
                 onClick={handleLogout}
@@ -385,14 +369,12 @@ export default function DashboardLayout({
             </li>
           </ul>
         </nav>
-        {/* Copyright Footer */}
         <div className="p-4 text-xs text-gray-500 text-center border-t border-gray-700">
           <p>&copy; 2026 BEE-TRUST ENGINEERING</p>
           <p>All rights reserved.</p>
         </div>
       </div>
 
-      {/* Main content */}
       <div className="flex-1 overflow-auto bg-gray-50">
         <div className="p-4 md:p-6 max-w-7xl mx-auto">
           {children}

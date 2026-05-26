@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useLocale } from 'next-intl'
 import Link from 'next/link'
-import { authDb, companyDb, subscriptionDb } from '../../../lib/db'
+import { authDb, companyDb, subscriptionDb, demoDb } from '../../../lib/db'
 
 export default function WorkerSignup() {
   const router = useRouter()
@@ -81,6 +81,20 @@ export default function WorkerSignup() {
     }
   }
 
+  const handleDemoLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      demoDb.enableDemoMode()
+      localStorage.setItem('loggedIn', 'true')
+      router.push(`/${locale}/dashboard`)
+    } catch (err) {
+      setError('Failed to load demo. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', padding: 'clamp(8px, 3vw, 24px)', paddingBottom: 'env(safe-area-inset-bottom, 16px)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
       <div style={{ background: 'white', padding: 'clamp(16px, 5vw, 32px)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
@@ -152,6 +166,28 @@ export default function WorkerSignup() {
         <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'clamp(11px, 3vw, 12px)' }}>
           Are you a company owner? <Link href={`/${locale}/signup`} style={{ color: '#3b82f6', fontWeight: 600 }}>Register Company</Link>
         </p>
+        <div style={{ marginTop: '12px', textAlign: 'center' }}>
+          <button
+            onClick={handleDemoLogin}
+            disabled={loading}
+            style={{
+              width: '100%',
+              background: '#10b981',
+              color: 'white',
+              padding: '14px',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '16px',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              touchAction: 'manipulation',
+              minHeight: '48px',
+              opacity: loading ? 0.6 : 1,
+            }}
+          >
+            {loading ? 'Loading Demo...' : 'Try Demo Mode'}
+          </button>
+        </div>
         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
           <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>
           <p style={{ margin: 0 }}>All rights reserved.</p>

@@ -4,9 +4,17 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { useLocale } from 'next-intl'
+import dynamic from 'next/dynamic'
 import { authDb, subscriptionDb, demoDb } from '../../lib/db'
-import NotificationBell from '../../components/NotificationBell'
-import LanguageSwitcher from '../../components/LanguageSwitcher'
+
+const NotificationBell = dynamic(() => import('../../components/NotificationBell'), {
+  loading: () => <div className="w-6 h-6" />,
+  ssr: false
+})
+const LanguageSwitcher = dynamic(() => import('../../components/LanguageSwitcher'), {
+  loading: () => <div className="w-6 h-6" />,
+  ssr: false
+})
 
 export default function DashboardLayout({
   children,
@@ -138,7 +146,7 @@ export default function DashboardLayout({
       label: 'MEP Systems',
       icon: '🔧',
       items: mepSystems.map(system => ({
-        href: `/dashboard/mep/${system.toLowerCase().replace('/', '-').replace(' ', '-')}`,
+        href: `/dashboard/mep/${system.toLowerCase().replace(/[\/&]/g, '-').replace(/\s+/g, '-').replace(/-+/g, '-')}`,
         label: system
       }))
     },

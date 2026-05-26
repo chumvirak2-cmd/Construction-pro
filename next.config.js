@@ -5,6 +5,7 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   trailingSlash: true,
+  allowedDevOrigins: ['172.22.240.1', '172.28.16.1'],
   // Performance optimizations
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -24,7 +25,7 @@ const nextConfig = {
   },
   // Experimental optimizations
   experimental: {
-    optimizePackageImports: ['@capacitor/core'],
+    optimizePackageImports: ['@capacitor/core', 'next-intl'],
   },
   // Headers for caching and performance
   async headers() {

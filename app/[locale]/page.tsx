@@ -7,8 +7,6 @@ import Link from 'next/link'
 import { authDb, subscriptionDb, demoDb } from '../lib/db'
 import { getLocales } from '../lib/get-locales'
 
-
-
 export default function Home() {
   const router = useRouter()
   const pathname = usePathname()
@@ -17,34 +15,37 @@ export default function Home() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [checkingAuth, setCheckingAuth] = useState(true)
 
   useEffect(() => {
-    // Check for real logged-in user with active subscription FIRST
     const user = authDb.getCurrentUser()
     if (user) {
       const sub = subscriptionDb.getByUserId(user.id)
       if (sub && (sub.status === 'active' || sub.status === 'trialing')) {
-        // Clear demo mode if real user is logged in
         demoDb.disableDemoMode()
         router.push(`/${locale}/dashboard`)
         return
       }
     }
 
-    // Only check demo mode if no real user is logged in
     const isDemo = demoDb.isDemoMode()
     if (isDemo) {
       router.push(`/${locale}/dashboard`)
       return
     }
+
+    setCheckingAuth(false)
   }, [router, locale])
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
 
     if (!email || !password) {
       setError(t('errorRequired'))
+      setLoading(false)
       return
     }
 
@@ -53,6 +54,7 @@ export default function Home() {
       const user = authDb.login(email, password)
       if (!user) {
         setError('Invalid email or password')
+        setLoading(false)
         return
       }
 
@@ -60,6 +62,7 @@ export default function Home() {
       const subscription = subscriptionDb.getByUserId(user.id)
       if (!subscription || (subscription.status !== 'active' && subscription.status !== 'trialing')) {
         setError('Your subscription is inactive. Please check your subscription status.')
+        setLoading(false)
         return
       }
 
@@ -69,14 +72,34 @@ export default function Home() {
       router.push(`/${locale}/dashboard`)
     } catch (err) {
       setError('Login failed. Please try again.')
+      setLoading(false)
     }
   }
 
   const handleDemoLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    demoDb.enableDemoMode()
-    localStorage.setItem('loggedIn', 'true')
-    router.push(`/${locale}/dashboard`)
+    setLoading(true)
+    try {
+      demoDb.enableDemoMode()
+      localStorage.setItem('loggedIn', 'true')
+      router.push(`/${locale}/dashboard`)
+    } catch (err) {
+      setError('Failed to load demo. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (checkingAuth) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: '40px', height: '40px', border: '3px solid #e5e7eb', borderTopColor: '#3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+          <p style={{ color: '#6b7280', fontSize: '14px' }}>Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

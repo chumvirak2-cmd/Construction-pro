@@ -1,24 +1,16 @@
 {
   "hosting": {
-    "public": "out",
+    "public": "D:\\Constuction Pro",
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
-    "redirects": [
+    "rewrites": [
       {
-        "source": "/",
-        "destination": "/en/",
-        "type": 301
-      },
-      {
-        "source": "/en",
-        "destination": "/en/",
-        "type": 301
+        "source": "**",
+        "destination": "/index.html"
       }
-    ],
-    "cleanUrls": true,
-    "trailingSlash": true
+    ]
   }
 }

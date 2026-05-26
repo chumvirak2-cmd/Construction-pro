@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { ManagerNotification, User } from '../types'
-import { managerNotificationDb, authDb } from '../lib/db'
+import { managerNotificationDb, authDb, demoDb } from '../lib/db'
 
 export default function NotificationBell() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isDemo, setIsDemo] = useState(false)
   const [notifications, setNotifications] = useState<ManagerNotification[]>([])
   const unreadCount = useMemo(
     () => notifications.filter((notification) => !notification.read).length,
@@ -15,6 +16,7 @@ export default function NotificationBell() {
   useEffect(() => {
     const user = authDb.getCurrentUser()
     setCurrentUser(user)
+    setIsDemo(demoDb.isDemoMode())
 
     if (user?.managementLevel === 'worker') {
       return
@@ -34,24 +36,25 @@ export default function NotificationBell() {
     setNotifications(sorted)
   }
 
-  if (!currentUser || currentUser.managementLevel === 'worker') {
+  if (currentUser?.managementLevel === 'worker') {
+    return null
+  }
+
+  if (!currentUser && !isDemo) {
     return null
   }
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        title="Notifications"
-        className="relative p-2 rounded-lg hover:bg-gray-700 transition-colors"
-      >
-        <span className="text-xl">🔔</span>
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-medium">
-            {unreadCount}
-          </span>
-        )}
-      </button>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6 text-yellow-400">
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </svg>
+      {unreadCount > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-medium animate-pulse">
+          {unreadCount > 9 ? '9+' : unreadCount}
+        </span>
+      )}
     </div>
   )
 }

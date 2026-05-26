@@ -3,10 +3,10 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.constructionpro.app',
   appName: 'Construction Pro',
-  webDir: 'out',
+  webDir: 'out/en',
   server: {
-    androidScheme: 'https',
-    iosScheme: 'https',
+    androidScheme: 'file',
+    iosScheme: 'file',
     allowNavigation: ['*']
   },
   plugins: {
@@ -14,8 +14,8 @@ const config: CapacitorConfig = {
       launchShowDuration: 3000,
       launchAutoHide: true,
       backgroundColor: '#1f2937',
-      androidSplashResourceName: 'splash_logo',
-      androidSplashDrawable: 'splash_logo',
+      androidSplashResourceName: 'splash',
+      androidSplashDrawable: 'splash',
       imageName: 'logo',
       showSpinner: false
     },

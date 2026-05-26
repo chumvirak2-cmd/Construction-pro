@@ -26,8 +26,6 @@
     @apply antialiased;
     text-size-adjust: 100%;
     overscroll-behavior: none;
-    /* Improve scroll performance */
-    contain: layout style paint;
   }
   
   /* Optimize form elements */

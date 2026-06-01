@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import * as XLSX from 'xlsx'
 
 export default function BOQ() {
   const [system, setSystem] = useState('')
@@ -70,8 +69,9 @@ export default function BOQ() {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
-      reader.onload = (evt) => {
+      reader.onload = async (evt) => {
         try {
+          const XLSX = (await import('xlsx')) as typeof import('xlsx')
           const data = evt.target?.result
           const workbook = XLSX.read(data, { type: 'array' })
           const sheetName = workbook.SheetNames[0]
@@ -125,7 +125,8 @@ export default function BOQ() {
     }
   }
 
-  const downloadTemplate = () => {
+  const downloadTemplate = async () => {
+    const XLSX = (await import('xlsx')) as typeof import('xlsx')
     const headers = ['No', 'Description', 'Unit Rate in USD', 'UoM', 'Remarks']
     const exampleRows = [
       [1, 'To supply and install 10m LC/LC Fiber Patch Cord 50/125 OM2', 18.0, 'Duplex, MM', ''],
@@ -174,8 +175,9 @@ export default function BOQ() {
     setResult({ items: itemsWithTotals, grandTotal })
   }
 
-  const downloadExcel = () => {
+  const downloadExcel = async () => {
     if (!result || !result.items) return
+    const XLSX = (await import('xlsx')) as typeof import('xlsx')
 
     const exportData = result.items.map((item: any) => ({
       'Description': item[mappedColumns.description!] || 'N/A',

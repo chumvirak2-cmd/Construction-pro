@@ -5,9 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { authDb, attendanceDb } from '../../../lib/db'
 import Link from 'next/link'
-import * as XLSX from 'xlsx'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 
 interface AttendanceRecord {
   id: string
@@ -28,6 +25,7 @@ export default function WorkerDashboard() {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [notification, setNotification] = useState<string | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -128,38 +126,51 @@ export default function WorkerDashboard() {
     setAttendanceRecords(records)
   }
 
-  const exportToExcel = () => {
-    const data = filteredRecords.map(record => ({
-      Date: record.date,
-      'Check In': record.checkIn || 'N/A',
-      'Check Out': record.checkOut || 'N/A',
-      Status: record.status
-    }))
-    
-    const ws = XLSX.utils.json_to_sheet(data)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Attendance')
-    XLSX.writeFile(wb, `attendance_${user.id}_${new Date().toISOString().split('T')[0]}.xlsx`)
+  const exportToExcel = async () => {
+    setExporting(true)
+    try {
+      const XLSX = (await import('xlsx')) as typeof import('xlsx')
+      const data = filteredRecords.map(record => ({
+        Date: record.date,
+        'Check In': record.checkIn || 'N/A',
+        'Check Out': record.checkOut || 'N/A',
+        Status: record.status
+      }))
+      
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Attendance')
+      XLSX.writeFile(wb, `attendance_${user.id}_${new Date().toISOString().split('T')[0]}.xlsx`)
+    } finally {
+      setExporting(false)
+    }
   }
 
-  const exportToPDF = () => {
-    const doc = new jsPDF()
-    doc.text(`Attendance Record - ${user.fullName}`, 14, 20)
-    
-    const tableData = filteredRecords.map(record => [
-      record.date,
-      record.checkIn || 'N/A',
-      record.checkOut || 'N/A',
-      record.status
-    ])
-    
-    autoTable(doc, {
-      head: [['Date', 'Check In', 'Check Out', 'Status']],
-      body: tableData,
-      startY: 30
-    })
-    
-    doc.save(`attendance_${user.id}_${new Date().toISOString().split('T')[0]}.pdf`)
+  const exportToPDF = async () => {
+    setExporting(true)
+    try {
+      const { default: jsPDF } = await import('jspdf')
+      const { default: autoTable } = await import('jspdf-autotable')
+      const doc = new jsPDF()
+      doc.text(`Attendance Record - ${user.fullName}`, 14, 20)
+      
+      const tableData = filteredRecords.map(record => [
+        record.date,
+        record.checkIn || 'N/A',
+        record.checkOut || 'N/A',
+        record.status
+      ])
+      
+      autoTable(doc, {
+        head: [['Date', 'Check In', 'Check Out', 'Status']],
+        body: tableData,
+        startY: 30
+      })
+      
+      doc.save(`attendance_${user.id}_${new Date().toISOString().split('T')[0]}.pdf`)
+    } finally {
+      setExporting(false)
+    }
   }
 
   const filteredRecords = attendanceRecords.filter(record => 
@@ -251,13 +262,15 @@ export default function WorkerDashboard() {
               />
               <button
                 onClick={exportToExcel}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                disabled={exporting}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50"
               >
-                Excel
+                {exporting ? 'Exporting…' : 'Excel'}
               </button>
               <button
                 onClick={exportToPDF}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                disabled={exporting}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50"
               >
                 PDF
               </button>

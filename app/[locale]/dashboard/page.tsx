@@ -101,49 +101,53 @@ export default function Dashboard() {
 
   const statCards = useMemo(() => [
     {
-       title: t('stats.projects.title'),
-       value: stats.totalProjects,
-       icon: '📋',
-       color: 'bg-blue-500',
-       link: localizePath('/dashboard/projects'),
-       label: t('stats.projects.label'),
-       subtext: t('stats.projects.subtext', { active: stats.activeProjects, completed: stats.completedProjects })
-     },
-     {
-       title: t('stats.workers.title'),
-       value: stats.totalWorkers,
-       icon: '👷',
-       color: 'bg-green-500',
-       link: localizePath('/dashboard/workers'),
-       label: t('stats.workers.label'),
-       subtext: t('stats.workers.subtext', { active: stats.activeWorkers })
-     },
-     {
-       title: t('stats.inventory.title'),
-       value: stats.totalInventory,
-       icon: '📦',
-       color: 'bg-orange-500',
-       link: localizePath('/dashboard/inventory'),
-       label: t('stats.inventory.label'),
-       subtext: t('stats.inventory.subtext', { lowStock: stats.lowStockItems })
-     },
-     {
-       title: t('stats.boq.title'),
-       value: boqs.length,
-       icon: '📄',
-       color: 'bg-purple-500',
-       link: localizePath('/dashboard/boq'),
-       label: t('stats.boq.label'),
-       subtext: t('stats.boq.subtext')
-     }
-   ], [stats, boqs, t])
+      title: t('stats.projects.title'),
+      value: stats.totalProjects,
+      icon: '📋',
+      colorClass: 'bg-blue-500',
+      borderClass: 'border-blue-500',
+      link: localizePath('/dashboard/projects'),
+      label: t('stats.projects.label'),
+      subtext: t('stats.projects.subtext', { active: stats.activeProjects, completed: stats.completedProjects })
+    },
+    {
+      title: t('stats.workers.title'),
+      value: stats.totalWorkers,
+      icon: '👷',
+      colorClass: 'bg-green-500',
+      borderClass: 'border-green-500',
+      link: localizePath('/dashboard/workers'),
+      label: t('stats.workers.label'),
+      subtext: t('stats.workers.subtext', { active: stats.activeWorkers })
+    },
+    {
+      title: t('stats.inventory.title'),
+      value: stats.totalInventory,
+      icon: '📦',
+      colorClass: 'bg-orange-500',
+      borderClass: 'border-orange-500',
+      link: localizePath('/dashboard/inventory'),
+      label: t('stats.inventory.label'),
+      subtext: t('stats.inventory.subtext', { lowStock: stats.lowStockItems })
+    },
+    {
+      title: t('stats.boq.title'),
+      value: boqs.length,
+      icon: '📄',
+      colorClass: 'bg-purple-500',
+      borderClass: 'border-purple-500',
+      link: localizePath('/dashboard/boq'),
+      label: t('stats.boq.label'),
+      subtext: t('stats.boq.subtext')
+    }
+  ], [stats, boqs, t])
 
-   const quickActions = useMemo(() => [
-     { label: t('quickActions.addProject'), href: localizePath('/dashboard/projects'), icon: '➕', color: 'bg-blue-50 text-blue-600' },
-     { label: t('quickActions.addWorker'), href: localizePath('/dashboard/workers'), icon: '👤', color: 'bg-green-50 text-green-600' },
-     { label: t('quickActions.addInventory'), href: localizePath('/dashboard/inventory'), icon: '📥', color: 'bg-orange-50 text-orange-600' },
-     { label: t('quickActions.createBOQ'), href: localizePath('/dashboard/boq'), icon: '🧮', color: 'bg-purple-50 text-purple-600' }
-   ], [t])
+  const quickActions = useMemo(() => [
+    { label: t('quickActions.addProject'), href: localizePath('/dashboard/projects'), icon: '➕', classes: 'bg-blue-50 text-blue-600' },
+    { label: t('quickActions.addWorker'), href: localizePath('/dashboard/workers'), icon: '👤', classes: 'bg-green-50 text-green-600' },
+    { label: t('quickActions.addInventory'), href: localizePath('/dashboard/inventory'), icon: '📥', classes: 'bg-orange-50 text-orange-600' },
+    { label: t('quickActions.createBOQ'), href: localizePath('/dashboard/boq'), icon: '🧮', classes: 'bg-purple-50 text-purple-600' }
+  ], [t])
 
   if (isLoading) {
     return <DashboardSkeleton />
@@ -161,14 +165,14 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
         {statCards.map((card, index) => (
           <Link key={index} href={card.link} className="block group">
-            <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-3 md:p-4 border-l-4 border-transparent hover:border-l-4 group-hover:scale-[1.02]" style={{ borderLeftColor: card.color.replace('bg-', '').includes('blue') ? '#3b82f6' : card.color.replace('bg-', '').includes('green') ? '#22c55e' : card.color.replace('bg-', '').includes('orange') ? '#f97316' : '#a855f7' }}>
+            <div className={`bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-3 md:p-4 border-l-4 ${card.borderClass} group-hover:scale-[1.02]`}>
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <p className="text-[10px] md:text-xs text-gray-500 uppercase tracking-wider font-medium">{card.title}</p>
                   <p className="text-xl md:text-3xl font-bold mt-1 text-gray-800">{card.value}</p>
                   <p className="text-[10px] md:text-xs text-gray-400 mt-1 truncate">{card.subtext}</p>
                 </div>
-                <div className={`${card.color} text-white text-lg md:text-xl p-2 rounded-xl shadow-sm flex-shrink-0 ml-2`}>
+                <div className={`${card.colorClass} text-white text-lg md:text-xl p-2 rounded-xl shadow-sm flex-shrink-0 ml-2`}>
                   {card.icon}
                 </div>
               </div>
@@ -205,7 +209,7 @@ export default function Dashboard() {
             <Link
               key={index}
               href={action.href}
-              className={`flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-2 p-2 md:p-3 rounded-lg ${action.color} hover:opacity-80 transition-all hover:shadow-sm min-h-[44px]`}
+              className={`flex flex-col md:flex-row items-center justify-center md:justify-start gap-1 md:gap-2 p-2 md:p-3 rounded-lg ${action.classes} hover:opacity-80 transition-all hover:shadow-sm min-h-[44px]`}
             >
               <span className="text-lg md:text-xl">{action.icon}</span>
               <span className="font-medium text-xs md:text-sm text-center md:text-left">{action.label}</span>

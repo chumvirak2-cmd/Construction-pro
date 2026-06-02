@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { InventoryItem, InventoryCategory, PurchaseOrder } from '../../../types'
 import { inventoryDb, seedDataDb } from '../../../lib/db'
-import * as XLSX from 'xlsx'
 
 const categoryOptions: InventoryCategory[] = [
   'HVAC', 'Electrical', 'Plumbing', 'ELV', 'Fire Protection', 'Gas System',
@@ -51,6 +50,7 @@ export default function Inventory() {
   const [showForm, setShowForm] = useState(false)
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null)
   const [seeding, setSeeding] = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const [form, setForm] = useState({
     name: '',
@@ -129,41 +129,47 @@ export default function Inventory() {
     }
   }
 
-  const exportToExcel = () => {
-    const exportData = items.map(item => ({
-      'Item Name': item.name || '',
-      'Category': item.category || '',
-      'Description': item.description || '',
-      'Quantity': item.quantity || 0,
-      'Unit': item.unit || '',
-      'Min Stock': item.minQuantity || 0,
-      'Unit Price': item.unitPrice || 0,
-      'Total Value': (item.quantity || 0) * (item.unitPrice || 0),
-      'Supplier': item.supplier || '',
-      'Location': item.location || '',
-      'Last Restocked': item.lastRestocked || ''
-    }))
+  const exportToExcel = async () => {
+    setExporting(true)
+    try {
+      const XLSX = (await import('xlsx')) as typeof import('xlsx')
+      const exportData = items.map(item => ({
+        'Item Name': item.name || '',
+        'Category': item.category || '',
+        'Description': item.description || '',
+        'Quantity': item.quantity || 0,
+        'Unit': item.unit || '',
+        'Min Stock': item.minQuantity || 0,
+        'Unit Price': item.unitPrice || 0,
+        'Total Value': (item.quantity || 0) * (item.unitPrice || 0),
+        'Supplier': item.supplier || '',
+        'Location': item.location || '',
+        'Last Restocked': item.lastRestocked || ''
+      }))
 
-    const ws = XLSX.utils.json_to_sheet(exportData)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Inventory')
-    
-    // Set column widths
-    ws['!cols'] = [
-      { wch: 20 }, // Item Name
-      { wch: 12 }, // Category
-      { wch: 30 }, // Description
-      { wch: 10 }, // Quantity
-      { wch: 10 }, // Unit
-      { wch: 10 }, // Min Stock
-      { wch: 12 }, // Unit Price
-      { wch: 15 }, // Total Value
-      { wch: 20 }, // Supplier
-      { wch: 20 }, // Location
-      { wch: 15 }  // Last Restocked
-    ]
+      const ws = XLSX.utils.json_to_sheet(exportData)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Inventory')
+      
+      // Set column widths
+      ws['!cols'] = [
+        { wch: 20 }, // Item Name
+        { wch: 12 }, // Category
+        { wch: 30 }, // Description
+        { wch: 10 }, // Quantity
+        { wch: 10 }, // Unit
+        { wch: 10 }, // Min Stock
+        { wch: 12 }, // Unit Price
+        { wch: 15 }, // Total Value
+        { wch: 20 }, // Supplier
+        { wch: 20 }, // Location
+        { wch: 15 }  // Last Restocked
+      ]
 
-    XLSX.writeFile(wb, `inventory-${new Date().toISOString().split('T')[0]}.xlsx`)
+      XLSX.writeFile(wb, `inventory-${new Date().toISOString().split('T')[0]}.xlsx`)
+    } finally {
+      setExporting(false)
+    }
   }
 
   const updateQuantity = (id: string, change: number) => {
@@ -264,9 +270,10 @@ export default function Inventory() {
               </select>
               <button
                 onClick={exportToExcel}
-                className="bg-green-600 text-white px-3 md:px-4 py-2.5 rounded-lg hover:bg-green-700 min-h-[44px]"
+                disabled={exporting}
+                className="bg-green-600 text-white px-3 md:px-4 py-2.5 rounded-lg hover:bg-green-700 disabled:opacity-50 min-h-[44px]"
               >
-                📥
+                {exporting ? 'Exporting…' : '📥'}
               </button>
               <button
                 onClick={() => setShowForm(!showForm)}

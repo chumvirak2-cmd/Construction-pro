@@ -2,19 +2,44 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { authDb, companyDb, subscriptionDb, demoDb } from '../../lib/db'
+
+const AnimatedBackground = () => (
+  <div className="fixed inset-0 -z-10">
+    <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-600 animate-gradient bg-[length:300%]">
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIgZmlsbD0id2hpdGUiIGZpbGwtb3BhY2l0eT0iMC4yIi8+PC9zdmc+')] opacity-20" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-float" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-cyan-400/10 rounded-full blur-3xl animate-float-delayed" />
+    </div>
+  </div>
+)
+
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="text-center">
+      <div className="relative w-16 h-16 mx-auto mb-6">
+        <div className="absolute inset-0 rounded-2xl border-4 border-white/20" />
+        <div className="absolute inset-0 rounded-2xl border-4 border-white border-t-transparent animate-spin" />
+      </div>
+      <p className="text-white/80 text-sm font-medium tracking-wide">Loading...</p>
+    </div>
+  </div>
+)
 
 export default function Signup() {
   const router = useRouter()
   const locale = useLocale()
+  const t = useTranslations('page')
   const [fullName, setFullName] = useState('')
   const [companyName, setCompanyName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +51,12 @@ export default function Signup() {
       setLoading(false)
       return
     }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
+    }
     
     if (password.length < 6) {
       setError('Password must be at least 6 characters')
@@ -34,7 +65,6 @@ export default function Signup() {
     }
     
     try {
-      // Check if email already exists
       const existingUser = authDb.getByEmail(email)
       if (existingUser) {
         setError('Email already registered. Please login instead.')
@@ -42,7 +72,6 @@ export default function Signup() {
         return
       }
       
-      // Register company first
       const company = companyDb.register({
         name: companyName,
         email,
@@ -50,7 +79,6 @@ export default function Signup() {
         address: ''
       })
       
-      // Register admin user for the company
       const user = authDb.register({
         email,
         fullName,
@@ -62,7 +90,6 @@ export default function Signup() {
         password
       })
       
-      // Create a trial subscription for the new user
       subscriptionDb.create({
         userId: user.id,
         tier: 'starter',
@@ -96,132 +123,183 @@ export default function Signup() {
   }
 
   return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', padding: 'clamp(8px, 3vw, 24px)', paddingBottom: 'env(safe-area-inset-bottom, 16px)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-       <div style={{ background: 'white', padding: 'clamp(16px, 5vw, 32px)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
-         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '16px' }}>
-           <img src="/logo.png?v=2" alt="Construction Pro" style={{ width: 'clamp(56px, 18vw, 80px)', height: 'clamp(56px, 18vw, 80px)', borderRadius: '50%', marginBottom: '12px' }} />
-           <h1 style={{ fontSize: 'clamp(16px, 5vw, 22px)', fontWeight: 'bold', margin: 0 }}>CONSTRUCTION PRO</h1>
-           <p style={{ color: '#6b7280', fontSize: 'clamp(11px, 3.5vw, 13px)', marginTop: '4px' }}>Create your company account and manage projects from a single dashboard.</p>
-         </div>
-         <h2 style={{ fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>Manager Sign Up</h2>
-         {error && <p style={{ color: '#dc2626', fontSize: 'clamp(12px, 3.5vw, 14px)', textAlign: 'center', marginBottom: '12px' }}>{error}</p>}
-         <form onSubmit={handleSignup}>
-            <div style={{ marginBottom: '12px' }}>
-              <label htmlFor="fullName" style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Full Name</label>
-              <input
-                id="fullName"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
-                required
-                autoComplete="name"
-                placeholder="John Doe"
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      <AnimatedBackground />
+
+      <div className="w-full max-w-[440px] relative z-10 animate-fade-up">
+        <div className="glass-card p-8 md:p-10">
+          <div className="flex flex-col items-center mb-8 text-center">
+            <div className="relative mb-5">
+              <div className="absolute inset-0 bg-blue-500/30 rounded-2xl blur-xl" />
+              <img 
+                src="/logo.png?v=2" 
+                alt="Construction Pro" 
+                className="relative w-20 h-20 rounded-2xl border-2 border-white/30 shadow-xl object-cover"
               />
             </div>
-            <div style={{ marginBottom: '12px' }}>
-              <label htmlFor="companyName" style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Company Name</label>
-              <input
-                id="companyName"
-                type="text"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
-                required
-                autoComplete="organization"
-                placeholder="Acme Builders LLC"
-              />
+            <h1 className="text-2xl font-bold text-construction-900 tracking-tight">CONSTRUCTION PRO</h1>
+            <p className="text-construction-500 text-sm mt-2">Create your company account and manage projects.</p>
+          </div>
+
+          <h2 className="text-lg font-semibold text-construction-800 mb-6 text-center">Create Account</h2>
+
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-100 animate-fade-in">
+              <p className="text-red-600 text-sm text-center font-medium">{error}</p>
             </div>
-            <div style={{ marginBottom: '12px' }}>
-              <label htmlFor="email" style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Business Email</label>
+          )}
+
+          <form onSubmit={handleSignup} className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label htmlFor="fullName" className="block text-sm font-medium text-construction-700">Full Name</label>
+                <input
+                  id="fullName"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="input-modern"
+                  required
+                  autoComplete="name"
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="companyName" className="block text-sm font-medium text-construction-700">Company Name</label>
+                <input
+                  id="companyName"
+                  type="text"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  className="input-modern"
+                  required
+                  autoComplete="organization"
+                  placeholder="Acme Builders LLC"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-construction-700">Business Email</label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
+                className="input-modern"
                 required
                 autoComplete="email"
                 inputMode="email"
                 placeholder="admin@company.com"
               />
             </div>
-            <div style={{ marginBottom: '12px' }}>
-              <label htmlFor="password" style={{ display: 'block', fontSize: 'clamp(12px, 3.5vw, 14px)', fontWeight: 500 }}>Password</label>
+
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-medium text-construction-700">Password</label>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={{ marginTop: '4px', display: 'block', width: '100%', border: '1px solid #d1d5db', borderRadius: '8px', padding: '12px 14px', fontSize: '16px', boxSizing: 'border-box' }}
+                className="input-modern"
                 required
                 autoComplete="new-password"
                 placeholder="Create a secure password"
               />
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
+                  style={{
+                    width: password.length === 0 ? '0%' : password.length <= 4 ? '25%' : password.length <= 6 ? '50%' : password.length <= 8 ? '75%' : '100%'
+                  }}
+                />
+              </div>
+              <p className="text-[11px] text-construction-400">Use 6+ characters for stronger security</p>
             </div>
-            <button type="submit" disabled={loading} style={{ 
-              width: '100%', 
-              background: '#3b82f6', 
-              color: 'white', 
-              padding: '14px', 
-              borderRadius: '8px', 
-              fontWeight: 600, 
-              fontSize: '16px', 
-              border: 'none', 
-              cursor: loading ? 'not-allowed' : 'pointer', 
-              touchAction: 'manipulation', 
-              minHeight: '48px', 
-              opacity: loading ? 0.6 : 1,
-              transition: 'all 0.2s ease',
-            }}>
-              {loading ? 'Creating Account...' : 'Create Account'}
+
+            <div className="space-y-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-construction-700">Confirm Password</label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`input-modern transition-all duration-200 ${confirmPassword && password && confirmPassword !== password ? 'border-red-300 ring-red-100' : confirmPassword && password && confirmPassword === password ? 'border-emerald-300 ring-emerald-100' : ''}`}
+                required
+                autoComplete="new-password"
+                placeholder="Confirm your password"
+              />
+              {confirmPassword && password && (
+                <p className={`text-xs font-medium flex items-center gap-1.5 ${confirmPassword !== password ? 'text-red-500' : 'text-emerald-600'}`}>
+                  {confirmPassword !== password ? (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Passwords do not match
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Passwords match
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+
+            <button type="submit" disabled={loading} className="gradient-btn-primary w-full py-3.5 text-base magnetic-btn">
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Creating Account...
+                </span>
+              ) : (
+                'Sign Up'
+              )}
             </button>
-         </form>
-         <p style={{ marginTop: '14px', textAlign: 'center', fontSize: 'clamp(12px, 3.5vw, 14px)' }}>
-           Already have an account? <Link href={`/${locale}`} style={{ 
-             color: '#3b82f6', 
-             fontWeight: 600,
-             textDecoration: 'none',
-              transition: 'color 0.2s ease',
-            }}>Sign In</Link>
-         </p>
-         <p style={{ marginTop: '8px', textAlign: 'center', fontSize: 'clamp(11px, 3vw, 12px)' }}>
-           Are you a worker? <Link href={`/${locale}/signup/worker`} style={{ 
-             color: '#10b981', 
-             fontWeight: 600,
-             textDecoration: 'none',
-              transition: 'color 0.2s ease',
-            }}>Sign Up as Worker</Link>
-         </p>
-         <div style={{ marginTop: '16px', textAlign: 'center' }}>
-           <button 
-             onClick={handleDemoLogin}
-             disabled={loading}
-             style={{
-               width: '100%',
-               background: '#10b981',
-               color: 'white',
-               padding: '14px',
-               borderRadius: '8px',
-               fontWeight: 600,
-               fontSize: '16px',
-               border: 'none',
-               cursor: loading ? 'not-allowed' : 'pointer',
-               marginTop: '10px',
-               touchAction: 'manipulation',
-               minHeight: '48px',
-               opacity: loading ? 0.6 : 1,
-                transition: 'all 0.2s ease',
-              }}
+          </form>
+
+          <p className="mt-8 text-center text-sm text-construction-600">
+            Already have an account?{' '}
+            <Link 
+              href={`/${locale}`} 
+              className="text-blue-600 font-semibold hover:text-blue-700 transition-colors"
+            >
+              Sign In
+            </Link>
+          </p>
+
+          <p className="mt-3 text-center text-sm text-construction-600">
+            Are you a worker?{' '}
+            <Link 
+              href={`/${locale}/signup/worker`} 
+              className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors"
+            >
+              Sign Up as Worker
+            </Link>
+          </p>
+
+          <div className="mt-6">
+            <button
+              onClick={handleDemoLogin}
+              disabled={loading}
+              className="gradient-btn-secondary w-full py-3.5 text-base magnetic-btn"
             >
               {loading ? 'Loading Demo...' : 'Try Demo Mode'}
-           </button>
-         </div>
-         <div style={{ marginTop: '16px', textAlign: 'center', fontSize: '11px', color: '#9ca3af' }}>
-           <p style={{ margin: 0 }}>&copy; 2026 BEE-TRUST ENGINEERING</p>
-           <p style={{ margin: 0 }}>All rights reserved.</p>
-         </div>
-       </div>
-     </div>
+            </button>
+          </div>
+        </div>
+
+        <p className="mt-8 text-center text-xs text-white/50">
+          {t('footer.copyright')} · {t('footer.rights')}
+        </p>
+      </div>
+    </div>
   )
 }

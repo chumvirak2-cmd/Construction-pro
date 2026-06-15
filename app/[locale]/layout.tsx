@@ -3,6 +3,8 @@ import {getMessages} from 'next-intl/server'
 import {notFound} from 'next/navigation'
 import {getLocales} from '../lib/get-locales'
 
+const localesCache = new Map()
+
 export function generateStaticParams() {
   return getLocales().map(locale => ({locale: locale.code}))
 }
@@ -20,7 +22,13 @@ export default async function LocaleLayout({
     notFound()
   }
 
-  const messages = await getMessages()
+  const messages = localesCache.has(locale) 
+    ? localesCache.get(locale) 
+    : await getMessages()
+  
+  if (!localesCache.has(locale)) {
+    localesCache.set(locale, messages)
+  }
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>

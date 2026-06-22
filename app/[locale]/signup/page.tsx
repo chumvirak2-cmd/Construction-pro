@@ -41,7 +41,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -65,30 +65,49 @@ export default function Signup() {
     }
     
     try {
-      const existingUser = authDb.getByEmail(email)
+      const existingUser = await authDb.getByEmail(email)
       if (existingUser) {
         setError('Email already registered. Please login instead.')
         setLoading(false)
         return
       }
       
-      const company = companyDb.register({
-        name: companyName,
-        email,
-        phone: '',
-        address: ''
+      const companyRes = await fetch('/api/companies', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: companyName,
+          email,
+          phone: '',
+          address: ''
+        })
       })
       
-      const user = authDb.register({
+      if (!companyRes.ok) {
+        setError('Failed to create company.')
+        setLoading(false)
+        return
+      }
+      
+      const company = await companyRes.json()
+      
+      const user = await authDb.register({
         email,
         fullName,
         companyName,
+        companyId: company.id,
         role: 'admin',
         userType: 'company_admin',
         managementLevel: 'company_admin',
         permissions: [],
         password
       })
+      
+      if (!user) {
+        setError('Error creating account. Please try again.')
+        setLoading(false)
+        return
+      }
       
       subscriptionDb.create({
         userId: user.id,
@@ -108,11 +127,11 @@ export default function Signup() {
     }
   }
 
-  const handleDemoLogin = (e: React.FormEvent) => {
+  const handleDemoLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     try {
-      demoDb.enableDemoMode()
+      await demoDb.enableDemoMode()
       localStorage.setItem('loggedIn', 'true')
       router.push(`/${locale}/dashboard`)
     } catch (err) {

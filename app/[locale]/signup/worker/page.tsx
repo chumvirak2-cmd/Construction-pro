@@ -41,7 +41,7 @@ export default function WorkerSignup() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleWorkerSignup = (e: React.FormEvent) => {
+  const handleWorkerSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -65,21 +65,23 @@ export default function WorkerSignup() {
     }
     
     try {
-      const company = companyDb.findByEmail(companyEmail)
-      if (!company) {
+      const companyRes = await fetch(`/api/companies?email=${encodeURIComponent(companyEmail)}`)
+      if (!companyRes.ok) {
         setError('Company not found. Please check with your employer.')
         setLoading(false)
         return
       }
       
-      const existingUser = authDb.getByEmail(email)
+      const company = await companyRes.json()
+      
+      const existingUser = await authDb.getByEmail(email)
       if (existingUser) {
         setError('Email already registered. Please login instead.')
         setLoading(false)
         return
       }
       
-      const worker = authDb.register({
+      const worker = await authDb.register({
         email,
         fullName,
         companyName: company.name,
@@ -90,6 +92,12 @@ export default function WorkerSignup() {
         permissions: [],
         password
       })
+      
+      if (!worker) {
+        setError('Error creating account. Please try again.')
+        setLoading(false)
+        return
+      }
       
       subscriptionDb.create({
         userId: worker.id,

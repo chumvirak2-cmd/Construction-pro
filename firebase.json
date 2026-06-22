@@ -1,0 +1,8 @@
+{
+  "hosting": {
+    "target": "construction-pro",
+    "public": ".next/standalone",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [{ "source": "**", "destination": "/index.html" }]
+  }
+}

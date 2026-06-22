@@ -64,13 +64,13 @@ export default function Inventory() {
     location: ''
   })
 
-  useEffect(() => {
-    loadItems()
-  }, [])
-
   const loadItems = () => {
     setItems(inventoryDb.getAll())
   }
+
+  useEffect(() => {
+    loadItems()
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -192,7 +192,7 @@ export default function Inventory() {
 
   const handleSeedData = async () => {
     setSeeding(true)
-    const count = seedDataDb.seedAll()
+    const count = await seedDataDb.seedAll()
     setSeeding(false)
     if (count > 0) {
       loadItems()
@@ -356,12 +356,11 @@ export default function Inventory() {
                         <label className="block text-sm font-medium mb-1">Quantity *</label>
                         <input
                           type="number"
-                          min="1"
-                          max="10"
+                          min="0"
                           value={form.quantity || ''}
                           onChange={(e) => {
                             const val = parseInt(e.target.value);
-                            if (!isNaN(val) && val >= 1 && val <= 10) {
+                            if (!isNaN(val)) {
                               setForm({ ...form, quantity: val });
                             } else if (e.target.value === '') {
                               setForm({ ...form, quantity: 0 });

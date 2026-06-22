@@ -10,30 +10,30 @@ const MEP_GROUPS = [
   {
     title: 'Electrical & Power',
     items: [
-      { title: 'Electrical Systems', href: '/dashboard/mep/electrical', icon: '⚡' },
-      { title: 'Solar / Energy', href: '/dashboard/mep/solar-energy', icon: '☀️' }
+      { title: 'Electrical Systems', href: '/dashboard/mep/electrical/', icon: '⚡' },
+      { title: 'Solar / Energy', href: '/dashboard/mep/solar-energy/', icon: '☀️' }
     ]
   },
   {
     title: 'Climate & Comfort',
     items: [
-      { title: 'HVAC Systems', href: '/dashboard/mep/hvac', icon: '❄️' },
-      { title: 'Plumbing Systems', href: '/dashboard/mep/plumbing', icon: '🚿' }
+      { title: 'HVAC Systems', href: '/dashboard/mep/hvac/', icon: '❄️' },
+      { title: 'Plumbing Systems', href: '/dashboard/mep/plumbing/', icon: '🚿' }
     ]
   },
   {
     title: 'Communications & Safety',
     items: [
-      { title: 'ELV Systems', href: '/dashboard/mep/elv', icon: '📡' },
-      { title: 'Fire Protection', href: '/dashboard/mep/fire-protection', icon: '🔥' },
-      { title: 'Gas Systems', href: '/dashboard/mep/gas-system', icon: '⛽' }
+      { title: 'ELV Systems', href: '/dashboard/mep/elv/', icon: '📡' },
+      { title: 'Fire Protection', href: '/dashboard/mep/fire-protection/', icon: '🔥' },
+      { title: 'Gas Systems', href: '/dashboard/mep/gas-system/', icon: '⛽' }
     ]
   },
   {
     title: 'Specialized Lifts',
     items: [
-      { title: 'Lift / Escalator', href: '/dashboard/mep/lift-escalator', icon: '🛗' },
-      { title: 'BMS / Controls', href: '/dashboard/mep/bms-controls', icon: '🎛️' }
+      { title: 'Lift / Escalator', href: '/dashboard/mep/lift-escalator/', icon: '🛗' },
+      { title: 'BMS / Controls', href: '/dashboard/mep/bms-controls/', icon: '🎛️' }
     ]
   }
 ]
@@ -42,25 +42,25 @@ const DEPARTMENTS = [
   {
     title: 'Projects',
     items: [
-      { title: 'Projects', href: '/dashboard/projects' },
-      { title: 'New Project', href: '/dashboard/projects/new' },
-      { title: 'Reports', href: '/dashboard/projects/reports' }
+      { title: 'Projects', href: '/dashboard/projects/' },
+      { title: 'New Project', href: '/dashboard/projects/new/' },
+      { title: 'Reports', href: '/dashboard/projects/reports/' }
     ]
   },
   {
     title: 'Workers',
     items: [
-      { title: 'Workers', href: '/dashboard/workers' },
-      { title: 'Attendance', href: '/dashboard/worker' },
-      { title: 'Tracking', href: '/dashboard/workers/tracking' }
+      { title: 'Workers', href: '/dashboard/workers/' },
+      { title: 'Attendance', href: '/dashboard/worker/' },
+      { title: 'Tracking', href: '/dashboard/workers/tracking/' }
     ]
   },
   {
     title: 'Inventory',
     items: [
-      { title: 'Inventory', href: '/dashboard/inventory' },
-      { title: 'Stock', href: '/dashboard/inventory/stock' },
-      { title: 'Purchase Orders', href: '/dashboard/inventory/purchase' }
+      { title: 'Inventory', href: '/dashboard/inventory/' },
+      { title: 'Stock', href: '/dashboard/inventory/stock/' },
+      { title: 'Purchase Orders', href: '/dashboard/inventory/purchase/' }
     ]
   },
   {
@@ -72,9 +72,9 @@ const DEPARTMENTS = [
   {
     title: 'BOQ',
     items: [
-      { title: 'BOQ', href: '/dashboard/boq' },
-      { title: 'Upload', href: '/dashboard/boq/upload' },
-      { title: 'Summary', href: '/dashboard/boq/summary' }
+      { title: 'BOQ', href: '/dashboard/boq/' },
+      { title: 'Upload', href: '/dashboard/boq/upload/' },
+      { title: 'Summary', href: '/dashboard/boq/summary/' }
     ]
   }
 ]
@@ -117,7 +117,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isMobile, setIsMobile] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [mepOpen, setMepOpen] = useState(true)
+  const [mepOpen, setMepOpen] = useState(false)
 
   const ref = useRef<HTMLDivElement | null>(null)
 
@@ -225,95 +225,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </h3>
                 )}
                 
-                {d.isGroup && d.groups ? (
-                  <div className="space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => setMepOpen(!mepOpen)}
-                      className={`
-                        w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-                        transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10
-                        ${sidebarCollapsed && !isMobile ? 'justify-center px-0' : ''}
-                      `}
-                      title={sidebarCollapsed && !isMobile ? 'MEP Systems' : undefined}
-                    >
-                      <ChevronIcon open={mepOpen} />
-                      <span className="text-base">🏗️</span>
-                      {(!sidebarCollapsed || isMobile) && <span className="truncate">{d.title}</span>}
-                    </button>
-                    
-                    {mepOpen && !sidebarCollapsed && (
-                      <div className="ml-4 mt-1 space-y-0.5 border-l-2 border-white/10 pl-3 animate-fade-in">
-                        {d.groups.map((group) => (
-                          <div key={group.title} className="mb-2">
-                            {(!sidebarCollapsed || isMobile) && (
-                              <p className="text-[11px] font-semibold uppercase text-white/30 mb-1.5 tracking-wider">
-                                {group.title}
-                              </p>
-                            )}
-                            <div className="space-y-1">
-                              {group.items.map((i) => {
-                                const href = `/${currentLocale}${i.href}`
-                                const isActive = pathname === href
-                                return (
-                                  <Link
-                                    key={i.href}
-                                    href={href}
-                                    onClick={() => setMenuOpen(false)}
-                                    className={`
-                                      flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium
-                                      transition-all duration-200 relative
-                                      ${isActive 
-                                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25' 
-                                        : 'text-white/60 hover:text-white hover:bg-white/8'
-                                      }
-                                    `}
-                                  >
-                                    {isActive && (
-                                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white rounded-r-full" />
-                                    )}
-                                    <span className="text-sm">{i.icon || '📄'}</span>
-                                    <span className="truncate">{i.title}</span>
-                                  </Link>
-                                )
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {mepOpen && sidebarCollapsed && !isMobile && (
-                      <div className="flex flex-col items-center space-y-1.5 mt-1">
-                        {d.groups.flatMap((g) => g.items).map((i) => {
-                          const href = `/${currentLocale}${i.href}`
-                          const isActive = pathname === href
-                          return (
-                            <Link
-                              key={i.href}
-                              href={href}
-                              onClick={() => setMenuOpen(false)}
-                              title={i.title}
-                              className={`
-                                w-10 h-10 flex items-center justify-center rounded-xl text-sm
-                                transition-all duration-200 relative
-                                ${isActive 
-                                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25' 
-                                  : 'text-white/60 hover:text-white hover:bg-white/10'
-                                }
-                              `}
-                            >
-                              {i.icon || '📄'}
-                              {isActive && (
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3 bg-white rounded-r-full" />
-                              )}
-                            </Link>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ) : (
+                 {d.isGroup && d.groups ? (
+                   <div className="space-y-1">
+                     {d.groups?.map((group) => (
+                       <div key={group.title} className="space-y-1">
+                         <p className="text-[11px] font-semibold uppercase text-white/40 mb-1 px-3">{group.title}</p>
+                         <div className="space-y-1">
+                           {group.items.map((i) => {
+                             const href = `/${currentLocale}${i.href}`
+                             const isActive = pathname === href
+                             return (
+                               <Link
+                                 key={i.href}
+                                 href={href}
+                                 onClick={() => setMenuOpen(false)}
+                                 className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                   isActive
+                                     ? 'bg-white/15 text-white shadow-sm'
+                                     : 'text-white/60 hover:text-white hover:bg-white/10'
+                                 }`}
+                               >
+                                 <span className="text-sm">{i.icon || '📄'}</span>
+                                 <span className="truncate">{i.title}</span>
+                               </Link>
+                             )
+                           })}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 ) : (
                   <div className={`space-y-1.5 ${sidebarCollapsed && !isMobile ? 'flex flex-col items-center' : ''}`}>
                     {d.items.map((i) => {
                       const href = `/${currentLocale}${i.href}`
@@ -356,7 +297,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               )}
               <div className={`space-y-1.5 ${sidebarCollapsed && !isMobile ? 'flex flex-col items-center' : ''}`}>
                 <Link
-                  href={`/${currentLocale}/dashboard/settings`}
+                  href={`/${currentLocale}/dashboard/settings/`}
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
                     transition-all duration-200 text-white/70 hover:text-white hover:bg-white/10
@@ -522,7 +463,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <p className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Account</p>
                 <div className="space-y-1.5">
                   <Link
-                    href={`/${currentLocale}/dashboard/settings`}
+                    href={`/${currentLocale}/dashboard/settings/`}
                     onClick={() => setMenuOpen(false)}
                     className="block rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-sm transition-all duration-200"
                   >

@@ -157,7 +157,7 @@ function DashboardContent() {
         gradient: 'from-blue-500 to-blue-600',
         subtleBg: 'bg-blue-50',
         border: 'border-blue-200',
-        link: localizePath('/dashboard/projects'),
+        link: localizePath('/dashboard/projects/'),
         label: t('stats.projects.label'),
         subtext: `${stats.activeProjects} active · ${stats.completedProjects} done`,
         progress: stats.totalProjects > 0 ? Math.round((stats.completedProjects / Math.max(stats.totalProjects, 1)) * 100) : 0
@@ -169,7 +169,7 @@ function DashboardContent() {
         gradient: 'from-emerald-500 to-teal-600',
         subtleBg: 'bg-emerald-50',
         border: 'border-emerald-200',
-        link: localizePath('/dashboard/workers'),
+        link: localizePath('/dashboard/workers/'),
         label: t('stats.workers.label'),
         subtext: `${stats.activeWorkers} active`,
         progress: stats.totalWorkers > 0 ? Math.round((stats.activeWorkers / stats.totalWorkers) * 100) : 0
@@ -181,7 +181,7 @@ function DashboardContent() {
         gradient: 'from-orange-500 to-amber-600',
         subtleBg: 'bg-orange-50',
         border: 'border-orange-200',
-        link: localizePath('/dashboard/inventory'),
+        link: localizePath('/dashboard/inventory/'),
         label: t('stats.inventory.label'),
         subtext: `${stats.lowStockItems} low stock`,
         progress: stats.totalInventory > 0 ? Math.max(0, 100 - Math.round((stats.lowStockItems / Math.max(stats.totalInventory, 1)) * 100)) : 100
@@ -204,10 +204,10 @@ function DashboardContent() {
 
   const quickActions = useMemo(
     () => [
-      { label: t('quickActions.addProject'), href: localizePath('/dashboard/projects/new'), icon: '✨', classes: 'bg-blue-50 text-blue-700 border border-blue-100' },
-      { label: t('quickActions.addWorker'), href: localizePath('/dashboard/workers'), icon: '👤', classes: 'bg-emerald-50 text-emerald-700 border border-emerald-100' },
-      { label: t('quickActions.addInventory'), href: localizePath('/dashboard/inventory'), icon: '📥', classes: 'bg-orange-50 text-orange-700 border border-orange-100' },
-      { label: t('quickActions.createBOQ'), href: localizePath('/dashboard/boq'), icon: '🧮', classes: 'bg-violet-50 text-violet-700 border border-violet-100' }
+      { label: t('quickActions.addProject'), href: localizePath('/dashboard/projects/new/'), icon: '✨', classes: 'bg-blue-50 text-blue-700 border border-blue-100' },
+      { label: t('quickActions.addWorker'), href: localizePath('/dashboard/workers/'), icon: '👤', classes: 'bg-emerald-50 text-emerald-700 border border-emerald-100' },
+      { label: t('quickActions.addInventory'), href: localizePath('/dashboard/inventory/'), icon: '📥', classes: 'bg-orange-50 text-orange-700 border border-orange-100' },
+      { label: t('quickActions.createBOQ'), href: localizePath('/dashboard/boq/'), icon: '🧮', classes: 'bg-violet-50 text-violet-700 border border-violet-100' }
     ],
     [t, localizePath]
   )
@@ -313,15 +313,15 @@ function DashboardContent() {
             <h2 className="text-base font-bold text-construction-800 flex items-center gap-2">
               <span>📋</span> Recent Projects
             </h2>
-            <Link href={localizePath('/dashboard/projects')} prefetch={false} className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors">
-              View All →
+            <Link href={localizePath('/dashboard/projects/')} prefetch={false} className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+               View All →
             </Link>
           </div>
           {recentProjects.length > 0 ? (
             <ul className="space-y-2.5">
               {recentProjects.map((project, index) => (
                 <li key={index}>
-                  <Link href={localizePath('/dashboard/projects')} prefetch={false} className="block group">
+                  <Link href={localizePath('/dashboard/projects/')} prefetch={false} className="block group">
                     <div className="p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/50 transition-all duration-200">
                       <div className="flex justify-between items-start gap-3">
                         <div className="flex-1 min-w-0">
@@ -344,7 +344,7 @@ function DashboardContent() {
             <div className="text-center py-10 text-construction-400">
               <p className="text-4xl mb-3">📋</p>
               <p className="text-sm font-medium">No projects yet</p>
-              <Link href={localizePath('/dashboard/projects')} prefetch={false} className="text-blue-600 hover:text-blue-700 text-xs font-semibold mt-1 inline-block">
+              <Link href={localizePath('/dashboard/projects/')} prefetch={false} className="text-blue-600 hover:text-blue-700 text-xs font-semibold mt-1 inline-block">
                 Create your first project
               </Link>
             </div>
@@ -356,7 +356,7 @@ function DashboardContent() {
             <h2 className="text-base font-bold text-construction-800 flex items-center gap-2">
               <span>👷</span> Recent Workers
             </h2>
-            <Link href={localizePath('/dashboard/workers')} prefetch={false} className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+            <Link href={localizePath('/dashboard/workers/')} prefetch={false} className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors">
               View All →
             </Link>
           </div>
@@ -364,7 +364,7 @@ function DashboardContent() {
             <ul className="space-y-2.5">
               {recentWorkers.map((worker, index) => (
                 <li key={index}>
-                  <Link href={localizePath('/dashboard/workers')} prefetch={false} className="block group">
+                  <Link href={localizePath('/dashboard/workers/')} prefetch={false} className="block group">
                     <div className="p-3 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/50 transition-all duration-200">
                       <div className="flex justify-between items-center gap-3">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -396,7 +396,7 @@ function DashboardContent() {
             <div className="text-center py-10 text-construction-400">
               <p className="text-4xl mb-3">👷</p>
               <p className="text-sm font-medium">No workers yet</p>
-              <Link href={localizePath('/dashboard/workers')} prefetch={false} className="text-blue-600 hover:text-blue-700 text-xs font-semibold mt-1 inline-block">
+              <Link href={localizePath('/dashboard/workers/')} prefetch={false} className="text-blue-600 hover:text-blue-700 text-xs font-semibold mt-1 inline-block">
                 Add your first worker
               </Link>
             </div>
@@ -409,14 +409,14 @@ function DashboardContent() {
           <h2 className="text-base font-bold text-construction-800 flex items-center gap-2">
             <span className="text-lg">⚠️</span> Low Stock Alerts
           </h2>
-          <Link href={localizePath('/dashboard/inventory')} prefetch={false} className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors">
+          <Link href={localizePath('/dashboard/inventory/')} prefetch={false} className="text-xs text-blue-600 hover:text-blue-700 font-semibold transition-colors">
             View Inventory →
           </Link>
         </div>
         {lowStockItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {lowStockItems.map((item, index) => (
-              <Link key={index} href={localizePath('/dashboard/inventory')} prefetch={false} className="block group">
+              <Link key={index} href={localizePath('/dashboard/inventory/')} prefetch={false} className="block group">
                 <div className="p-4 rounded-xl border border-red-100 bg-gradient-to-br from-red-50 to-orange-50 hover:from-red-100 hover:to-orange-100 transition-all duration-200">
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex-1 min-w-0">

@@ -43,12 +43,6 @@ const roleOptions: WorkerRole[] = [
   'UI/UX Designer', 'IT Support', 'Database Administrator', 'Network Engineer'
 ]
 
-const statusColors = {
-  active: 'bg-green-100 text-green-800',
-  inactive: 'bg-gray-100 text-gray-800',
-  on_leave: 'bg-yellow-100 text-yellow-800'
-}
-
 export default function Workers() {
   const router = useRouter()
   const locale = useLocale()
@@ -71,6 +65,31 @@ export default function Workers() {
 
   const canViewSalary = hasPermission(currentUser, 'view_financial')
 
+  const loadData = () => {
+    setWorkers(workersDb.getAll())
+    setAttendance(attendanceDb.getAll())
+    setActiveAlerts(trackingAlertDb.getActive())
+  }
+
+  useEffect(() => {
+    const user = authDb.getCurrentUser()
+    setCurrentUser(user)
+    
+    // Prevent workers from accessing this page
+    if (user?.managementLevel === 'worker') {
+      router.push(localizePath('/dashboard'))
+      return
+    }
+    
+    loadData()
+  }, [])
+
+  const statusConfig = {
+    active: { label: 'Active', classes: 'bg-emerald-100 text-emerald-700 border border-emerald-200', dot: 'bg-emerald-500' },
+    inactive: { label: 'Inactive', classes: 'bg-slate-100 text-slate-700 border border-slate-200', dot: 'bg-slate-500' },
+    on_leave: { label: 'On Leave', classes: 'bg-amber-100 text-amber-700 border border-amber-200', dot: 'bg-amber-500' }
+  }
+
   const [form, setForm] = useState({
     name: '',
     role: '' as WorkerRole,
@@ -86,25 +105,6 @@ export default function Workers() {
     joinDate: '',
     status: 'active' as 'active' | 'inactive' | 'on_leave'
   })
-
-  useEffect(() => {
-    const user = authDb.getCurrentUser()
-    setCurrentUser(user)
-    
-    // Prevent workers from accessing this page
-    if (user?.managementLevel === 'worker') {
-      router.push(localizePath('/dashboard'))
-      return
-    }
-    
-    loadData()
-  }, [])
-
-  const loadData = () => {
-    setWorkers(workersDb.getAll())
-    setAttendance(attendanceDb.getAll())
-    setActiveAlerts(trackingAlertDb.getActive())
-  }
 
   const handleTrackByPhone = () => {
     if (!trackingPhone.trim()) {
@@ -321,38 +321,36 @@ export default function Workers() {
   return (
     <div className="px-1 md:px-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3">
+      <div className="flex items-center justify-between mb-4 md:mb-6 gap-4">
         <div>
-          <h1 className="text-lg md:text-2xl font-bold">Workers & Attendance</h1>
-          <p className="text-gray-500 text-xs md:text-sm">Manage workers and track attendance</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Workers & Attendance</h1>
+          <p className="text-slate-500 text-sm md:text-base mt-1">Manage workers and track attendance</p>
         </div>
       </div>
 
       {/* View Tabs - Scrollable on mobile */}
-      <div className="flex gap-2 mb-4 overflow-x-auto scrollbar-hide pb-1">
-        <button
-          onClick={() => setView('workers')}
-          className={`px-3 md:px-4 py-2.5 rounded-lg whitespace-nowrap min-h-[44px] ${view === 'workers' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-        >
-          Workers
-        </button>
-        <button
-          onClick={() => setView('attendance')}
-          className={`px-3 md:px-4 py-2.5 rounded-lg whitespace-nowrap min-h-[44px] ${view === 'attendance' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-        >
-          Attendance
-        </button>
-        <button
-          onClick={() => setView('tracking')}
-          className={`px-3 md:px-4 py-2.5 rounded-lg whitespace-nowrap min-h-[44px] relative ${view === 'tracking' ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-        >
-          Track by Phone
-          {activeAlerts.length > 0 && (
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-              {activeAlerts.length}
-            </span>
-          )}
-        </button>
+      <div className="flex gap-2 mb-4 p-1.5 bg-slate-100/80 rounded-2xl w-fit overflow-x-auto scrollbar-hide">
+        {[
+          { id: 'workers', label: 'Workers', icon: '👷' },
+          { id: 'attendance', label: 'Attendance', icon: '📋' },
+          { id: 'tracking', label: 'Tracking', icon: '📍', alert: activeAlerts.length }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setView(tab.id as any)}
+            className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 whitespace-nowrap min-h-[44px] ${
+              view === tab.id ? 'bg-white text-slate-900 shadow-md' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
+            {tab.alert && tab.alert > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                {tab.alert}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
 
       {view === 'workers' ? (

@@ -3,14 +3,10 @@
 import { useState } from 'react'
 
 export default function BOQ() {
-  const [system, setSystem] = useState('')
-  const [inputs, setInputs] = useState<any>({})
   const [result, setResult] = useState<any>(null)
   const [uploadedData, setUploadedData] = useState<any>(null)
   const [uploadedHeaders, setUploadedHeaders] = useState<string[]>([])
   const [sheetRows, setSheetRows] = useState<any[][]>([])
-  const [headerRowIndex, setHeaderRowIndex] = useState<number | null>(null)
-  const [detectedHeaderRow, setDetectedHeaderRow] = useState<number | null>(null)
   const [mappedColumns, setMappedColumns] = useState<{ qty?: string; unitPrice?: string; description?: string }>({})
   const [totalArea, setTotalArea] = useState<string>('')
   const [designFee, setDesignFee] = useState<string>('')
@@ -109,9 +105,6 @@ export default function BOQ() {
 
           const bestHeaderIdx = itemNoRowIdx >= 0 ? itemNoRowIdx : headerScores.indexOf(Math.max(...headerScores))
           const hasHeaders = bestHeaderIdx >= 0 && headerScores[bestHeaderIdx] > 0
-
-          setDetectedHeaderRow(hasHeaders ? bestHeaderIdx : -1)
-          setHeaderRowIndex(hasHeaders ? bestHeaderIdx : null)
 
           buildFromHeaderRow(hasHeaders ? bestHeaderIdx : null, rowArray)
 

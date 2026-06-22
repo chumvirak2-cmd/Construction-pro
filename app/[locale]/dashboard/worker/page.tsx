@@ -21,8 +21,18 @@ export default function WorkerDashboard() {
   const localizePath = (href: string) => `/${locale}${href}`
   const [user, setUser] = useState(authDb.getCurrentUser())
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [isCheckedIn, setIsCheckedIn] = useState(false)
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
+  const initialUser = authDb.getCurrentUser()
+  const [isCheckedIn, setIsCheckedIn] = useState(() => {
+    if (!initialUser) return false
+    const records = attendanceDb.getByWorker(initialUser.id) as unknown as AttendanceRecord[]
+    const today = new Date().toISOString().split('T')[0]
+    const todayRecord = records.find(r => r.date === today)
+    return !!(todayRecord && todayRecord.checkIn && !todayRecord.checkOut)
+  })
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(() => {
+    if (!initialUser) return []
+    return attendanceDb.getByWorker(initialUser.id) as unknown as AttendanceRecord[]
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [notification, setNotification] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
@@ -37,18 +47,7 @@ export default function WorkerDashboard() {
       router.push(localizePath('/dashboard'))
       return
     }
-
-    // Load attendance records
-    const records = attendanceDb.getByWorker(user.id) as unknown as AttendanceRecord[]
-    setAttendanceRecords(records)
-    
-    // Check current status
-    const today = new Date().toISOString().split('T')[0]
-    const todayRecord = records.find(r => r.date === today)
-    if (todayRecord && todayRecord.checkIn && !todayRecord.checkOut) {
-      setIsCheckedIn(true)
-    }
-  }, [user, router])
+  }, [user, router, locale])
 
   useEffect(() => {
     const timer = setInterval(() => {

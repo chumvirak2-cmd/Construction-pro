@@ -62,7 +62,7 @@ export default function AuthPage() {
     })
   }, [router, locale])
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -74,7 +74,7 @@ export default function AuthPage() {
     }
 
     try {
-      const user = authDb.login(email, password)
+      const user = await authDb.login(email, password)
       if (!user) {
         setError('Invalid email or password')
         setLoading(false)

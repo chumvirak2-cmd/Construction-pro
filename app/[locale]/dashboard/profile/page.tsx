@@ -16,6 +16,7 @@ export default function Profile() {
     confirmPassword: ''
   })
   const [isEditing, setIsEditing] = useState(false)
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem('constructionProProfile')
@@ -28,7 +29,16 @@ export default function Profile() {
         // ignore invalid stored data
       }
     }
+    setInitialized(true)
   }, [])
+
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!initialized) return
+    localStorage.setItem('constructionProProfile', JSON.stringify(profile))
+    alert('Profile updated successfully!')
+    setIsEditing(false)
+  }
 
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault()

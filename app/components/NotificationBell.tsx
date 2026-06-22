@@ -23,9 +23,6 @@ export default function NotificationBell() {
     }
 
     loadNotifications()
-
-    const interval = setInterval(loadNotifications, 30000)
-    return () => clearInterval(interval)
   }, [])
 
   const loadNotifications = () => {

@@ -4,12 +4,12 @@ import { useState, useEffect } from 'react'
 import { Project, ProjectStatus, MEPSystem, BuildingType } from '../../../types'
 import { projectsDb } from '../../../lib/db'
 
-const statusColors: Record<ProjectStatus, string> = {
-  planning: 'bg-yellow-100 text-yellow-800',
-  in_progress: 'bg-blue-100 text-blue-800',
-  on_hold: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800'
+const statusConfig: Record<ProjectStatus, { label: string; classes: string; dot: string }> = {
+  planning: { label: 'Planning', classes: 'bg-yellow-50 text-yellow-700 border border-yellow-200', dot: 'bg-yellow-400' },
+  in_progress: { label: 'In Progress', classes: 'bg-blue-50 text-blue-700 border border-blue-200', dot: 'bg-blue-500' },
+  on_hold: { label: 'On Hold', classes: 'bg-amber-50 text-amber-700 border border-amber-200', dot: 'bg-amber-500' },
+  completed: { label: 'Completed', classes: 'bg-emerald-50 text-emerald-700 border border-emerald-200', dot: 'bg-emerald-500' },
+  cancelled: { label: 'Cancelled', classes: 'bg-red-50 text-red-700 border border-red-200', dot: 'bg-red-500' }
 }
 
 const systemOptions: MEPSystem[] = ['HVAC', 'Electrical', 'Plumbing', 'ELV', 'Fire Protection', 'Gas System', 'Solar/Energy', 'BMS/Controls', 'Lift & Escalator']
@@ -40,14 +40,14 @@ export default function Projects() {
     manager: ''
   })
 
-  useEffect(() => {
-    loadProjects()
-  }, [])
-
   const loadProjects = () => {
     const data = projectsDb.getAll()
     setProjects(data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()))
   }
+
+  useEffect(() => {
+    loadProjects()
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -119,51 +119,65 @@ export default function Projects() {
   }
 
   return (
-    <div className="px-1 md:px-0">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 md:mb-6 gap-3">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-lg md:text-2xl font-bold">Projects</h1>
-          <p className="text-gray-500 text-xs md:text-sm">Manage your construction projects</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Projects</h1>
+          <p className="text-slate-500 text-sm md:text-base mt-1">Manage your construction projects</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 flex items-center gap-2 min-h-[44px]"
+          className="gradient-btn-primary px-5 py-2.5 min-h-[44px] flex items-center gap-2 shadow-lg shadow-blue-500/25 magnetic-btn"
         >
-          <span>+</span> <span className="hidden sm:inline">New Project</span>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          <span>New Project</span>
         </button>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 md:mb-6">
-        <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-          <input
-            type="text"
-            placeholder="Search projects..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
-          />
+      <div className="glass-card p-4">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="input-modern pl-10"
+            />
+          </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as ProjectStatus | 'all')}
-            className="border border-gray-300 rounded-lg px-3 py-2.5 min-h-[44px]"
+            className="input-modern md:w-48"
           >
             <option value="all">All Status</option>
             {statusOptions.map(s => (
-              <option key={s} value={s}>{s.replace('_', ' ').toUpperCase()}</option>
+              <option key={s} value={s}>{statusConfig[s].label}</option>
             ))}
           </select>
-          <div className="flex gap-2">
+          <div className="flex gap-2 bg-slate-100/50 p-1 rounded-xl">
             <button
               onClick={() => setView('grid')}
-              className={`px-3 py-2.5 rounded-lg min-h-[44px] ${view === 'grid' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                view === 'grid' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
               Grid
             </button>
             <button
               onClick={() => setView('list')}
-              className={`px-3 py-2.5 rounded-lg min-h-[44px] ${view === 'list' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}
+              className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+                view === 'list' ? 'bg-white text-blue-600 shadow-md' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
               List
             </button>
@@ -173,327 +187,346 @@ export default function Projects() {
 
       {/* Project Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 md:p-6">
-              <div className="flex justify-between items-center mb-4 md:mb-6">
-                <h2 className="text-lg md:text-xl font-bold">{editingProject ? 'Edit Project' : 'New Project'}</h2>
-                <button onClick={resetForm} className="text-gray-500 hover:text-gray-700 p-2 min-h-[44px] min-w-[44px]">✕</button>
-              </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Project Name *</label>
-                    <input
-                      type="text"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Client *</label>
-                    <input
-                      type="text"
-                      value={form.client}
-                      onChange={(e) => setForm({ ...form, client: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                      required
-                    />
-                  </div>
-                </div>
-
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="glass-card max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-slate-900">
+                {editingProject ? 'Edit Project' : 'New Project'}
+              </h2>
+              <button 
+                onClick={resetForm} 
+                className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    rows={3}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Location</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Project Name *</label>
                   <input
                     type="text"
-                    value={form.location}
-                    onChange={(e) => setForm({ ...form, location: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="input-modern"
+                    required
                   />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Building Type *</label>
-                    <select
-                      value={form.buildingType}
-                      onChange={(e) => setForm({ ...form, buildingType: e.target.value as BuildingType })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    >
-                      {buildingTypeOptions.map(bt => (
-                        <option key={bt} value={bt}>{bt}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Start Date *</label>
-                    <input
-                      type="date"
-                      value={form.startDate}
-                      onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                      required
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <label className="block text-sm font-medium mb-1">End Date</label>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Client *</label>
+                  <input
+                    type="text"
+                    value={form.client}
+                    onChange={(e) => setForm({ ...form, client: e.target.value })}
+                    className="input-modern"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="input-modern resize-none"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">Location</label>
+                <input
+                  type="text"
+                  value={form.location}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                  className="input-modern"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Building Type *</label>
+                  <select
+                    value={form.buildingType}
+                    onChange={(e) => setForm({ ...form, buildingType: e.target.value as BuildingType })}
+                    className="input-modern"
+                  >
+                    {buildingTypeOptions.map(bt => (
+                      <option key={bt} value={bt}>{bt}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Start Date *</label>
                   <input
                     type="date"
-                    value={form.endDate}
-                    onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                    value={form.startDate}
+                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                    className="input-modern"
+                    required
                   />
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Status *</label>
-                    <select
-                      value={form.status}
-                      onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">End Date</label>
+                <input
+                  type="date"
+                  value={form.endDate}
+                  onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                  className="input-modern"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Status *</label>
+                  <select
+                    value={form.status}
+                    onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}
+                    className="input-modern"
+                  >
+                    {statusOptions.map(s => (
+                      <option key={s} value={s}>{statusConfig[s].label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Project Manager</label>
+                  <input
+                    type="text"
+                    value={form.manager}
+                    onChange={(e) => setForm({ ...form, manager: e.target.value })}
+                    className="input-modern"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Budget ($)</label>
+                  <input
+                    type="number"
+                    value={form.budget || ''}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setForm({ ...form, budget: isNaN(val) ? 0 : val });
+                    }}
+                    className="input-modern"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Actual Cost ($)</label>
+                  <input
+                    type="number"
+                    value={form.actualCost || ''}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setForm({ ...form, actualCost: isNaN(val) ? 0 : val });
+                    }}
+                    className="input-modern"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-3">MEP Systems</label>
+                <div className="flex flex-wrap gap-2">
+                  {systemOptions.map(system => (
+                    <button
+                      key={system}
+                      type="button"
+                      onClick={() => {
+                        if (form.systems.includes(system)) {
+                          setForm({ ...form, systems: form.systems.filter(s => s !== system) })
+                        } else {
+                          setForm({ ...form, systems: [...form.systems, system] })
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        form.systems.includes(system)
+                          ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                          : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200'
+                      }`}
                     >
-                      {statusOptions.map(s => (
-                        <option key={s} value={s}>{s.replace('_', ' ').toUpperCase()}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Project Manager</label>
-                    <input
-                      type="text"
-                      value={form.manager}
-                      onChange={(e) => setForm({ ...form, manager: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    />
-                  </div>
+                      {system}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Budget ($)</label>
-                    <input
-                      type="number"
-                      value={form.budget || ''}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value);
-                        setForm({ ...form, budget: isNaN(val) ? 0 : val });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Actual Cost ($)</label>
-                    <input
-                      type="number"
-                      value={form.actualCost || ''}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value);
-                        setForm({ ...form, actualCost: isNaN(val) ? 0 : val });
-                      }}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">MEP Systems</label>
-                  <div className="flex flex-wrap gap-3">
-                    {systemOptions.map(system => (
-                      <label key={system} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={form.systems.includes(system)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setForm({ ...form, systems: [...form.systems, system] })
-                            } else {
-                              setForm({ ...form, systems: form.systems.filter(s => s !== system) })
-                            }
-                          }}
-                          className="w-4 h-4"
-                        />
-                        <span>{system}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">IT & Technology</label>
-                  <div className="flex flex-wrap gap-3">
-                    {['Web Development', 'Mobile App Development', 'UI/UX Design', 'Database & CMS', 'E-Commerce', 'SEO & Analytics', 'Hosting & Domain', 'API Integration'].map(it => (
-                      <label key={it} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={form.itSystems.includes(it)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setForm({ ...form, itSystems: [...form.itSystems, it] })
-                            } else {
-                              setForm({ ...form, itSystems: form.itSystems.filter(s => s !== it) })
-                            }
-                          }}
-                          className="w-4 h-4"
-                        />
-                        <span>{it}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 md:gap-3 pt-3 md:pt-4">
-                  <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 md:px-6 py-2.5 rounded-lg hover:bg-blue-700 min-h-[44px]"
-                  >
-                    {editingProject ? 'Update Project' : 'Create Project'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="bg-gray-200 text-gray-700 px-4 md:px-6 py-2.5 rounded-lg hover:bg-gray-300 min-h-[44px]"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="gradient-btn-primary flex-1 py-3 font-semibold"
+                >
+                  {editingProject ? 'Update Project' : 'Create Project'}
+                </button>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-6 py-3 rounded-xl font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all duration-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
       {/* Projects Grid/List */}
       {filteredProjects.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📋</div>
-          <h3 className="text-xl font-semibold text-gray-700">No projects found</h3>
-          <p className="text-gray-500">Create your first project to get started</p>
+        <div className="text-center py-16 animate-fade-up">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">📋</span>
+          </div>
+          <h3 className="text-xl font-semibold text-slate-700 mb-2">No projects found</h3>
+          <p className="text-slate-500 mb-4">Create your first project to get started</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="gradient-btn-primary px-6 py-2.5 font-medium"
+          >
+            Create First Project
+          </button>
         </div>
       ) : view === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-          {filteredProjects.map(project => (
-            <div key={project.id} className="bg-white rounded-xl shadow hover:shadow-md transition-shadow p-4 md:p-6">
-              <div className="flex justify-between items-start mb-3 md:mb-4">
-                <h3 className="font-bold text-sm md:text-lg truncate flex-1">{project.name}</h3>
-                <span className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium ${statusColors[project.status]} ml-2`}>
-                  {project.status.replace('_', ' ').toUpperCase()}
-                </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {filteredProjects.map((project, index) => {
+            const statusInfo = statusConfig[project.status]
+            return (
+              <div 
+                key={project.id} 
+                className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-slate-300 transition-all duration-300 animate-fade-up min-h-[200px]"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <div className="p-6 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="font-bold text-lg text-slate-900 truncate flex-1 group-hover:text-blue-600 transition-colors">
+                      {project.name}
+                    </h3>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusInfo.classes} ml-2`}>
+                      {statusInfo.label}
+                    </span>
+                  </div>
+                  <p className="text-slate-600 text-sm mb-4 line-clamp-2 flex-1">
+                    {project.description || 'No description'}
+                  </p>
+                  <div className="space-y-2 text-sm border-t border-slate-100 pt-4">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Client</span>
+                      <span className="font-medium text-slate-900 truncate max-w-[120px]">{project.client}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Building</span>
+                      <span className="font-medium text-slate-900">{project.buildingType || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Budget</span>
+                      <span className="font-bold text-slate-900">{formatCurrency(project.budget)}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-4 pt-4 border-t border-slate-100">
+                    <button
+                      onClick={() => handleEdit(project)}
+                      className="flex-1 py-2.5 rounded-xl font-medium text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 transition-all duration-200 min-h-[44px]"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      className="flex-1 py-2.5 rounded-xl font-medium text-sm text-red-600 bg-red-50 hover:bg-red-100 transition-all duration-200 min-h-[44px]"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
-              <p className="text-gray-600 text-xs md:text-sm mb-3 md:mb-4 line-clamp-2">{project.description || 'No description'}</p>
-              <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Client:</span>
-                  <span className="font-medium truncate ml-2">{project.client}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Building:</span>
-                  <span className="font-medium">{project.buildingType || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Budget:</span>
-                  <span className="font-medium">{formatCurrency(project.budget)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Systems:</span>
-                  <span className="font-medium text-right truncate md:truncate-none max-w-[120px] md:max-w-none">{project.systems.join(', ')}</span>
-                </div>
-              </div>
-              <div className="flex gap-2 mt-3 md:pt-4 border-t">
-                <button
-                  onClick={() => handleEdit(project)}
-                  className="flex-1 bg-blue-50 text-blue-600 py-2 md:py-2 rounded-lg hover:bg-blue-100 text-xs md:text-sm min-h-[44px]"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(project.id)}
-                  className="flex-1 bg-red-50 text-red-600 py-2 md:py-2 rounded-lg hover:bg-red-100 text-xs md:text-sm min-h-[44px]"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-slate-50/80 border-b border-slate-200">
               <tr>
-                <th className="text-left p-4 font-medium">Project</th>
-                <th className="text-left p-4 font-medium">Client</th>
-                <th className="text-left p-4 font-medium">Building Type</th>
-                <th className="text-left p-4 font-medium">Status</th>
-                <th className="text-left p-4 font-medium">Budget</th>
-                <th className="text-left p-4 font-medium">Systems</th>
-                <th className="text-left p-4 font-medium">Actions</th>
+                <th className="text-left p-4 font-semibold text-slate-700 text-sm">Project</th>
+                <th className="text-left p-4 font-semibold text-slate-700 text-sm">Client</th>
+                <th className="text-left p-4 font-semibold text-slate-700 text-sm">Building Type</th>
+                <th className="text-left p-4 font-semibold text-slate-700 text-sm">Status</th>
+                <th className="text-left p-4 font-semibold text-slate-700 text-sm">Budget</th>
+                <th className="text-left p-4 font-semibold text-slate-700 text-sm">Systems</th>
+                <th className="text-left p-4 font-semibold text-slate-700 text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filteredProjects.map(project => (
-                <tr key={project.id} className="border-t hover:bg-gray-50">
-                  <td className="p-4">
-                    <div className="font-medium">{project.name}</div>
-                    <div className="text-sm text-gray-500">{project.location}</div>
-                  </td>
-                  <td className="p-4">{project.client}</td>
-                  <td className="p-4">
-                    <span className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-medium">
-                      {project.buildingType || 'N/A'}
-                    </span>
-                  </td>
-                  <td className="p-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[project.status]}`}>
-                      {project.status.replace('_', ' ').toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="p-4">{formatCurrency(project.budget)}</td>
-                  <td className="p-4">{project.systems.join(', ')}</td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <button onClick={() => handleEdit(project)} className="text-blue-600 hover:underline">Edit</button>
-                      <button onClick={() => handleDelete(project.id)} className="text-red-600 hover:underline">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {filteredProjects.map((project) => {
+                const statusInfo = statusConfig[project.status]
+                return (
+                  <tr key={project.id} className="border-t border-slate-100 hover:bg-slate-50/50 transition-colors">
+                    <td className="p-4">
+                      <div className="font-semibold text-slate-900">{project.name}</div>
+                      <div className="text-sm text-slate-500">{project.location}</div>
+                    </td>
+                    <td className="p-4 text-slate-700">{project.client}</td>
+                    <td className="p-4">
+                      <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700">
+                        {project.buildingType || 'N/A'}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-semibold ${statusInfo.classes}`}>
+                        {statusInfo.label}
+                      </span>
+                    </td>
+                    <td className="p-4 font-bold text-slate-900">{formatCurrency(project.budget)}</td>
+                    <td className="p-4 text-sm text-slate-600 truncate max-w-[180px]">
+                      {project.systems.join(', ')}
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleEdit(project)} 
+                          className="px-4 py-2 rounded-lg text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(project.id)} 
+                          className="px-4 py-2 rounded-lg text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
       )}
 
       {/* Stats Summary */}
-      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-blue-600">{projects.length}</div>
-          <div className="text-gray-500 text-sm">Total Projects</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="stat-card-modern">
+          <div className="text-3xl font-bold text-blue-600">{projects.length}</div>
+          <div className="text-slate-500 text-sm font-medium mt-1">Total Projects</div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-green-600">{projects.filter(p => p.status === 'in_progress').length}</div>
-          <div className="text-gray-500 text-sm">Active Projects</div>
+        <div className="stat-card-modern">
+          <div className="text-3xl font-bold text-emerald-600">{projects.filter(p => p.status === 'in_progress').length}</div>
+          <div className="text-slate-500 text-sm font-medium mt-1">Active Projects</div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-purple-600">{projects.filter(p => p.status === 'completed').length}</div>
-          <div className="text-gray-500 text-sm">Completed</div>
+        <div className="stat-card-modern">
+          <div className="text-3xl font-bold text-violet-600">{projects.filter(p => p.status === 'completed').length}</div>
+          <div className="text-slate-500 text-sm font-medium mt-1">Completed</div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-orange-600">{formatCurrency(projects.reduce((sum, p) => sum + p.budget, 0))}</div>
-          <div className="text-gray-500 text-sm">Total Budget</div>
+        <div className="stat-card-modern">
+          <div className="text-3xl font-bold text-slate-900">{formatCurrency(projects.reduce((sum, p) => sum + p.budget, 0))}</div>
+          <div className="text-slate-500 text-sm font-medium mt-1">Total Budget</div>
         </div>
       </div>
     </div>

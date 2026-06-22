@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { InventoryItem, InventoryCategory } from '../types'
 import { inventoryDb } from '../lib/db'
 
@@ -57,20 +57,21 @@ export default function MEPSystemPage({ title, category, headerId }: MEPSystemPa
     location: ''
   })
 
-  useEffect(() => {
-    loadItems()
-  }, [])
-
-  const loadItems = () => {
+  const loadItems = useCallback(() => {
     const allItems = inventoryDb.getAll()
     const categoryItems = allItems.filter(item => item.category === category)
     setItems(categoryItems)
-  }
+  }, [category])
 
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.subCategory?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  useEffect(() => {
+    loadItems()
+  }, [loadItems])
+
+  const filteredItems = useMemo(() => 
+    items.filter(item =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.subCategory?.toLowerCase().includes(searchTerm.toLowerCase())
+    ), [items, searchTerm])
 
   const resetForm = () => {
     setForm({

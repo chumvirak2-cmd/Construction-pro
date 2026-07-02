@@ -1,8 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Project, ProjectStatus, MEPSystem, BuildingType } from '../../../types'
 import { projectsDb } from '../../../lib/db'
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+}
 
 const statusConfig: Record<ProjectStatus, { label: string; classes: string; dot: string }> = {
   planning: { label: 'Planning', classes: 'bg-yellow-50 text-yellow-700 border border-yellow-200', dot: 'bg-yellow-400' },
@@ -15,6 +19,8 @@ const statusConfig: Record<ProjectStatus, { label: string; classes: string; dot:
 const systemOptions: MEPSystem[] = ['HVAC', 'Electrical', 'Plumbing', 'ELV', 'Fire Protection', 'Gas System', 'Solar/Energy', 'BMS/Controls', 'Lift & Escalator']
 const buildingTypeOptions: BuildingType[] = ['Villa', 'Townhouse', 'Shophouse', 'Apartment', 'Condominium', 'Office Building', 'Shopping Mall', 'Warehouse', 'Factory', 'Hospital', 'School', 'Hotel', 'Resort', 'Mixed-Use', 'Other']
 const statusOptions: ProjectStatus[] = ['planning', 'in_progress', 'on_hold', 'completed', 'cancelled']
+
+const fieldClasses = 'rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 shadow-sm outline-none transition duration-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-200/70'
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -107,16 +113,12 @@ export default function Projects() {
     }
   }
 
-  const filteredProjects = projects.filter(p => {
+  const filteredProjects = useMemo(() => projects.filter(p => {
     const matchesStatus = filterStatus === 'all' || p.status === filterStatus
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.client.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesStatus && matchesSearch
-  })
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-  }
+  }), [projects, filterStatus, searchTerm])
 
   return (
     <div className="space-y-6">
@@ -151,13 +153,13 @@ export default function Projects() {
               placeholder="Search projects..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-modern pl-10"
+              className={`${fieldClasses} pl-10`}
             />
           </div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as ProjectStatus | 'all')}
-            className="input-modern md:w-48"
+            className={`${fieldClasses} md:w-48`}
           >
             <option value="all">All Status</option>
             {statusOptions.map(s => (
@@ -187,15 +189,15 @@ export default function Projects() {
 
       {/* Project Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="glass-card max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-[32px] border border-slate-200/70 bg-gradient-to-br from-white via-slate-50 to-slate-100 p-6 md:p-8 shadow-[0_28px_80px_-35px_rgba(15,23,42,0.25)]">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-bold text-slate-900">
+              <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
                 {editingProject ? 'Edit Project' : 'New Project'}
               </h2>
-              <button 
-                onClick={resetForm} 
-                className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors"
+              <button
+                onClick={resetForm}
+                className="w-10 h-10 rounded-full bg-slate-100/90 flex items-center justify-center text-slate-600 shadow-sm transition-colors duration-200 hover:bg-slate-200 hover:text-slate-900"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -210,7 +212,7 @@ export default function Projects() {
                     type="text"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="input-modern"
+                    className={`${fieldClasses}`}
                     required
                   />
                 </div>
@@ -220,7 +222,7 @@ export default function Projects() {
                     type="text"
                     value={form.client}
                     onChange={(e) => setForm({ ...form, client: e.target.value })}
-                    className="input-modern"
+                    className={`${fieldClasses}`}
                     required
                   />
                 </div>
@@ -231,7 +233,7 @@ export default function Projects() {
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="input-modern resize-none"
+                  className={`${fieldClasses} resize-none`}
                   rows={3}
                 />
               </div>
@@ -242,7 +244,7 @@ export default function Projects() {
                   type="text"
                   value={form.location}
                   onChange={(e) => setForm({ ...form, location: e.target.value })}
-                  className="input-modern"
+                  className={fieldClasses}
                 />
               </div>
 
@@ -252,7 +254,7 @@ export default function Projects() {
                   <select
                     value={form.buildingType}
                     onChange={(e) => setForm({ ...form, buildingType: e.target.value as BuildingType })}
-                    className="input-modern"
+                    className={fieldClasses}
                   >
                     {buildingTypeOptions.map(bt => (
                       <option key={bt} value={bt}>{bt}</option>
@@ -265,7 +267,7 @@ export default function Projects() {
                     type="date"
                     value={form.startDate}
                     onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                    className="input-modern"
+                    className={fieldClasses}
                     required
                   />
                 </div>
@@ -277,7 +279,7 @@ export default function Projects() {
                   type="date"
                   value={form.endDate}
                   onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                  className="input-modern"
+                  className={fieldClasses}
                 />
               </div>
 
@@ -287,7 +289,7 @@ export default function Projects() {
                   <select
                     value={form.status}
                     onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}
-                    className="input-modern"
+                    className={fieldClasses}
                   >
                     {statusOptions.map(s => (
                       <option key={s} value={s}>{statusConfig[s].label}</option>
@@ -300,7 +302,7 @@ export default function Projects() {
                     type="text"
                     value={form.manager}
                     onChange={(e) => setForm({ ...form, manager: e.target.value })}
-                    className="input-modern"
+                    className={fieldClasses}
                   />
                 </div>
               </div>
@@ -315,7 +317,7 @@ export default function Projects() {
                       const val = parseFloat(e.target.value);
                       setForm({ ...form, budget: isNaN(val) ? 0 : val });
                     }}
-                    className="input-modern"
+                    className={fieldClasses}
                   />
                 </div>
                 <div>
@@ -327,7 +329,7 @@ export default function Projects() {
                       const val = parseFloat(e.target.value);
                       setForm({ ...form, actualCost: isNaN(val) ? 0 : val });
                     }}
-                    className="input-modern"
+                    className={fieldClasses}
                   />
                 </div>
               </div>
@@ -358,17 +360,17 @@ export default function Projects() {
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col gap-3 pt-4 sm:flex-row">
                 <button
                   type="submit"
-                  className="gradient-btn-primary flex-1 py-3 font-semibold"
+                  className="flex-1 rounded-3xl bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-800"
                 >
                   {editingProject ? 'Update Project' : 'Create Project'}
                 </button>
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-6 py-3 rounded-xl font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all duration-200"
+                  className="flex-1 rounded-3xl border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-slate-700 transition-all duration-200 hover:bg-slate-50"
                 >
                   Cancel
                 </button>
@@ -517,15 +519,15 @@ export default function Projects() {
           <div className="text-slate-500 text-sm font-medium mt-1">Total Projects</div>
         </div>
         <div className="stat-card-modern">
-          <div className="text-3xl font-bold text-emerald-600">{projects.filter(p => p.status === 'in_progress').length}</div>
+          <div className="text-3xl font-bold text-emerald-600">{useMemo(() => projects.filter(p => p.status === 'in_progress').length, [projects])}</div>
           <div className="text-slate-500 text-sm font-medium mt-1">Active Projects</div>
         </div>
         <div className="stat-card-modern">
-          <div className="text-3xl font-bold text-violet-600">{projects.filter(p => p.status === 'completed').length}</div>
+          <div className="text-3xl font-bold text-violet-600">{useMemo(() => projects.filter(p => p.status === 'completed').length, [projects])}</div>
           <div className="text-slate-500 text-sm font-medium mt-1">Completed</div>
         </div>
         <div className="stat-card-modern">
-          <div className="text-3xl font-bold text-slate-900">{formatCurrency(projects.reduce((sum, p) => sum + p.budget, 0))}</div>
+          <div className="text-3xl font-bold text-slate-900">{formatCurrency(useMemo(() => projects.reduce((sum, p) => sum + p.budget, 0), [projects]))}</div>
           <div className="text-slate-500 text-sm font-medium mt-1">Total Budget</div>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { useLocale } from 'next-intl'
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { User, Subscription } from '../../types'
-import { authDb, subscriptionDb, SUBSCRIPTION_PLANS } from '../../lib/db'
+import { authDb, subscriptionDb, demoDb, SUBSCRIPTION_PLANS } from '../../lib/db'
 import ABAPaywayQR from '../../components/ABAPaywayQR'
 import { getABAConfig } from '../../lib/aba-payway'
 
@@ -47,7 +47,14 @@ export default function SubscriptionPage() {
       if (data.url) {
         window.location.href = data.url
       } else if (data.error) {
-        alert(data.error + '\n\nFor demo/testing, click "Try Demo Mode" below.')
+        const paymentError = typeof data.error === 'string' ? data.error : 'Unable to create checkout session.'
+        const isProviderIssue = /provider_unavailable|provider returned error|temporarily unavailable|502|503/i.test(paymentError)
+
+        alert(
+          isProviderIssue
+            ? 'Stripe checkout is temporarily unavailable. Please try again shortly or choose ABA Payway if available.'
+            : `${paymentError}\n\nFor demo/testing, click "Try Demo Mode" below.`
+        )
       } else {
         alert('Unable to create checkout session. Please try again.')
       }
@@ -60,6 +67,8 @@ export default function SubscriptionPage() {
   }
 
   const handleDemoMode = () => {
+    demoDb.enableDemoMode()
+
     if (currentUser) {
       subscriptionDb.create({
         userId: currentUser.id,
@@ -69,8 +78,9 @@ export default function SubscriptionPage() {
         currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         cancelAtPeriodEnd: false
       })
-      router.push(`/${locale}/dashboard`)
     }
+
+    router.push(`/${locale}/dashboard`)
   }
 
   const handleManageSubscription = async () => {

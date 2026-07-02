@@ -1,4 +1,4 @@
-import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, Company, AppSettings, DashboardStats, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert, TeamMember, ManagerNotification, Permission, MANAGEMENT_LEVEL_PERMISSIONS } from '../types'
+import { Project, Worker, InventoryItem, InventoryCategory, BOQ, AttendanceRecord, PayrollRecord, PurchaseOrder, User, Company, AppSettings, DashboardStats, DashboardData, Subscription, SubscriptionPlan, SubscriptionTier, WorkerLocation, TrackingAlert, TeamMember, ManagerNotification, Permission, MANAGEMENT_LEVEL_PERMISSIONS } from '../types'
 
 // Subscription Plans
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
@@ -386,7 +386,7 @@ export const getDashboardData = () => {
 }
 
 // Progressive dashboard data loading - Load critical data first, defer secondary data
-export const getProgressiveDashboardData = async () => {
+export const getProgressiveDashboardData = async (): Promise<DashboardData> => {
   const projects = projectsDb.getAll()
   const workers = workersDb.getAll()
   const inventory = inventoryDb.getAll()
@@ -905,8 +905,8 @@ export const teamDb = {
     localStorage.setItem(STORAGE_KEYS.TEAM_MEMBERS, JSON.stringify(filtered))
     return true
   },
-  invite: (email: string, fullName: string, role: TeamMember['role'], permissions: string[], invitedBy: string): TeamMember => {
-    const inviter = authDb.getById(invitedBy)
+  invite: async (email: string, fullName: string, role: TeamMember['role'], permissions: string[], invitedBy: string): Promise<TeamMember> => {
+    const inviter = await authDb.getById(invitedBy)
     const companyId = inviter?.companyId || ''
     
     return teamDb.create({

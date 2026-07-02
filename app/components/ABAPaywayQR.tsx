@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { generateABAQRCode, getABAConfig, formatABAAmount } from '../lib/aba-payway'
+import { generateABAQRCode, getABAConfig, formatABAAmount, isTemporaryProviderError } from '../lib/aba-payway'
 
 interface ABAPaywayQRProps {
   orderId: string
@@ -54,10 +54,13 @@ export default function ABAPaywayQR({
           setQrCode(response.qrCode)
           setUseStatic(false)
         } catch (apiError) {
-          // Fallback to static QR code if API fails
+          // Fallback to static QR code if the provider is unavailable or the API fails
           console.warn('Dynamic QR generation failed, using static QR:', apiError)
           setQrCode(`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='white' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='12' fill='black'%3EABA QR%3C/text%3E%3Ctext x='50%25' y='60%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='10' fill='gray'%3EMerchant: ${config.merchantId?.slice(0, 8)}...%3C/text%3E%3C/svg%3E`)
           setUseStatic(true)
+          if (isTemporaryProviderError(apiError)) {
+            setError('ABA Payway is temporarily unavailable right now. A manual payment QR is shown as a fallback, or you can try again shortly.')
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to generate QR code')

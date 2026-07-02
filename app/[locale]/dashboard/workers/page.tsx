@@ -1,11 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useLocale } from 'next-intl'
 import { Worker, WorkerRole, AttendanceRecord, WorkerLocation, TrackingAlert, User } from '../../../types'
 import { workersDb, attendanceDb, workerLocationDb, trackingAlertDb, authDb } from '../../../lib/db'
 import { hasPermission, FeaturePermissions } from '../../../lib/permissions'
+import { usePagination } from '../../../components/OptimizedComponents'
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+}
 
 const roleOptions: WorkerRole[] = [
   // Construction & MEP Trades
@@ -62,6 +68,7 @@ export default function Workers() {
 
   const [siteCenter, setSiteCenter] = useState({ lat: 40.7128, lng: -74.0060 })
   const [siteRadiusMeters, setSiteRadiusMeters] = useState(500)
+  const { paginatedItems: paginatedAttendance, currentPage, totalPages, goToPage, nextPage, prevPage } = usePagination(workers, 10)
 
   const canViewSalary = hasPermission(currentUser, 'view_financial')
 
@@ -298,25 +305,89 @@ export default function Workers() {
     }
   }
 
-  const filteredWorkers = workers.filter(w => {
+  const filteredWorkers = useMemo(() => workers.filter(w => {
     const matchesRole = filterRole === 'all' || w.role === filterRole
     const matchesSearch = w.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       w.phone.includes(searchTerm)
     return matchesRole && matchesSearch
-  })
+  }), [workers, filterRole, searchTerm])
 
   const getAttendanceStatus = (workerId: string) => {
     return attendance.find(a => a.workerId === workerId && a.date === selectedDate)
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-  }
-
-  // Prevent workers from viewing this page
   if (currentUser?.managementLevel === 'worker') {
     return null
   }
+
+  const WorkerCard = React.memo(({ worker, canViewSalary, onEdit, onDelete }: {
+    worker: Worker
+    canViewSalary: boolean
+    onEdit: (w: Worker) => void
+    onDelete: (id: string) => void
+  }) => {
+    return (
+      <div className="bg-white rounded-xl shadow p-4 md:p-6">
+        <div className="flex justify-between items-start mb-3 md:mb-4">
+          <div className="flex items-center gap-2 md:gap-3">
+            {worker.photo ? (
+              <img src={worker.photo} alt={worker.name} className="w-12 md:w-16 h-12 md:h-16 rounded-full object-cover" />
+            ) : (
+              <div className="w-12 md:w-16 h-12 md:h-16 rounded-full bg-gray-200 flex items-center justify-center text-lg md:text-2xl">
+                👷
+              </div>
+            )}
+            <div>
+              <h3 className="font-bold text-sm md:text-lg truncate max-w-[120px] md:max-w-none">{worker.name}</h3>
+              <p className="text-gray-500 text-xs md:text-sm">{worker.role}</p>
+            </div>
+          </div>
+          <span className={`px-2 md:px-3 py-0.5 rounded-full text-[10px] md:text-xs font-medium ${statusConfig[worker.status].classes}`}>
+            {worker.status.replace('_', ' ').toUpperCase()}
+          </span>
+        </div>
+        
+        <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm mb-3 md:mb-4">
+          <div className="flex justify-between">
+            <span className="text-gray-500">Phone:</span>
+            <span>{worker.phone}</span>
+          </div>
+          {canViewSalary && (
+            <div className="flex justify-between">
+              <span className="text-gray-500">Daily Rate:</span>
+              <span>{formatCurrency(worker.dailyRate)}</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-gray-500">Skills:</span>
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {worker.skills.slice(0, 3).map((skill, i) => (
+              <span key={i} className="px-2 py-0.5 bg-gray-100 rounded text-xs">{skill}</span>
+            ))}
+            {worker.skills.length > 3 && (
+              <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">+{worker.skills.length - 3}</span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-2 mt-3 md:pt-4 border-t">
+          <button
+            onClick={() => onEdit(worker)}
+            className="flex-1 bg-blue-50 text-blue-600 py-2 md:py-2 rounded-lg hover:bg-blue-100 text-xs md:text-sm min-h-[44px]"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => onDelete(worker.id)}
+            className="flex-1 bg-red-50 text-red-600 py-2 md:py-2 rounded-lg hover:bg-red-100 text-xs md:text-sm min-h-[44px]"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    )
+  })
 
   return (
     <div className="px-1 md:px-0">
@@ -570,70 +641,17 @@ export default function Workers() {
             </div>
           )}
 
-          {/* Workers Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-            {filteredWorkers.map(worker => (
-              <div key={worker.id} className="bg-white rounded-xl shadow p-4 md:p-6">
-                <div className="flex justify-between items-start mb-3 md:mb-4">
-                  <div className="flex items-center gap-2 md:gap-3">
-                    {worker.photo ? (
-                      <img src={worker.photo} alt={worker.name} className="w-12 md:w-16 h-12 md:h-16 rounded-full object-cover" />
-                    ) : (
-                      <div className="w-12 md:w-16 h-12 md:h-16 rounded-full bg-gray-200 flex items-center justify-center text-lg md:text-2xl">
-                        👷
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-bold text-sm md:text-lg truncate max-w-[120px] md:max-w-none">{worker.name}</h3>
-                      <p className="text-gray-500 text-xs md:text-sm">{worker.role}</p>
-                    </div>
-                  </div>
-                  <span className={`px-2 md:px-3 py-0.5 rounded-full text-[10px] md:text-xs font-medium ${statusColors[worker.status]}`}>
-                    {worker.status.replace('_', ' ').toUpperCase()}
-                  </span>
-                </div>
-                
-                <div className="space-y-1.5 md:space-y-2 text-xs md:text-sm mb-3 md:mb-4">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Phone:</span>
-                    <span>{worker.phone}</span>
-                  </div>
-                  {canViewSalary && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Daily Rate:</span>
-                      <span>{formatCurrency(worker.dailyRate)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Skills:</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {worker.skills.slice(0, 3).map((skill, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-gray-100 rounded text-xs">{skill}</span>
-                    ))}
-                    {worker.skills.length > 3 && (
-                      <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">+{worker.skills.length - 3}</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mt-3 md:pt-4 border-t">
-                  <button
-                    onClick={() => handleEdit(worker)}
-                    className="flex-1 bg-blue-50 text-blue-600 py-2 md:py-2 rounded-lg hover:bg-blue-100 text-xs md:text-sm min-h-[44px]"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(worker.id)}
-                    className="flex-1 bg-red-50 text-red-600 py-2 md:py-2 rounded-lg hover:bg-red-100 text-xs md:text-sm min-h-[44px]"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+              {filteredWorkers.map(worker => (
+                <WorkerCard
+                  key={worker.id}
+                  worker={worker}
+                  canViewSalary={canViewSalary}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
 
           {filteredWorkers.length === 0 && (
             <div className="text-center py-12">
@@ -734,7 +752,7 @@ export default function Workers() {
                </tr>
              </thead>
              <tbody>
-               {workers.map(worker => {
+               {paginatedAttendance.map(worker => {
                  const record = getAttendanceStatus(worker.id)
                  return (
                    <tr key={worker.id} className="border-t hover:bg-gray-50">
@@ -800,8 +818,29 @@ export default function Workers() {
                })}
              </tbody>
            </table>
-         </div>
-       </div>
+          </div>
+        </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-sm text-gray-500">Page {currentPage} of {totalPages}</span>
+            <div className="flex gap-2">
+              <button
+                onClick={prevPage}
+                disabled={currentPage <= 1}
+                className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+              >
+                Previous
+              </button>
+              <button
+                onClick={nextPage}
+                disabled={currentPage >= totalPages}
+                className="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
         </>
       )}
 
@@ -919,17 +958,17 @@ export default function Workers() {
           <div className="text-gray-500 text-sm">Total Workers</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-green-600">{workers.filter(w => w.status === 'active').length}</div>
+          <div className="text-2xl font-bold text-green-600">{useMemo(() => workers.filter(w => w.status === 'active').length, [workers])}</div>
           <div className="text-gray-500 text-sm">Active Workers</div>
         </div>
         {canViewSalary && (
           <>
             <div className="bg-white rounded-lg p-4 shadow">
-              <div className="text-2xl font-bold text-purple-600">{formatCurrency(workers.reduce((sum, w) => sum + w.dailyRate, 0))}</div>
+              <div className="text-2xl font-bold text-purple-600">{formatCurrency(useMemo(() => workers.reduce((sum, w) => sum + w.dailyRate, 0), [workers]))}</div>
               <div className="text-gray-500 text-sm">Daily Labor Cost</div>
             </div>
             <div className="bg-white rounded-lg p-4 shadow">
-              <div className="text-2xl font-bold text-orange-600">{formatCurrency(workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0))}</div>
+              <div className="text-2xl font-bold text-orange-600">{formatCurrency(useMemo(() => workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0), [workers]))}</div>
               <div className="text-gray-500 text-sm">Monthly Labor Cost</div>
             </div>
           </>

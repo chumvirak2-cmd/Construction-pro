@@ -18,6 +18,7 @@ interface UserRow {
   created_at: string
   logo_url?: string
   subscription_id?: string
+  password_hash: string
 }
 
 export async function POST(request: NextRequest) {
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     const pool = getMySQLPool()
     const connection = await pool.getConnection()
     try {
-      const [rows] = await connection.execute<UserRow[]>('SELECT * FROM users WHERE email = ?', [email])
+      const [rows] = await connection.execute<any>('SELECT * FROM users WHERE email = ?', [email])
       const users = rows as UserRow[]
       const user = users[0]
 

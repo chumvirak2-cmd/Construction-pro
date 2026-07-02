@@ -1,8 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { InventoryItem, InventoryCategory, PurchaseOrder } from '../../../types'
 import { inventoryDb, seedDataDb } from '../../../lib/db'
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
+}
 
 const categoryOptions: InventoryCategory[] = [
   'HVAC', 'Electrical', 'Plumbing', 'ELV', 'Fire Protection', 'Gas System',
@@ -181,14 +185,14 @@ export default function Inventory() {
     }
   }
 
-  const filteredItems = items.filter(i => {
+  const filteredItems = useMemo(() => items.filter(i => {
     const matchesCategory = filterCategory === 'all' || i.category === filterCategory
     const matchesSearch = i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       i.supplier?.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
-  })
+  }), [items, filterCategory, searchTerm])
 
-  const lowStockItems = items.filter(i => i.minQuantity > 0 && i.quantity < i.minQuantity)
+  const lowStockItems = useMemo(() => items.filter(i => i.minQuantity > 0 && i.quantity < i.minQuantity), [items])
 
   const handleSeedData = async () => {
     setSeeding(true)
@@ -199,16 +203,11 @@ export default function Inventory() {
     }
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount)
-  }
-
-  // Category summary
-  const categorySummary = categoryOptions.map(cat => ({
+  const categorySummary = useMemo(() => categoryOptions.map(cat => ({
     category: cat,
     count: items.filter(i => i.category === cat).length,
     totalValue: items.filter(i => i.category === cat).reduce((sum, i) => sum + ((i.quantity || 0) * (i.unitPrice || 0)), 0)
-  }))
+  })), [items])
 
   return (
     <div className="px-1 md:px-0">
@@ -551,11 +550,11 @@ export default function Inventory() {
           <div className="text-gray-500 text-sm">Low Stock</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-green-600">{formatCurrency(items.reduce((sum, i) => sum + ((i.quantity || 0) * (i.unitPrice || 0)), 0))}</div>
+          <div className="text-2xl font-bold text-green-600">{formatCurrency(useMemo(() => items.reduce((sum, i) => sum + ((i.quantity || 0) * (i.unitPrice || 0)), 0), [items]))}</div>
           <div className="text-gray-500 text-sm">Total Value</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-purple-600">{items.reduce((sum, i) => sum + i.quantity, 0)}</div>
+          <div className="text-2xl font-bold text-purple-600">{useMemo(() => items.reduce((sum, i) => sum + i.quantity, 0), [items])}</div>
           <div className="text-gray-500 text-sm">Total Units</div>
         </div>
       </div>

@@ -8,6 +8,8 @@ const inter = Inter({
   preload: true,
   fallback: ['system-ui', 'sans-serif'],
   variable: '--font-inter',
+  adjustFontFallback: true,
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {

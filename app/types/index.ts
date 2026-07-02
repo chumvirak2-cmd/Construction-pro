@@ -427,6 +427,14 @@ export interface DashboardStats {
   monthlyExpenses: number
 }
 
+export interface DashboardData {
+  stats: DashboardStats
+  recentProjects: Project[]
+  recentWorkers: Worker[]
+  lowStockItems: InventoryItem[]
+  boqs: BOQ[]
+}
+
 // Settings Types
 export interface AppSettings {
   currency: string

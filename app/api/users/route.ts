@@ -19,6 +19,7 @@ interface MySQLUser {
   created_at: string
   logo_url?: string
   subscription_id?: string
+  password_hash: string
 }
 
 const SENSITIVE_FIELDS = ['password_hash'] as const
@@ -125,8 +126,8 @@ export async function POST(request: NextRequest) {
       ]
     )
 
-    const [users] = await connection.execute<MySQLUser[]>('SELECT * FROM users WHERE id = ?', [id])
-    return NextResponse.json(sanitizeUser(users[0]), { status: 201 })
+    const [users] = await connection.execute<any>('SELECT * FROM users WHERE id = ?', [id])
+    return NextResponse.json(sanitizeUser(users[0] as MySQLUser), { status: 201 })
   } catch (error) {
     console.error('POST /api/users error:', error)
     return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
@@ -179,8 +180,8 @@ export async function PUT(request: NextRequest) {
     params.push(id)
     await connection.execute(`UPDATE users SET ${setClause.join(', ')} WHERE id = ?`, params)
 
-    const [users] = await connection.execute<MySQLUser[]>('SELECT * FROM users WHERE id = ?', [id])
-    return NextResponse.json(sanitizeUser(users[0]))
+    const [users] = await connection.execute<any>('SELECT * FROM users WHERE id = ?', [id])
+    return NextResponse.json(sanitizeUser(users[0] as MySQLUser))
   } catch (error) {
     console.error('PUT /api/users error:', error)
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 })

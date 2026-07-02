@@ -73,7 +73,7 @@ const [trackingView, setTrackingView] = useState<'list' | 'map'>('list')
     loadData()
   }, [loadData])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     if (editingMember) {
@@ -85,7 +85,7 @@ const [trackingView, setTrackingView] = useState<'list' | 'map'>('list')
         isTrackingEnabled: form.isTrackingEnabled
       })
     } else {
-      teamDb.invite(
+      await teamDb.invite(
         form.email,
         form.fullName,
         form.role,

@@ -40,14 +40,6 @@ export default function Profile() {
     setIsEditing(false)
   }
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Persist to local storage (simulated save)
-    localStorage.setItem('constructionProProfile', JSON.stringify(profile))
-    alert('Profile updated successfully!')
-    setIsEditing(false)
-  }
-
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return

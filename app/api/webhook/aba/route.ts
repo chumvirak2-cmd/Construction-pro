@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const userId = orderId.split('-')[1]
 
     // Get user to confirm they exist
-    const user = authDb.getById(userId)
+    const user = await authDb.getById(userId)
     if (user) {
       // Update subscription in database
       subscriptionDb.create({

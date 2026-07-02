@@ -3,10 +3,10 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.constructionpro.app',
   appName: 'Construction Pro',
-  webDir: 'out/en',
+  webDir: 'out',
   server: {
-    androidScheme: 'file',
-    iosScheme: 'file',
+    androidScheme: 'https',
+    iosScheme: 'https',
     allowNavigation: ['*']
   },
   plugins: {

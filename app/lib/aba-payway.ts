@@ -24,6 +24,52 @@ interface ABAQRCodeResponse {
   validUntil?: string
 }
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message
+  if (typeof error === 'string') return error
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    if (typeof message === 'string') return message
+  }
+  return ''
+}
+
+export function isTemporaryProviderError(error: unknown): boolean {
+  const message = getErrorMessage(error).toLowerCase()
+
+  if (!message) {
+    return false
+  }
+
+  return [
+    'provider_unavailable',
+    'provider returned error',
+    'temporarily unavailable',
+    'service unavailable',
+    'bad gateway',
+    'gateway timeout',
+    '502',
+    '503'
+  ].some((token) => message.includes(token))
+}
+
+export function normalizeProviderError(error: unknown): Error {
+  if (error instanceof Error) {
+    if (isTemporaryProviderError(error)) {
+      return new Error('The payment provider is temporarily unavailable. Please try again shortly or use the manual payment option.')
+    }
+
+    return error
+  }
+
+  const message = getErrorMessage(error)
+  if (isTemporaryProviderError(message)) {
+    return new Error('The payment provider is temporarily unavailable. Please try again shortly or use the manual payment option.')
+  }
+
+  return new Error(message || 'Unable to complete the payment request right now.')
+}
+
 // Get ABA config from environment variables
 export function getABAConfig(): ABAPaywayConfig {
   return {
@@ -67,7 +113,8 @@ export async function generateABAQRCode(request: ABAPaymentRequest): Promise<ABA
     })
 
     if (!response.ok) {
-      throw new Error(`ABA Payway API error: ${response.statusText}`)
+      const errorBody = await response.text().catch(() => '')
+      throw normalizeProviderError(errorBody || `ABA Payway API error: ${response.statusText}`)
     }
 
     const data = await response.json()
@@ -78,7 +125,7 @@ export async function generateABAQRCode(request: ABAPaymentRequest): Promise<ABA
     }
   } catch (error) {
     console.error('Failed to generate ABA QR code:', error)
-    throw new Error('Could not generate ABA Payway QR code')
+    throw normalizeProviderError(error)
   }
 }
 
@@ -149,13 +196,13 @@ export async function getABAPaymentStatus(transactionId: string): Promise<any> {
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch payment status: ${response.statusText}`)
+      throw normalizeProviderError(`Failed to fetch payment status: ${response.statusText}`)
     }
 
     return await response.json()
   } catch (error) {
     console.error('Failed to get ABA payment status:', error)
-    throw error
+    throw normalizeProviderError(error)
   }
 }
 

@@ -4,3 +4,17 @@ out/
 android/
 .DS_Store
 *.log
+
+# Secrets / environment
+.env
+.env.local
+.env*.local
+google-sheets-credentials.json
+google-sheets-spreadsheet-id.txt
+
+# IDE / editor
+.idea/
+.vscode/
+
+# Build artifacts
+*.tsbuildinfo

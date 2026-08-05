@@ -34,14 +34,20 @@ export default function AuthPage() {
         return
       }
 
+      demoDb.disableDemoMode()
+      
       const subscription = subscriptionDb.getByUserId(user.id)
-      if (!subscription || (subscription.status !== 'active' && subscription.status !== 'trialing')) {
-        setError('Your subscription is inactive.')
-        setLoading(false)
-        return
+      if (!subscription) {
+        subscriptionDb.create({
+          userId: user.id,
+          tier: 'starter',
+          status: 'active',
+          currentPeriodStart: new Date().toISOString(),
+          currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          cancelAtPeriodEnd: false
+        })
       }
 
-      demoDb.disableDemoMode()
       localStorage.setItem('loggedIn', 'true')
       router.push(`/${locale}/dashboard`)
     } catch (err) {
@@ -55,9 +61,11 @@ export default function AuthPage() {
     setLoading(true)
     try {
       demoDb.enableDemoMode()
+      localStorage.setItem('loggedIn', 'true')
       router.push(`/${locale}/dashboard`)
     } catch (err) {
       setError('Failed to load demo.')
+    } finally {
       setLoading(false)
     }
   }
@@ -132,7 +140,7 @@ export default function AuthPage() {
           </button>
 
           <p className="mt-6 text-center text-sm">
-            Don't have an account? <Link href={`/${locale}/signup`} className="text-blue-600 font-semibold">Sign Up</Link>
+            Don&apos;t have an account? <Link href={`/${locale}/signup`} className="text-blue-600 font-semibold">Sign Up</Link>
           </p>
         </div>
       </div>

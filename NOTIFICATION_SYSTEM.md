@@ -166,12 +166,11 @@ Potential improvements that could be added:
 - Notification grouping/batching
 - Notification history export
 - Custom notification preferences per manager
-- Integration with Firebase Cloud Messaging for mobile apps
 - Webhook notifications for external systems
 
 ## Notes
 
-- All data stored in localStorage (no backend required)
+- Backend data can be stored in Google Sheets through the API; local UI cache still uses localStorage
 - Notifications persist across page refreshes
 - Auto-refresh ensures managers see new alerts within 30 seconds
 - Workers cannot see or access manager notifications

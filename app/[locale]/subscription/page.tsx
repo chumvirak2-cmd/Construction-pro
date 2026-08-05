@@ -68,6 +68,7 @@ export default function SubscriptionPage() {
 
   const handleDemoMode = () => {
     demoDb.enableDemoMode()
+    localStorage.setItem('loggedIn', 'true')
 
     if (currentUser) {
       subscriptionDb.create({

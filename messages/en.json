@@ -7,6 +7,10 @@
     "navigation": {
       "noAccount": "Don't have an account?",
       "signUp": "Sign Up"
+    },
+    "footer": {
+      "copyright": "Copyright",
+      "rights": "All rights reserved"
     }
   }
 }

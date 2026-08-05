@@ -18,7 +18,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSignup = async (e: React.FormEvent) => {
+const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
@@ -42,37 +42,10 @@ export default function Signup() {
     }
     
     try {
-      const existingUser = await authDb.getByEmail(email)
-      if (existingUser) {
-        setError('Email already registered. Please login instead.')
-        setLoading(false)
-        return
-      }
-      
-      const companyRes = await fetch('/api/companies', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: companyName,
-          email,
-          phone: '',
-          address: ''
-        })
-      })
-      
-      if (!companyRes.ok) {
-        setError('Failed to create company.')
-        setLoading(false)
-        return
-      }
-      
-      const company = await companyRes.json()
-      
       const user = await authDb.register({
         email,
         fullName,
         companyName,
-        companyId: company.id,
         role: 'admin',
         userType: 'company_admin',
         managementLevel: 'company_admin',
@@ -81,7 +54,7 @@ export default function Signup() {
       })
       
       if (!user) {
-        setError('Error creating account. Please try again.')
+        setError('Email already registered. Please login instead.')
         setLoading(false)
         return
       }
@@ -182,16 +155,26 @@ export default function Signup() {
 
             <div className="space-y-3">
               <label htmlFor="password" className="block text-sm font-medium text-slate-700">Password</label>
-              <input
-                id="password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                required
-                autoComplete="new-password"
-                placeholder="Create a secure password"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  required
+                  autoComplete="new-password"
+                  placeholder="Create a secure password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"
+                  tabIndex={-1}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3">

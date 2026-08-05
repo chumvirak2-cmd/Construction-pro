@@ -65,29 +65,38 @@ export default function WorkerSignup() {
     }
     
     try {
-      const companyRes = await fetch(`/api/companies?email=${encodeURIComponent(companyEmail)}`)
-      if (!companyRes.ok) {
+      let companyId: string | undefined
+      let companyName = 'Demo Company'
+      
+      try {
+        const companyRes = await fetch(`/api/companies?email=${encodeURIComponent(companyEmail)}`)
+        if (companyRes.ok) {
+          const company = await companyRes.json()
+          companyId = company.id
+          companyName = company.name
+        }
+      } catch {
+        const localCompanies = companyDb.getAll()
+        const localCompany = localCompanies.find((c) => c.email?.toLowerCase() === companyEmail.toLowerCase())
+        if (localCompany) {
+          companyId = localCompany.id
+          companyName = localCompany.name
+        }
+      }
+      
+      if (!companyId) {
         setError('Company not found. Please check with your employer.')
         setLoading(false)
         return
       }
-      
-      const company = await companyRes.json()
-      
-      const existingUser = await authDb.getByEmail(email)
-      if (existingUser) {
-        setError('Email already registered. Please login instead.')
-        setLoading(false)
-        return
-      }
-      
+
       const worker = await authDb.register({
         email,
         fullName,
-        companyName: company.name,
+        companyName,
+        companyId,
         role: 'user',
         userType: 'worker',
-        companyId: company.id,
         managementLevel: 'worker',
         permissions: [],
         password
@@ -108,7 +117,7 @@ export default function WorkerSignup() {
         cancelAtPeriodEnd: false
       })
       
-      setLoading(false)
+      localStorage.setItem('loggedIn', 'true')
       router.push(`/${locale}/dashboard`)
     } catch (err) {
       setError('Error creating account. Please try again.')

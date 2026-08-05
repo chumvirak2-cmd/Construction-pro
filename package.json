@@ -19,6 +19,7 @@
     "@capacitor/cli": "^8.3.1",
     "@capacitor/core": "^8.3.1",
     "@capacitor/ios": "^8.3.1",
+    "@planetscale/database": "^1.20.1",
     "@swc/helpers": "^0.5.23",
     "autoprefixer": "^10.4.27",
     "bcryptjs": "^2.4.3",

@@ -130,6 +130,71 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2)
 }
 
+async function hashPassword(password: string): Promise<string> {
+  const bcrypt = (await import('bcryptjs')).default
+  return bcrypt.hash(password, 10)
+}
+
+async function verifyPassword(candidate: string, storedPassword?: string): Promise<boolean> {
+  const bcrypt = (await import('bcryptjs')).default
+  if (!storedPassword) return false
+
+  if (storedPassword.startsWith('$2')) {
+    try {
+      return await bcrypt.compare(candidate, storedPassword)
+    } catch {
+      return false
+    }
+  }
+
+  return candidate === storedPassword
+}
+
+function normalizeUser(user: Partial<User> & Record<string, any>): User {
+  const permissions = Array.isArray(user.permissions)
+    ? user.permissions
+    : typeof user.permissions === 'string'
+      ? (() => {
+          try {
+            return JSON.parse(user.permissions)
+          } catch {
+            return []
+          }
+        })()
+      : []
+
+  return {
+    id: user.id || '',
+    email: user.email || '',
+    fullName: user.fullName || user.full_name || '',
+    companyName: user.companyName || user.company_name || '',
+    phone: user.phone,
+    role: user.role || 'user',
+    userType: user.userType || user.user_type || 'worker',
+    managementLevel: user.managementLevel || user.management_level || 'worker',
+    companyId: user.companyId || user.company_id,
+    department: user.department,
+    permissions,
+    createdAt: user.createdAt || user.created_at || new Date().toISOString(),
+    logoUrl: user.logoUrl || user.logo_url,
+    subscriptionId: user.subscriptionId || user.subscription_id,
+    password: user.password
+  } as User
+}
+
+function normalizeCompany(company: Partial<Company> & Record<string, any>): Company {
+  return {
+    id: company.id || '',
+    name: company.name || '',
+    email: company.email || '',
+    phone: company.phone,
+    address: company.address,
+    logoUrl: company.logoUrl || company.logo_url,
+    subscriptionId: company.subscriptionId || company.subscription_id,
+    createdAt: company.createdAt || company.created_at || new Date().toISOString()
+  } as Company
+}
+
 // Projects
 export const projectsDb = {
   getAll: () => getCollection<Project>(STORAGE_KEYS.PROJECTS),
@@ -657,87 +722,177 @@ export const authDb = {
   getCurrentUser: (): User | null => {
     if (typeof window === 'undefined') return null
     const user = localStorage.getItem(STORAGE_KEYS.CURRENT_USER)
-    return user ? JSON.parse(user) : null
+    return user ? normalizeUser(JSON.parse(user)) : null
   },
   async login(email: string, password: string): Promise<User | null> {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
+    const normalizedEmail = email.trim().toLowerCase()
+    let user: User | null = null
 
-    if (!res.ok) {
-      return null
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: normalizedEmail, password })
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        user = normalizeUser(data.user as Partial<User> & Record<string, any>)
+      }
+    } catch {
+      user = null
     }
 
-    const data = await res.json()
-    const user = data.user as User
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user))
-    return user
+    if (!user) {
+      const localUsers = getCollection<User>(STORAGE_KEYS.USERS)
+      const localUser = localUsers.find((candidate) => candidate.email.toLowerCase() === normalizedEmail)
+      if (localUser) {
+        const isValid = await verifyPassword(password, localUser.password)
+        if (isValid) {
+          user = normalizeUser(localUser)
+        }
+      }
+    }
+
+    if (user) {
+      const userForSession = normalizeUser({ ...user, permissions: user.permissions || [] })
+      const existingSubscription = subscriptionDb.getByUserId(userForSession.id)
+      if (!existingSubscription) {
+        subscriptionDb.create({
+          userId: userForSession.id,
+          tier: 'starter',
+          status: 'active',
+          currentPeriodStart: new Date().toISOString(),
+          currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          cancelAtPeriodEnd: false
+        })
+      }
+      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(userForSession))
+      return userForSession
+    }
+
+    return null
   },
   logout() {
     localStorage.removeItem(STORAGE_KEYS.CURRENT_USER)
   },
-  async register(userData: Omit<User, 'id' | 'createdAt'> & { password?: string }): Promise<User | null> {
-    const { password, ...rest } = userData
+  async register(userData: Omit<User, 'id' | 'createdAt'> & { password?: string; companyId?: string }): Promise<User | null> {
+    const { password, companyId, companyName, ...rest } = userData
 
-    const companyRes = await fetch('/api/companies', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: rest.companyName || rest.companyId || 'My Company',
+    let finalCompanyId = companyId
+    let finalCompanyName = companyName
+
+    try {
+      const res = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: rest.email,
+          password: password || '',
+          fullName: rest.fullName,
+          companyName: companyName || '',
+          phone: rest.phone,
+          role: rest.role || 'admin',
+          userType: rest.userType || 'company_admin',
+          managementLevel: rest.managementLevel || 'company_admin',
+          companyId,
+          department: rest.department,
+          permissions: rest.permissions || []
+        })
+      })
+
+      if (res.ok) {
+        const created = await res.json()
+        const normalizedUser = normalizeUser(created)
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(normalizedUser))
+        return normalizedUser
+      }
+    } catch {
+      // Fall back to local storage registration below.
+    }
+
+    const localUsers = getCollection<User>(STORAGE_KEYS.USERS)
+    const normalizedEmail = rest.email?.trim().toLowerCase()
+    if (normalizedEmail && localUsers.some((candidate) => candidate.email.toLowerCase() === normalizedEmail)) {
+      return null
+    }
+
+    let companyRecord = finalCompanyId ? companyDb.findById(finalCompanyId) : null
+    if (!companyRecord && companyName) {
+      companyRecord = companyDb.register({
+        name: companyName || 'My Company',
         email: rest.email,
         phone: rest.phone || '',
         address: ''
       })
-    })
-
-    if (!companyRes.ok) {
-      return null
+      finalCompanyId = companyRecord.id
+      finalCompanyName = companyRecord.name
     }
 
-    const company = await companyRes.json()
+    const passwordHash = await hashPassword(password || 'changeme')
+    const newUser = normalizeUser({
+      ...rest,
+      id: generateId(),
+      fullName: rest.fullName || '',
+      companyName: finalCompanyName || companyName || '',
+      companyId: finalCompanyId,
+      role: rest.role || 'admin',
+      userType: rest.userType || 'company_admin',
+      managementLevel: rest.managementLevel || 'company_admin',
+      permissions: rest.permissions || [],
+      createdAt: new Date().toISOString(),
+      password: passwordHash
+    })
 
-    const res = await fetch('/api/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: rest.email,
-        password: password || '',
-        fullName: rest.fullName,
-        companyName: rest.companyName || company.name,
-        phone: rest.phone,
-        role: rest.role || 'admin',
-        userType: rest.userType || 'company_admin',
-        managementLevel: rest.managementLevel || 'company_admin',
-        companyId: company.id,
-        department: rest.department,
-        permissions: rest.permissions || []
+    localUsers.push(newUser)
+    setCollection(STORAGE_KEYS.USERS, localUsers)
+
+    const existingSubscription = subscriptionDb.getByUserId(newUser.id)
+    if (!existingSubscription) {
+      subscriptionDb.create({
+        userId: newUser.id,
+        tier: 'starter',
+        status: 'active',
+        currentPeriodStart: new Date().toISOString(),
+        currentPeriodEnd: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelAtPeriodEnd: false
       })
-    })
-
-    if (!res.ok) {
-      return null
     }
 
-    const created = await res.json()
-    const { password_hash, ...userForSession } = created
-    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(userForSession))
-    return userForSession as User
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(newUser))
+    return newUser
   },
   async getByEmail(email: string): Promise<User | null> {
-    const res = await fetch(`/api/users?email=${encodeURIComponent(email)}`)
-    if (!res.ok) {
-      return null
+    const normalizedEmail = email.trim().toLowerCase()
+
+    try {
+      const res = await fetch(`/api/users?email=${encodeURIComponent(normalizedEmail)}`)
+      if (res.ok) {
+        const data = await res.json()
+        return normalizeUser(data as Partial<User> & Record<string, any>)
+      }
+    } catch {
+      // Fall back to local storage lookup below.
     }
-    return (await res.json()) as User
+
+    const localUsers = getCollection<User>(STORAGE_KEYS.USERS)
+    const localUser = localUsers.find((candidate) => candidate.email.toLowerCase() === normalizedEmail)
+    return localUser ? normalizeUser(localUser) : null
   },
   async getById(id: string): Promise<User | null> {
-    const res = await fetch(`/api/users?id=${encodeURIComponent(id)}`)
-    if (!res.ok) {
-      return null
+    try {
+      const res = await fetch(`/api/users?id=${encodeURIComponent(id)}`)
+      if (res.ok) {
+        const data = await res.json()
+        return normalizeUser(data as Partial<User> & Record<string, any>)
+      }
+    } catch {
+      // Fall back to local storage lookup below.
     }
-    return (await res.json()) as User
+
+    const localUsers = getCollection<User>(STORAGE_KEYS.USERS)
+    const localUser = localUsers.find((candidate) => candidate.id === id)
+    return localUser ? normalizeUser(localUser) : null
   },
   hasPermission(user: User | null, permission: string): boolean {
     if (!user) return false

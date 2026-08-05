@@ -1,0 +1,83 @@
+{
+  "users": [
+    {
+      "id": "user_mritd6ze_awx24y5",
+      "email": "newuser@example.com",
+      "password_hash": "$2a$10$Y2dGxuKU4WQ569AUEiXCEerYemOvEkdwRrYRrT4J5IK793BeZmeiK",
+      "full_name": "New User",
+      "company_name": "Test Company",
+      "phone": null,
+      "role": "user",
+      "user_type": "worker",
+      "management_level": "worker",
+      "company_id": null,
+      "department": null,
+      "permissions": "[]",
+      "created_at": "2026-07-13 06:00:48",
+      "logo_url": null,
+      "subscription_id": null
+    },
+    {
+      "id": "user_mriulp3g_83avvr4",
+      "email": "dbuser@example.com",
+      "password_hash": "$2a$10$GNA4/1AqEgwQNK5AbuioSeBE.LJS8JbNIhzRjxyokxb5sOeshPa7W",
+      "full_name": "DB User",
+      "company_name": "DB Company",
+      "phone": null,
+      "role": "user",
+      "user_type": "worker",
+      "management_level": "worker",
+      "company_id": null,
+      "department": null,
+      "permissions": "[]",
+      "created_at": "2026-07-13 06:35:25",
+      "logo_url": null,
+      "subscription_id": null
+    },
+    {
+      "id": "user_msfpcmv1_hfi28mj",
+      "email": "test@example.com",
+      "password_hash": "$2a$10$wcEovFaqsEpa4tDy0LameuDMhk8nZ1zj45aWsqW/7fJsnvh4Dulaa",
+      "full_name": "Test User",
+      "company_name": "Test Co",
+      "phone": null,
+      "role": "admin",
+      "user_type": "company_admin",
+      "management_level": "company_admin",
+      "company_id": null,
+      "department": null,
+      "permissions": "[]",
+      "created_at": "2026-08-05 06:24:48",
+      "logo_url": null,
+      "subscription_id": null
+    },
+    {
+      "id": "user_msfpkbz8_6vqcrtk",
+      "email": "chumvirak2@gmail.com",
+      "password_hash": "$2a$10$TdTGzIoINJjQuH3i/zL5QeqkhD.Rf4cAMIvKT2LjRM9OrT6mVmzcy",
+      "full_name": "Virak Chum",
+      "company_name": "ELECTROSHOPS",
+      "phone": null,
+      "role": "admin",
+      "user_type": "company_admin",
+      "management_level": "company_admin",
+      "company_id": null,
+      "department": null,
+      "permissions": "[]",
+      "created_at": "2026-08-05 06:30:47",
+      "logo_url": null,
+      "subscription_id": null
+    }
+  ],
+  "companies": [
+    {
+      "id": "company_mritdnx0_v88rr8k",
+      "name": "Fallback Company",
+      "email": "company@example.com",
+      "phone": null,
+      "address": null,
+      "created_at": "2026-07-13 06:01:10"
+    }
+  ],
+  "subscriptions": []
+}

@@ -312,6 +312,10 @@ export default function Workers() {
     return matchesRole && matchesSearch
   }), [workers, filterRole, searchTerm])
 
+  const activeWorkersCount = useMemo(() => workers.filter(w => w.status === 'active').length, [workers])
+  const dailyLaborCost = useMemo(() => workers.reduce((sum, w) => sum + w.dailyRate, 0), [workers])
+  const monthlyLaborCost = useMemo(() => workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0), [workers])
+
   const getAttendanceStatus = (workerId: string) => {
     return attendance.find(a => a.workerId === workerId && a.date === selectedDate)
   }
@@ -958,17 +962,17 @@ export default function Workers() {
           <div className="text-gray-500 text-sm">Total Workers</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-2xl font-bold text-green-600">{useMemo(() => workers.filter(w => w.status === 'active').length, [workers])}</div>
+          <div className="text-2xl font-bold text-green-600">{activeWorkersCount}</div>
           <div className="text-gray-500 text-sm">Active Workers</div>
         </div>
         {canViewSalary && (
           <>
             <div className="bg-white rounded-lg p-4 shadow">
-              <div className="text-2xl font-bold text-purple-600">{formatCurrency(useMemo(() => workers.reduce((sum, w) => sum + w.dailyRate, 0), [workers]))}</div>
+              <div className="text-2xl font-bold text-purple-600">{formatCurrency(dailyLaborCost)}</div>
               <div className="text-gray-500 text-sm">Daily Labor Cost</div>
             </div>
             <div className="bg-white rounded-lg p-4 shadow">
-              <div className="text-2xl font-bold text-orange-600">{formatCurrency(useMemo(() => workers.reduce((sum, w) => sum + (w.dailyRate * 26), 0), [workers]))}</div>
+              <div className="text-2xl font-bold text-orange-600">{formatCurrency(monthlyLaborCost)}</div>
               <div className="text-gray-500 text-sm">Monthly Labor Cost</div>
             </div>
           </>
